@@ -1763,6 +1763,26 @@
       font-size: 11px; color: #787878; margin: 10px 0 0;
       text-align: center;
     }
+    /* Desktop/Phone tab switcher inside the help sheet */
+    .phone-frame.dark .help-sheet .help-tabs {
+      display: flex; gap: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      padding: 3px;
+      margin: 0 0 12px;
+    }
+    .phone-frame.dark .help-sheet .help-tab {
+      flex: 1;
+      background: transparent; border: none;
+      color: #A0A0A0; font-weight: 600; font-size: 12px;
+      padding: 7px 10px; border-radius: 999px;
+      cursor: pointer; transition: background .15s, color .15s;
+    }
+    .phone-frame.dark .help-sheet .help-tab.is-active {
+      background: #1DF0BB; color: #0d0d0d;
+    }
+    .phone-frame.dark .help-sheet .help-pane { display: none; }
+    .phone-frame.dark .help-sheet .help-pane.is-active { display: block; }
 
     /* App footer (disclaimer) */
     .phone-frame.dark .app-footer {
@@ -4556,6 +4576,8 @@
       if (!frame) return;
       const old = frame.querySelector('.help-modal');
       if (old) old.remove();
+      // Detect touch-first devices to default the mobile tab.
+      const isTouch = matchMedia('(hover: none) and (pointer: coarse)').matches;
       const modal = document.createElement('div');
       modal.className = 'help-modal';
       modal.innerHTML = `
@@ -4563,33 +4585,70 @@
         <div class="help-sheet" role="dialog" aria-label="How to use">
           <h3>How to use</h3>
           <p class="help-sub">Bring your own Wyze event data. Nothing leaves your device.</p>
-          <ol>
-            <li>Open <strong>lumen.wyzecam.com/events</strong> in another tab and sign in.</li>
-            <li>Open DevTools &rarr; Console, paste the snippet below, press Enter. Wait for the &ldquo;Copied N groups&rdquo; alert.</li>
-            <li>Come back to this page and tap <strong>Load from clipboard</strong>.</li>
-          </ol>
-          <div class="snip" id="helpSnip"></div>
-          <div class="help-actions">
-            <button class="help-btn-action primary" id="copySnipBtn" type="button">Copy snippet</button>
+
+          <div class="help-tabs" role="tablist">
+            <button class="help-tab${isTouch ? ' is-active' : ''}" data-tab="mobile" type="button">Phone</button>
+            <button class="help-tab${isTouch ? '' : ' is-active'}" data-tab="desktop" type="button">Desktop</button>
+          </div>
+
+          <div class="help-pane${isTouch ? '' : ' is-active'}" data-pane="desktop">
+            <ol>
+              <li>Open <strong>lumen.wyzecam.com/events</strong> in another tab and sign in.</li>
+              <li>Open DevTools &rarr; Console, paste the snippet below, press Enter. Wait for the &ldquo;Copied N groups&rdquo; alert.</li>
+              <li>Come back and tap <strong>Load from clipboard</strong>.</li>
+            </ol>
+            <div class="snip" id="helpSnip"></div>
+            <div class="help-actions">
+              <button class="help-btn-action primary" id="copySnipBtn" type="button">Copy snippet</button>
+            </div>
+          </div>
+
+          <div class="help-pane${isTouch ? ' is-active' : ''}" data-pane="mobile">
+            <p class="help-sub" style="margin:0 0 8px;">No DevTools on Chrome mobile — set up a one-tap bookmarklet instead. Install once, runs every time.</p>
+            <ol>
+              <li>
+                Tap <strong>Copy setup code</strong> below.
+                <div class="help-actions" style="margin-top:6px;">
+                  <button class="help-btn-action primary" id="copyBmBtn" type="button">Copy setup code</button>
+                </div>
+              </li>
+              <li>
+                Bookmark <em>any</em> page (tap <span style="font-weight:700;">☆</span> in Chrome / Safari).
+              </li>
+              <li>
+                Open that bookmark&rsquo;s edit screen. Replace the URL with what you just copied. Rename it to <em>&ldquo;Wyze &rarr; Clipboard&rdquo;</em>. Save.
+                <div class="help-sub" style="margin-top:4px;font-size:11px;">Chrome Android strips <code>javascript:</code> from the address bar for safety, but keeps it in bookmark URLs.</div>
+              </li>
+              <li>
+                Open <strong>lumen.wyzecam.com/events</strong> and sign in.
+              </li>
+              <li>
+                Tap the browser menu &rarr; Bookmarks &rarr; <em>Wyze &rarr; Clipboard</em>. Wait for the &ldquo;Copied N groups&rdquo; alert.
+              </li>
+              <li>
+                Come back to this page and tap <strong>Load from clipboard</strong>.
+              </li>
+            </ol>
+            <p class="help-sub" style="margin:10px 0 4px;font-size:11px;">
+              Desktop user? You can also drag this link into your bookmarks bar:
+            </p>
+            <a class="bookmarklet" href="#" id="bmLink" draggable="true">Wyze &rarr; Clipboard</a>
+          </div>
+
+          <div class="help-actions" style="margin-top:14px;">
             <button class="help-btn-action" id="closeHelpBtn" type="button">Close</button>
           </div>
           <hr>
-          <p class="help-sub" style="margin-bottom:6px;">
-            On mobile? Save this as a bookmark once, then tap it while signed into
-            lumen.wyzecam.com to copy the data to your clipboard.
-          </p>
-          <a class="bookmarklet" href="#" id="bmLink" draggable="true">Wyze &rarr; Clipboard</a>
           <p class="disclaimer">
             Not affiliated with Wyze Labs, Inc.<br>
             All data stays in your browser.
           </p>
         </div>`;
       frame.appendChild(modal);
-      // Fill the snippet (avoid template-string escaping headaches)
       modal.querySelector('#helpSnip').textContent = _PRODUCER_SNIPPET;
       const bmLink = modal.querySelector('#bmLink');
       bmLink.setAttribute('href', _bookmarkletHref());
-      bmLink.addEventListener('click', e => e.preventDefault()); // don't execute in-page
+      bmLink.addEventListener('click', e => e.preventDefault());
       modal.classList.add('open');
       modal.querySelector('.help-backdrop').addEventListener('click', _closeHelpModal);
       modal.querySelector('#closeHelpBtn').addEventListener('click', _closeHelpModal);
@@ -4600,6 +4659,22 @@
         } catch {
           _showToast('Copy blocked — long-press the snippet to copy manually');
         }
+      });
+      modal.querySelector('#copyBmBtn').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(_bookmarkletHref());
+          _showToast('Setup code copied — paste into bookmark URL');
+        } catch {
+          _showToast('Copy blocked — long-press the link below');
+        }
+      });
+      modal.querySelectorAll('.help-tab').forEach(t => {
+        t.addEventListener('click', () => {
+          modal.querySelectorAll('.help-tab').forEach(x => x.classList.remove('is-active'));
+          modal.querySelectorAll('.help-pane').forEach(x => x.classList.remove('is-active'));
+          t.classList.add('is-active');
+          modal.querySelector('.help-pane[data-pane="' + t.dataset.tab + '"]')?.classList.add('is-active');
+        });
       });
     }
 
