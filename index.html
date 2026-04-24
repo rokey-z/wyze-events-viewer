@@ -2002,7 +2002,9 @@
     /* Story / All view toggle (floating, bottom-right above bottom-nav) */
     .phone-frame.dark .view-toggle {
       position: absolute;
-      left: 50%; bottom: 86px;
+      left: 50%;
+      /* Float above bottom-nav (56) + app-footer (~28) + safe-area (24–34) */
+      bottom: calc(84px + max(env(safe-area-inset-bottom), 24px) + 12px);
       transform: translateX(-50%);
       z-index: 40;
       display: flex;
