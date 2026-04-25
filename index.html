@@ -4548,15 +4548,19 @@
     // bookmarklet link.
     // ════════════════════════════════════════
     const _PRODUCER_SNIPPET = `(async () => {
+  const MAX = 50;
   const since = Math.floor((Date.now() - 7*86400*1000) / 1000);
   let all = [], offset = 0;
-  while (true) {
-    const r = await fetch('/api/eventgroups?since=' + since + '&limit=100&offset=' + offset + '&include_thumbnails=true', { credentials:'include' });
+  while (all.length < MAX) {
+    const remaining = MAX - all.length;
+    const r = await fetch('/api/eventgroups?since=' + since + '&limit=' + remaining + '&offset=' + offset + '&include_thumbnails=true', { credentials:'include' });
     const j = await r.json();
-    all = all.concat(j.groups || []);
-    if (!j.has_more || !(j.groups || []).length || offset > 500) break;
-    offset += 100;
+    const page = j.groups || [];
+    all = all.concat(page);
+    if (!j.has_more || !page.length) break;
+    offset += page.length;
   }
+  all = all.slice(0, MAX);
   for (let i = 0; i < all.length; i += 6) {
     await Promise.all(all.slice(i, i+6).map(async g => {
       try {
