@@ -1330,12 +1330,9 @@
       line-height: 1.32;
       letter-spacing: -0.05px;
       text-shadow: 0 2px 8px rgba(0,0,0,0.7), 0 1px 2px rgba(0,0,0,0.9);
-      /* Hard 2-line cap without an ellipsis. JS already trims long
-         summaries at sentence boundaries so the text doesn't get cut
-         mid-word. Using max-height + overflow:hidden avoids the
-         automatic "…" that -webkit-line-clamp adds. */
-      max-height: 2.64em; /* 2 lines × 1.32 line-height */
-      overflow: hidden;
+      /* No CSS clip — JS trims the summary to a clean sentence end so the
+         header always fits in two lines without mid-word cutoffs and
+         without an ellipsis. */
       pointer-events: none; /* only .kw inside is clickable */
     }
     /* Top-to-middle dim gradient — spans the full thumbnail width so it
@@ -4302,20 +4299,24 @@
         // group (person, vehicle, raccoon, …). Replaces the old clip-strip.
         const clipsHtml = _buildSubjectStripHtml(g);
         let caption = (g.summary || '').trim();
-        // Header rule: 2 lines max. With 15px / 1.32 line-height the card
-        // fits ~75 chars per row, so target ~80 chars (one full line + a
-        // little) and trim at the nearest sentence/comma boundary so the
-        // text reads cleanly. Anything longer gets cut and CSS line-clamp
-        // adds the ellipsis.
-        const HEADER_MAX = 80;
-        if (caption.length > HEADER_MAX) {
-          // Prefer end-of-sentence cuts over comma cuts.
-          const sentEnd = caption.slice(0, HEADER_MAX).search(/[.!?](\s|$)/);
-          const commaEnd = caption.slice(0, HEADER_MAX).search(/[,;](\s|$)/);
-          let cut = -1;
-          if (sentEnd > 30) cut = sentEnd;
-          else if (commaEnd > 30) cut = commaEnd;
-          if (cut > 0) caption = caption.slice(0, cut + 1).trim();
+        // Header rule: keep it ~2 lines worth of text. Hand-trim so we
+        // never need a CSS clip (which would either show "…" or cut
+        // mid-word). Strategy:
+        //   1. If a full sentence ends within ~90 chars, use that.
+        //   2. Else trim at the last whole word before 80 chars, append "."
+        const HEADER_SOFT = 90;
+        const HEADER_HARD = 80;
+        if (caption.length > HEADER_SOFT) {
+          const sentEnd = caption.slice(0, HEADER_SOFT).search(/[.!?](\s|$)/);
+          if (sentEnd > 30) {
+            caption = caption.slice(0, sentEnd + 1).trim();
+          } else {
+            const window = caption.slice(0, HEADER_HARD);
+            const lastSpace = window.lastIndexOf(' ');
+            const cut = lastSpace > 30 ? lastSpace : HEADER_HARD;
+            caption = caption.slice(0, cut).trim().replace(/[,;:]+$/, '');
+            if (!/[.!?]$/.test(caption)) caption += '.';
+          }
         }
         if (!caption) caption = String(g.title || '').replace(/^\p{Extended_Pictographic}\s*/u, '');
         const captionHtml = linkifySummary(caption);
