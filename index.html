@@ -4226,6 +4226,9 @@
         if (!navigator.clipboard || !navigator.clipboard.readText) throw new Error('clipboard API unavailable');
         const text = await navigator.clipboard.readText();
         await _loadGroupsFromText(text);
+        // Cache the successful payload so reloads survive without needing a
+        // fresh clipboard copy each time.
+        try { localStorage.setItem('wyze:lastData', text); } catch {}
       } catch (e) {
         if (!silent) {
           if (!document.querySelector('.empty-state')) renderEmptyState();
@@ -5304,15 +5307,26 @@
       wireReactions();
       wireMoreMenu();
       document.getElementById('openHelpBtn')?.addEventListener('click', _openHelpModal);
-      // Try a silent auto-read first (works when desktop tab has focus).
-      // If that fails (mobile browser, background tab, etc.), fall back to
-      // whatever the Mac has most recently saved as /sample.json. The Load
-      // button still stays reachable for users who prefer clipboard.
+      // Data-load priority on each page load:
+      // 1. Clipboard (fresh data the user just copied — top priority)
+      // 2. localStorage (the most recent snapshot we saved on this device)
+      // 3. /sample.json (Mac-saved bundle, dev-only fallback)
       try {
         const t = await navigator.clipboard?.readText?.();
-        if (t && t.trim()) { await _loadGroupsFromText(t); return; }
+        if (t && t.trim() && t.trim().startsWith('{')) {
+          try { await _loadGroupsFromText(t); _persistLastData(t); return; } catch {}
+        }
+      } catch {}
+      try {
+        const ls = localStorage.getItem('wyze:lastData');
+        if (ls && ls.trim()) { await _loadGroupsFromText(ls); return; }
       } catch {}
       await _loadFromServerFile();
+    }
+    // Persist the last successfully-loaded JSON so reloads survive without
+    // needing a fresh clipboard copy each time.
+    function _persistLastData(text) {
+      try { localStorage.setItem('wyze:lastData', text); } catch {}
     }
     window._loadFromServerFile = _loadFromServerFile;
 
