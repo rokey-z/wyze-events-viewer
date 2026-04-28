@@ -1818,6 +1818,114 @@
     .phone-frame.dark .help-sheet .help-pane { display: none; }
     .phone-frame.dark .help-sheet .help-pane.is-active { display: block; }
 
+    /* ───────── Home view — device list ───────── */
+    .phone-frame.dark .home-view {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 16px 24px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .phone-frame.dark .home-view.is-active { display: flex; }
+    /* When Home is active, hide the event-flow chrome (chip-row, scroll,
+       floating chips). Bottom-nav swap handler also toggles those, but we
+       belt-and-suspender it via CSS too. */
+    .phone-frame.dark.home-active .scroll-content,
+    .phone-frame.dark.home-active .chip-row,
+    .phone-frame.dark.home-active .view-toggle,
+    .phone-frame.dark.home-active .floating-quiet { display: none; }
+
+    .phone-frame.dark .home-view .home-greeting {
+      padding: 14px 4px 4px;
+    }
+    .phone-frame.dark .home-view .home-greeting h2 {
+      margin: 0;
+      font-weight: 700; font-size: 22px; color: #fff;
+      letter-spacing: -0.2px;
+    }
+    .phone-frame.dark .home-view .home-greeting .home-sub {
+      font-size: 12px; color: #A0A0A0;
+      margin-top: 2px;
+    }
+    .phone-frame.dark .home-view .home-section-title {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 18px 4px 8px;
+      font-weight: 700; font-size: 14px; color: #fff;
+      letter-spacing: 0.1px;
+    }
+    .phone-frame.dark .home-view .home-section-title .home-section-count {
+      font-weight: 500; color: #6B6B6B; font-size: 12px;
+    }
+
+    .phone-frame.dark .home-device {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background .15s;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .phone-frame.dark .home-device:hover { background: rgba(255,255,255,0.07); }
+    .phone-frame.dark .home-device:active { transform: scale(0.99); }
+    .phone-frame.dark .home-device .home-device-thumb {
+      flex-shrink: 0;
+      position: relative;
+      width: 64px; height: 48px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #2a2a2a, #161616);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .home-device .home-device-thumb img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .phone-frame.dark .home-device .home-device-thumb svg {
+      width: 22px; height: 22px;
+      stroke: rgba(255,255,255,0.55); fill: none; stroke-width: 1.6;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .phone-frame.dark .home-device .home-device-info {
+      flex: 1; min-width: 0;
+    }
+    .phone-frame.dark .home-device .home-device-name {
+      font-weight: 600; font-size: 14px; color: #fff;
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+    }
+    .phone-frame.dark .home-device .home-device-meta {
+      font-size: 11px; color: #787878;
+      margin-top: 3px;
+      line-height: 1.3;
+    }
+    .phone-frame.dark .home-device .home-device-status {
+      flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: flex-end;
+      gap: 2px;
+    }
+    .phone-frame.dark .home-device .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #6B6B6B;
+    }
+    .phone-frame.dark .home-device .status-dot.online { background: #1DF0BB; }
+    .phone-frame.dark .home-device .home-device-recent {
+      font-size: 10px; color: #A0A0A0;
+    }
+    .phone-frame.dark .home-view .home-empty {
+      padding: 40px 16px;
+      text-align: center;
+      color: #787878; font-size: 13px;
+    }
+
     /* App footer (disclaimer) */
     .phone-frame.dark .app-footer {
       padding: 10px 16px 2px;
@@ -2970,6 +3078,11 @@
         <!-- Populated by renderTimeline() / renderAllView() from clipboard -->
       </div><!-- /scroll-content -->
 
+      <!-- Home view — list of cameras from /api/devices -->
+      <div class="home-view">
+        <!-- Populated by renderHomeView() -->
+      </div>
+
       <!-- Floating Quiet-score cutoff chip (bottom-right) -->
       <div class="chip floating-quiet" title="Quiet score cutoff — tap to toggle" data-filter="score">
         <span>Quiet ≤ 2</span>
@@ -3396,10 +3509,14 @@
         seg.classList.add('active');
       });
     });
-    document.querySelectorAll('.bottom-nav .nav-item').forEach(p => {
+    document.querySelectorAll('.bottom-nav .nav-item').forEach((p, idx) => {
       p.addEventListener('click', () => {
         p.parentElement.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         p.classList.add('active');
+        // Map nav-item index → view name. Only Home and Event have content;
+        // Guard / Me are visual placeholders that fall back to Event view.
+        const view = ['home','event','event','event'][idx] || 'event';
+        if (typeof switchHomeView === 'function') switchHomeView(view);
       });
     });
     const skillBanner = document.getElementById('skillBanner');
@@ -4620,8 +4737,14 @@
       const groups = Array.isArray(data) ? data : (data && data.groups);
       if (!Array.isArray(groups) || !groups.length) throw new Error('no groups[] in JSON');
       window.__rawGroups = groups;
+      // Devices arrive alongside groups in newer payloads. Older snippets
+      // omit them — fall back to an empty list and the Home tab will
+      // render an empty state.
+      window.__rawDevices = (data && Array.isArray(data.devices)) ? data.devices : [];
       populateCamDropdown(groups);
       applyFiltersAndRender();
+      // Refresh Home view if it's currently visible.
+      if (document.querySelector('.home-view.is-active')) renderHomeView();
       return groups.length;
     }
 
@@ -5152,6 +5275,153 @@
     }
 
     // Update the "X Albums" chip in the filter toolbar with the live count.
+    // ════════════════════════════════════════
+    // Home view — list of cameras from /api/devices
+    // ════════════════════════════════════════
+
+    // Toggle the page between Home view and the default Event view.
+    // Adds .home-active to the phone-frame so CSS hides event-flow chrome
+    // (chip-row, scroll-content, floating chips) and reveals .home-view.
+    function switchHomeView(view) {
+      const frame = document.querySelector('.phone-frame.dark');
+      const home = frame?.querySelector('.home-view');
+      if (!frame || !home) return;
+      if (view === 'home') {
+        frame.classList.add('home-active');
+        home.classList.add('is-active');
+        renderHomeView();
+      } else {
+        frame.classList.remove('home-active');
+        home.classList.remove('is-active');
+      }
+    }
+
+    // Generic "camera" SVG used as a fallback thumbnail when a device has
+    // no matching event group with a thumbnail.
+    const _CAM_FALLBACK_SVG = `
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="7" width="18" height="13" rx="2.5"/>
+        <circle cx="12" cy="13.5" r="3.3"/>
+        <path d="M8.5 7l1.2-2h4.6l1.2 2"/>
+      </svg>`;
+
+    // Display-friendly product names for common Wyze camera models so the
+    // device meta line reads "Cam Pan v3" instead of "HL_PAN3".
+    const _PRODUCT_LABELS = {
+      'AN_RSCW':         'Solar Cam',
+      'HL_PAN3':         'Cam Pan v3',
+      'HL_PAN2':         'Cam Pan v2',
+      'WYZE_CAKP2JFUS':  'Cam v3',
+      'HL_CAM4':         'Cam v4',
+      'WYZEC1':          'Cam v1',
+      'WYZEC1-JZ':       'Cam v2',
+      'HL_BC':           'Battery Cam Pro',
+      'WVOD1':           'Outdoor Cam',
+      'HL_DB1':          'Video Doorbell',
+      'HL_DB2':          'Video Doorbell Pro'
+    };
+    function _productLabel(model) {
+      return _PRODUCT_LABELS[model] || model || 'Camera';
+    }
+
+    // Look up the most recent event-group thumbnail for a given device mac
+    // by scanning window.__rawGroups. Returns a URL or empty string.
+    function _latestThumbForMac(mac) {
+      const groups = window.__rawGroups || [];
+      for (let i = 0; i < groups.length; i++) {
+        const g = groups[i];
+        const cams = g.cameras || [];
+        if (cams.includes(mac)) {
+          return g.preview_url || g.thumbnail_url ||
+                 (g.clip_urls && g.clip_urls[0]) || '';
+        }
+      }
+      return '';
+    }
+
+    // Most recent event timestamp for a given device mac (for the "active
+    // 3h ago" status line). Returns "" if the device has no events.
+    function _latestEventAgoForMac(mac) {
+      const groups = window.__rawGroups || [];
+      for (let i = 0; i < groups.length; i++) {
+        const g = groups[i];
+        if ((g.cameras || []).includes(mac)) {
+          const dt = parseTs(g.start);
+          if (!isNaN(dt)) return relTimeAgo(dt);
+        }
+      }
+      return '';
+    }
+
+    // Render the Home view's device list from window.__rawDevices.
+    function renderHomeView() {
+      const host = document.querySelector('.phone-frame.dark .home-view');
+      if (!host) return;
+      const devices = window.__rawDevices || [];
+      if (!devices.length) {
+        host.innerHTML = `
+          <div class="home-greeting">
+            <h2>Home</h2>
+            <div class="home-sub">Your Wyze setup</div>
+          </div>
+          <div class="home-empty">
+            No devices loaded yet. Run the producer snippet again to fetch
+            your camera list along with events.
+          </div>`;
+        return;
+      }
+      const cards = devices.map(d => {
+        const mac      = d.device_mac || '';
+        const name     = d.device_name || mac || 'Unnamed camera';
+        const thumb    = _latestThumbForMac(mac);
+        const ago      = _latestEventAgoForMac(mac);
+        const product  = _productLabel(d.product_model);
+        const fwShort  = d.firmware_ver ? ' · fw ' + String(d.firmware_ver).split('.').slice(0, 3).join('.') : '';
+        const isOnline = !!ago; // proxy: any recent event = online-ish
+        const thumbHtml = thumb
+          ? `<img src="${_esc(thumb)}" alt="" data-gid="" data-idx="0" onerror="this.style.display='none'; this.parentNode.insertAdjacentHTML('beforeend','${_CAM_FALLBACK_SVG.replace(/'/g, "&#39;")}');" />`
+          : _CAM_FALLBACK_SVG;
+        return `
+          <div class="home-device" data-mac="${_esc(mac)}">
+            <div class="home-device-thumb">${thumbHtml}</div>
+            <div class="home-device-info">
+              <div class="home-device-name">${_esc(name)}</div>
+              <div class="home-device-meta">${_esc(product)}${_esc(fwShort)}</div>
+            </div>
+            <div class="home-device-status">
+              <span class="status-dot${isOnline ? ' online' : ''}"></span>
+              ${ago ? `<span class="home-device-recent">${_esc(ago)}</span>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+      host.innerHTML = `
+        <div class="home-greeting">
+          <h2>Home</h2>
+          <div class="home-sub">${devices.length} device${devices.length === 1 ? '' : 's'}</div>
+        </div>
+        <div class="home-section-title">
+          Cameras <span class="home-section-count">${devices.length}</span>
+        </div>
+        ${cards}`;
+      // Tap a device → switch to Event view, filter to that camera.
+      host.querySelectorAll('.home-device').forEach(el => {
+        el.addEventListener('click', () => {
+          const mac = el.dataset.mac;
+          if (!mac) return;
+          const dev = (window.__rawDevices || []).find(d => d.device_mac === mac);
+          const friendly = dev ? (dev.device_name || mac) : mac;
+          if (typeof setCameraChip === 'function') setCameraChip(friendly);
+          if (window.__filterState) window.__filterState.cameraRaw = mac;
+          if (typeof applyFiltersAndRender === 'function') applyFiltersAndRender();
+          // Switch the bottom-nav active state to Event and the view too.
+          const nav = document.querySelectorAll('.bottom-nav .nav-item');
+          nav.forEach(n => n.classList.remove('active'));
+          nav[1]?.classList.add('active');
+          switchHomeView('event');
+        });
+      });
+    }
+
     function _refreshAlbumsChip() {
       const span = document.querySelector('.albums-chip .albums-count');
       if (!span) return;
@@ -5911,8 +6181,10 @@
       } catch {}
     }));
   }
-  await navigator.clipboard.writeText(JSON.stringify({ groups: all }));
-  alert('Copied ' + all.length + ' groups to clipboard. Switch back to the app and tap Load.');
+  let devices = [];
+  try { devices = (await (await fetch('/api/devices', { credentials:'include' })).json()).devices || []; } catch {}
+  await navigator.clipboard.writeText(JSON.stringify({ groups: all, devices }));
+  alert('Copied ' + all.length + ' groups + ' + devices.length + ' devices to clipboard. Switch back to the app and tap Load.');
 })();`;
 
     function _bookmarkletHref() {
