@@ -2293,11 +2293,31 @@
       line-height: 1.25;
       text-shadow: 0 1px 2px rgba(0,0,0,0.6);
     }
-    /* Per-clip right/wrong actions in the album grid */
+    /* Album header buttons (Edit / Done + Close). */
+    .phone-frame.dark .album-sheet .album-edit-btn {
+      flex-shrink: 0;
+      height: 32px; padding: 0 12px;
+      border: none;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      color: #C8C8C8;
+      font: inherit; font-weight: 600; font-size: 12px;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .phone-frame.dark .album-sheet.edit-mode .album-edit-btn {
+      background: #1DF0BB; color: #0d0d0d;
+    }
+    /* Per-clip right/wrong actions live in the album grid but only show
+       when the sheet is in edit-mode. Default view is a clean photo grid. */
     .phone-frame.dark .album-sheet .album-cell .cell-actions {
       position: absolute; top: 4px; right: 4px;
-      display: flex; gap: 4px;
+      display: none;
+      gap: 4px;
       z-index: 2;
+    }
+    .phone-frame.dark .album-sheet.edit-mode .album-cell .cell-actions {
+      display: flex;
     }
     .phone-frame.dark .album-sheet .album-cell .cell-act {
       width: 22px; height: 22px;
@@ -2325,16 +2345,46 @@
     .phone-frame.dark .album-sheet .album-cell .cell-act.is-on[data-act="right"] svg {
       stroke: #0d0d0d;
     }
+    .phone-frame.dark .album-sheet .album-cell .cell-act.is-on[data-act="wrong"] {
+      background: #FF4F4F;
+    }
     .phone-frame.dark .album-sheet .album-cell.is-correct {
       box-shadow: 0 0 0 2px #1DF0BB inset;
     }
-    /* Removing animation when user marks a cell wrong */
+    /* "Wrong" cells in edit-mode dim/desaturate so the user can see what
+       they've removed and can re-add it by tapping ✓. */
+    .phone-frame.dark .album-sheet.edit-mode .album-cell.is-wrong img,
+    .phone-frame.dark .album-sheet.edit-mode .album-cell.is-wrong .album-cell-meta {
+      opacity: 0.32;
+      filter: grayscale(0.85);
+    }
+    .phone-frame.dark .album-sheet.edit-mode .album-cell.is-wrong {
+      box-shadow: 0 0 0 2px rgba(255,79,79,0.6) inset;
+    }
+    /* Removed cells when NOT in edit mode are hidden entirely. */
+    .phone-frame.dark .album-sheet:not(.edit-mode) .album-cell.is-wrong {
+      display: none;
+    }
+    /* Animation when user marks a cell wrong (only used outside edit mode
+       for the toast-style remove; in edit mode the cell just dims). */
     .phone-frame.dark .album-sheet .album-cell.is-removing {
       transition: transform .22s ease-in, opacity .22s ease-in;
       transform: scale(0.6);
       opacity: 0;
       pointer-events: none;
     }
+    /* "Add clips" footer hint shown only in edit mode, beneath the grid. */
+    .phone-frame.dark .album-sheet .album-edit-hint {
+      flex-shrink: 0;
+      display: none;
+      padding: 10px 16px 14px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      color: #A0A0A0;
+      font-size: 11px; line-height: 1.45;
+      text-align: center;
+    }
+    .phone-frame.dark .album-sheet.edit-mode .album-edit-hint { display: block; }
     .phone-frame.dark .album-sheet .album-empty {
       grid-column: 1 / -1;
       text-align: center;
@@ -4713,7 +4763,11 @@
       // design-iteration prototype.
       window.__SUBJECT_FEEDBACK = window.__SUBJECT_FEEDBACK || {};
       const fb = window.__SUBJECT_FEEDBACK[key] = window.__SUBJECT_FEEDBACK[key] || { right: {}, wrong: {} };
+      // Always render every cell, including ones the user previously marked
+      // wrong. Edit-mode CSS shows them dimmed with a red outline so the user
+      // can re-add them; default view hides them via :not(.edit-mode).
       const cells = [];
+      let visibleCount = 0;
       for (const g of groups) {
         const cam = fmtCam((g.cameras || [])[0]);
         const dt = parseTs(g.start);
@@ -4724,25 +4778,26 @@
           : [g.preview_url || g.thumbnail_url].filter(Boolean);
         urls.forEach((u, i) => {
           const cellKey = g.id + ':' + i;
-          // Skip cells the user already marked wrong in a previous album open.
-          if (fb.wrong[cellKey]) return;
           const isRight = !!fb.right[cellKey];
+          const isWrong = !!fb.wrong[cellKey];
+          if (!isWrong) visibleCount++;
+          const cls = (isRight ? ' is-correct' : '') + (isWrong ? ' is-wrong' : '');
           cells.push(`
-            <div class="album-cell${isRight ? ' is-correct' : ''}" data-group="${_esc(g.id)}" data-cell-key="${_esc(cellKey)}">
+            <div class="album-cell${cls}" data-group="${_esc(g.id)}" data-cell-key="${_esc(cellKey)}">
               <img src="${_esc(u)}" alt="" data-gid="${_esc(g.id)}" data-idx="${i}" onerror="window._clipErr(this);" />
               <div class="album-cell-meta">${_esc(time)} · ${_esc(cam || 'Camera')}</div>
               <div class="cell-actions">
                 <button class="cell-act${isRight ? ' is-on' : ''}" data-act="right" type="button" aria-label="Correct subject">
                   <svg viewBox="0 0 12 12"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg>
                 </button>
-                <button class="cell-act" data-act="wrong" type="button" aria-label="Wrong subject — remove">
+                <button class="cell-act${isWrong ? ' is-on' : ''}" data-act="wrong" type="button" aria-label="Wrong subject — remove">
                   <svg viewBox="0 0 12 12"><path d="M3 3l6 6M9 3L3 9"/></svg>
                 </button>
               </div>
             </div>`);
         });
       }
-      const totalCells = cells.length;
+      const totalCells = visibleCount;
       const cover = groups[0] ? _subjectThumbUrlForGroup(groups[0]) : '';
       const meta = totalCells + ' clip' + (totalCells === 1 ? '' : 's');
 
@@ -4761,13 +4816,15 @@
             <div class="album-title">${_esc(entry.display)}</div>
             <div class="album-meta">${_esc(meta)}</div>
           </div>
+          <button class="album-edit-btn" type="button" aria-label="Edit album">Edit</button>
           <button class="album-close" type="button" aria-label="Close">
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>
           </button>
         </div>
         <div class="album-grid">
           ${cells.length ? cells.join('') : '<div class="album-empty">No clips available for this subject yet.</div>'}
-        </div>`;
+        </div>
+        <div class="album-edit-hint">Tap ✓ to confirm, ✗ to remove. Removed clips appear dimmed — tap ✓ again to add them back.</div>`;
       frame.appendChild(backdrop);
       frame.appendChild(sheet);
       // Force a synchronous layout pass so the initial translateY(100%) is
@@ -4781,12 +4838,31 @@
       backdrop.addEventListener('click', _closeSubjectAlbum);
       sheet.querySelector('.album-close').addEventListener('click', _closeSubjectAlbum);
 
-      // Per-cell right/wrong handler. ✓ marks the clip correct (Wyze AI
-      // should remember this is "<subject>"), ✗ marks it wrong and removes
-      // the cell from this album.
       const grid = sheet.querySelector('.album-grid');
       const metaEl = sheet.querySelector('.album-meta');
+      const editBtn = sheet.querySelector('.album-edit-btn');
       const subjectName = entry.display;
+
+      // Recompute and write the visible clip count to the header. Wrong-marked
+      // cells are excluded.
+      const updateMeta = () => {
+        const visible = grid.querySelectorAll('.album-cell:not(.is-wrong)').length;
+        if (metaEl) metaEl.textContent = visible + ' clip' + (visible === 1 ? '' : 's');
+        if (!grid.querySelector('.album-cell')) {
+          grid.innerHTML = '<div class="album-empty">No clips available for this subject yet.</div>';
+        }
+      };
+
+      // Edit-mode toggle. Default = clean photo grid. Edit = ✓/✗ controls
+      // visible on every cell + dimmed wrong cells visible for re-adding.
+      editBtn?.addEventListener('click', () => {
+        const on = sheet.classList.toggle('edit-mode');
+        editBtn.textContent = on ? 'Done' : 'Edit';
+        editBtn.setAttribute('aria-label', on ? 'Done editing' : 'Edit album');
+      });
+
+      // Per-cell right/wrong handler (only meaningful in edit-mode but the
+      // listener stays mounted; cell-actions are display:none outside edit).
       grid?.addEventListener('click', (ev) => {
         const btn = ev.target.closest('.cell-act');
         if (!btn) return;
@@ -4795,35 +4871,42 @@
         const ck = cell?.dataset.cellKey;
         if (!cell || !ck) return;
         const act = btn.dataset.act;
+        const rightBtn = cell.querySelector('.cell-act[data-act="right"]');
+        const wrongBtn = cell.querySelector('.cell-act[data-act="wrong"]');
         if (act === 'wrong') {
-          fb.wrong[ck] = true;
-          delete fb.right[ck];
-          cell.classList.add('is-removing');
-          setTimeout(() => {
-            cell.remove();
-            // Update the live count in the header.
-            const remaining = grid.querySelectorAll('.album-cell').length;
-            if (metaEl) metaEl.textContent = remaining + ' clip' + (remaining === 1 ? '' : 's');
-            if (!remaining) {
-              grid.innerHTML = '<div class="album-empty">No clips left for this subject.</div>';
+          if (fb.wrong[ck]) {
+            // Already wrong → un-remove (acts as "add back").
+            delete fb.wrong[ck];
+            cell.classList.remove('is-wrong');
+            wrongBtn?.classList.remove('is-on');
+          } else {
+            fb.wrong[ck] = true;
+            delete fb.right[ck];
+            cell.classList.add('is-wrong');
+            cell.classList.remove('is-correct');
+            wrongBtn?.classList.add('is-on');
+            rightBtn?.classList.remove('is-on');
+            if (typeof _showToast === 'function') {
+              _showToast('Wyze AI won’t label this as ' + subjectName);
             }
-          }, 220);
-          if (typeof _showToast === 'function') {
-            _showToast('Wyze AI won’t label this as ' + subjectName);
           }
+          updateMeta();
         } else if (act === 'right') {
-          // Toggle off if already marked correct.
           if (fb.right[ck]) {
             delete fb.right[ck];
             cell.classList.remove('is-correct');
-            btn.classList.remove('is-on');
+            rightBtn?.classList.remove('is-on');
           } else {
             fb.right[ck] = true;
+            delete fb.wrong[ck];
             cell.classList.add('is-correct');
-            btn.classList.add('is-on');
+            cell.classList.remove('is-wrong');
+            rightBtn?.classList.add('is-on');
+            wrongBtn?.classList.remove('is-on');
             if (typeof _showToast === 'function') {
               _showToast('Confirmed — Wyze AI will remember this as ' + subjectName);
             }
+            updateMeta();
           }
         }
       });
