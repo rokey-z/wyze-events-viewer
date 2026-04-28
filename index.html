@@ -2127,7 +2127,32 @@
       transition: transform .12s, box-shadow .15s;
     }
     .phone-frame.dark .chat-fab:active { transform: scale(0.92); }
-    .phone-frame.dark .chat-fab svg { width: 26px; height: 23px; }
+    .phone-frame.dark .chat-fab svg {
+      width: 26px; height: 23px;
+      transform-origin: center;
+      /* Two simultaneous animations on disjoint transform properties
+         (rotate vs scale) at different durations — the LCM is long
+         enough that sway + blinks land on irregular timings, giving
+         the mascot a "alive" feel. */
+      animation: mascot-sway 5.7s ease-in-out infinite,
+                 mascot-blink 4.3s ease-in-out infinite;
+    }
+    @keyframes mascot-sway {
+      0%, 100% { rotate: 0deg; }
+      18%      { rotate: -4deg; }
+      32%      { rotate: 1deg;  }
+      48%      { rotate: 3deg;  }
+      66%      { rotate: -2deg; }
+      82%      { rotate: 2deg;  }
+    }
+    @keyframes mascot-blink {
+      0%, 17%, 23%, 58%, 64%, 100% { scale: 1 1; }
+      19%, 60%                     { scale: 1 0.55; }
+    }
+    /* Respect reduced-motion preference. */
+    @media (prefers-reduced-motion: reduce) {
+      .phone-frame.dark .chat-fab svg { animation: none; }
+    }
     /* Hide the chat-fab when the live view or chat drawer is itself open
        so it doesn't float above its own modal. */
     .phone-frame.dark .live-view.open ~ .chat-fab,
