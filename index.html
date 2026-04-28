@@ -1700,17 +1700,20 @@
     .phone-frame.dark .help-btn:hover { color: #fff; }
     .phone-frame.dark .help-btn svg { width: 20px; height: 20px; }
 
-    /* Clear-events button — sits right after the "Events" page title,
-       intentionally dim (lower opacity) so it reads as secondary chrome. */
+    /* Clear-events button — only visible on the Home tab, right after
+       the page title text. Intentionally dim (lower opacity) so it
+       reads as secondary chrome. */
     .phone-frame.dark .clear-btn {
       background: none; border: none; padding: 0;
       color: #505050;
       cursor: pointer;
-      display: inline-flex; align-items: center; justify-content: center;
+      display: none;
+      align-items: center; justify-content: center;
       margin-left: 6px;
       transition: color .15s, opacity .15s;
       align-self: center;
     }
+    .phone-frame.dark.home-active .clear-btn { display: inline-flex; }
     .phone-frame.dark .clear-btn svg { width: 16px; height: 16px; }
     .phone-frame.dark .clear-btn:hover { color: #FF4F4F; }
 
@@ -3711,12 +3714,10 @@
       <!-- Page header: Events title + Classic toggle + Search -->
       <div class="page-header">
         <span class="page-title">Events</span>
-        <button class="clear-btn" id="clearDataBtn" type="button" aria-label="Clear loaded events" title="Clear loaded events">
+        <button class="clear-btn" id="clearDataBtn" type="button" aria-label="Refresh — clear cache" title="Refresh — clear cache">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 7h16"/>
-            <path d="M9 7V4h6v3"/>
-            <path d="M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/>
-            <path d="M10 11v6M14 11v6"/>
+            <path d="M21 12a9 9 0 1 1-3-6.7"/>
+            <polyline points="21 4 21 10 15 10"/>
           </svg>
         </button>
         <div class="header-right">
@@ -6044,13 +6045,16 @@
       const frame = document.querySelector('.phone-frame.dark');
       const home = frame?.querySelector('.home-view');
       if (!frame || !home) return;
+      const title = frame.querySelector('.page-title');
       if (view === 'home') {
         frame.classList.add('home-active');
         home.classList.add('is-active');
+        if (title) title.textContent = 'Home';
         renderHomeView();
       } else {
         frame.classList.remove('home-active');
         home.classList.remove('is-active');
+        if (title) title.textContent = 'Events';
       }
     }
 
@@ -6471,12 +6475,13 @@
     }
 
     // Wipe every loaded event/device from memory + localStorage and
-    // re-render the empty state. Triggered by the trash icon in the
-    // page header.
+    // re-render the empty state. Triggered by the refresh icon in the
+    // page header — pairs with re-running the producer snippet for
+    // fresh data.
     function _clearAllEvents() {
       try {
         const total = (window.__rawGroups || []).length;
-        if (total > 0 && !confirm('Clear all ' + total + ' loaded event' + (total === 1 ? '' : 's') + ' on this device?')) return;
+        if (total > 0 && !confirm('Refresh — clear cached ' + total + ' event' + (total === 1 ? '' : 's') + ' on this device?')) return;
         if (total === 0 && !confirm('Clear cached data on this device?')) return;
         // In-memory state
         window.__rawGroups   = [];
@@ -6495,7 +6500,7 @@
           renderHomeView();
         }
         if (typeof _refreshAlbumsChip === 'function') _refreshAlbumsChip();
-        if (typeof _showToast === 'function') _showToast('Cleared all loaded events');
+        if (typeof _showToast === 'function') _showToast('Cache cleared — re-run the snippet for fresh data');
       } catch (e) {
         if (typeof _showToast === 'function') _showToast('Could not clear: ' + e.message);
       }
