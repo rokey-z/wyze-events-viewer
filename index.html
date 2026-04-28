@@ -1331,9 +1331,10 @@
       letter-spacing: -0.05px;
       text-shadow: 0 2px 8px rgba(0,0,0,0.7), 0 1px 2px rgba(0,0,0,0.9);
       display: -webkit-box;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      text-overflow: ellipsis;
       pointer-events: none; /* only .kw inside is clickable */
     }
     /* Top-to-middle dim gradient — spans the full thumbnail width so it
@@ -4300,9 +4301,20 @@
         // group (person, vehicle, raccoon, …). Replaces the old clip-strip.
         const clipsHtml = _buildSubjectStripHtml(g);
         let caption = (g.summary || '').trim();
-        if (caption.length > 110) {
-          const cut = caption.search(/[.,;](\s|$)/);
-          if (cut > 30 && cut < 110) caption = caption.slice(0, cut) + '.';
+        // Header rule: 2 lines max. With 15px / 1.32 line-height the card
+        // fits ~75 chars per row, so target ~80 chars (one full line + a
+        // little) and trim at the nearest sentence/comma boundary so the
+        // text reads cleanly. Anything longer gets cut and CSS line-clamp
+        // adds the ellipsis.
+        const HEADER_MAX = 80;
+        if (caption.length > HEADER_MAX) {
+          // Prefer end-of-sentence cuts over comma cuts.
+          const sentEnd = caption.slice(0, HEADER_MAX).search(/[.!?](\s|$)/);
+          const commaEnd = caption.slice(0, HEADER_MAX).search(/[,;](\s|$)/);
+          let cut = -1;
+          if (sentEnd > 30) cut = sentEnd;
+          else if (commaEnd > 30) cut = commaEnd;
+          if (cut > 0) caption = caption.slice(0, cut + 1).trim();
         }
         if (!caption) caption = String(g.title || '').replace(/^\p{Extended_Pictographic}\s*/u, '');
         const captionHtml = linkifySummary(caption);
