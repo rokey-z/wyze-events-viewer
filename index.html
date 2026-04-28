@@ -2196,6 +2196,7 @@
       content: ''; width: 6px; height: 6px;
       background: #1DF0BB; border-radius: 50%;
     }
+    .phone-frame.dark .chat-drawer .chat-settings,
     .phone-frame.dark .chat-drawer .chat-open-ext,
     .phone-frame.dark .chat-drawer .chat-close {
       flex-shrink: 0;
@@ -2209,6 +2210,246 @@
     .phone-frame.dark .chat-drawer .chat-open-ext svg,
     .phone-frame.dark .chat-drawer .chat-close svg {
       width: 14px; height: 14px;
+      stroke: currentColor; fill: none; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .phone-frame.dark .chat-drawer .chat-settings svg {
+      width: 14px; height: 14px;
+      fill: currentColor;
+    }
+    .phone-frame.dark .chat-drawer .chat-settings:hover { color: #1DF0BB; }
+
+    /* Settings sheet — opens on top of the chat drawer */
+    .phone-frame.dark .settings-sheet {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 88%;
+      z-index: 230;
+      background: #181818;
+      border-radius: 18px 18px 0 0;
+      box-shadow: 0 -10px 32px rgba(0,0,0,0.65);
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(0.22, 0.65, 0.34, 1);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .phone-frame.dark .settings-sheet.open { transform: translateY(0); }
+    .phone-frame.dark .settings-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 229;
+      opacity: 0; pointer-events: none;
+      transition: opacity .24s;
+    }
+    .phone-frame.dark .settings-backdrop.open {
+      opacity: 1; pointer-events: auto;
+    }
+    .phone-frame.dark .settings-sheet .settings-handle {
+      flex-shrink: 0;
+      display: flex; justify-content: center;
+      padding: 8px 0 4px;
+    }
+    .phone-frame.dark .settings-sheet .settings-handle div {
+      width: 36px; height: 4px; border-radius: 2px;
+      background: #505050;
+    }
+    .phone-frame.dark .settings-sheet .settings-header {
+      flex-shrink: 0;
+      display: flex; align-items: baseline; gap: 12px;
+      padding: 4px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .phone-frame.dark .settings-sheet .settings-title {
+      flex: 1;
+      font-weight: 700; font-size: 18px; color: #fff;
+      letter-spacing: -0.1px;
+    }
+    .phone-frame.dark .settings-sheet .settings-sub {
+      font-size: 11px; color: #6B6B6B;
+    }
+    .phone-frame.dark .settings-sheet .settings-close {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border: none; border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      color: #C8C8C8; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .settings-sheet .settings-close svg {
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none; stroke-width: 2;
+      stroke-linecap: round;
+    }
+    .phone-frame.dark .settings-sheet .settings-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px max(20px, env(safe-area-inset-bottom));
+    }
+    .phone-frame.dark .settings-sheet .settings-section {
+      margin-bottom: 22px;
+    }
+    .phone-frame.dark .settings-sheet .settings-section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 0 6px;
+    }
+    .phone-frame.dark .settings-sheet .settings-section-title {
+      font-weight: 700; font-size: 14px; color: #fff;
+      letter-spacing: 0.2px;
+    }
+    .phone-frame.dark .settings-sheet .settings-section-desc {
+      font-size: 11px; color: #787878;
+      padding-bottom: 8px;
+      line-height: 1.4;
+    }
+    .phone-frame.dark .settings-sheet .settings-row {
+      display: flex; flex-direction: column;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .phone-frame.dark .settings-sheet .settings-row:last-child { border-bottom: none; }
+    .phone-frame.dark .settings-sheet .settings-row-label {
+      font-size: 11px; color: #6B6B6B;
+      letter-spacing: 0.4px; text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .phone-frame.dark .settings-sheet .settings-row-value,
+    .phone-frame.dark .settings-sheet .settings-row input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font: inherit; font-size: 13px; font-weight: 500;
+      padding: 0;
+      width: 100%;
+      outline: none;
+    }
+    .phone-frame.dark .settings-sheet .settings-row input { color: #fff; }
+    .phone-frame.dark .settings-sheet .settings-row input::placeholder { color: #505050; }
+
+    .phone-frame.dark .settings-sheet .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .phone-frame.dark .settings-sheet .stats-cell {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .phone-frame.dark .settings-sheet .stats-cell .stats-key {
+      font-size: 10px; color: #6B6B6B;
+      letter-spacing: 0.4px; text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .phone-frame.dark .settings-sheet .stats-cell .stats-val {
+      font-weight: 700; font-size: 14px; color: #fff;
+    }
+    .phone-frame.dark .settings-sheet .stats-cell .stats-bar {
+      margin-top: 6px;
+      height: 4px; border-radius: 2px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .phone-frame.dark .settings-sheet .stats-cell .stats-bar > span {
+      display: block;
+      height: 100%;
+      background: #1DF0BB;
+      border-radius: 2px;
+    }
+
+    .phone-frame.dark .settings-sheet .pill-list {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 6px;
+    }
+    .phone-frame.dark .settings-sheet .pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 999px;
+      color: #C8C8C8;
+      font-size: 11px; font-weight: 500;
+    }
+
+    .phone-frame.dark .settings-sheet .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .phone-frame.dark .settings-sheet .field-row .settings-row { padding: 8px 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; }
+    .phone-frame.dark .settings-sheet .field-row .settings-row:last-child { border-bottom: 1px solid rgba(255,255,255,0.04); }
+
+    .phone-frame.dark .settings-sheet .memory-input-row {
+      display: flex; gap: 8px; margin-top: 4px;
+    }
+    .phone-frame.dark .settings-sheet .memory-input {
+      flex: 1; min-width: 0;
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font: inherit; font-size: 12px;
+      outline: none;
+    }
+    .phone-frame.dark .settings-sheet .memory-input::placeholder { color: #6B6B6B; }
+    .phone-frame.dark .settings-sheet .memory-add-btn {
+      flex-shrink: 0;
+      background: #1DF0BB; color: #0d0d0d;
+      border: none; border-radius: 8px;
+      padding: 0 14px;
+      font: inherit; font-weight: 600; font-size: 12px;
+      cursor: pointer;
+    }
+    .phone-frame.dark .settings-sheet .memory-add-btn:disabled { opacity: 0.45; cursor: default; }
+    .phone-frame.dark .settings-sheet .memory-list {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-top: 8px;
+    }
+    .phone-frame.dark .settings-sheet .memory-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 8px;
+    }
+    .phone-frame.dark .settings-sheet .memory-item-text {
+      flex: 1; min-width: 0;
+      font-size: 12px; color: #E8E8E8;
+      line-height: 1.35;
+    }
+    .phone-frame.dark .settings-sheet .memory-remove {
+      flex-shrink: 0;
+      background: none; border: none;
+      color: #787878; cursor: pointer;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .settings-sheet .memory-remove:hover { color: #FF4F4F; background: rgba(255,79,79,0.08); }
+    .phone-frame.dark .settings-sheet .memory-remove svg { width: 11px; height: 11px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
+
+    .phone-frame.dark .settings-sheet .settings-cta {
+      display: flex; gap: 8px;
+      margin-top: 10px;
+    }
+    .phone-frame.dark .settings-sheet .settings-cta-btn {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      border-radius: 10px;
+      color: #C8C8C8;
+      font: inherit; font-size: 12px; font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .phone-frame.dark .settings-sheet .settings-cta-btn.primary {
+      background: #1DF0BB; color: #0d0d0d; border-color: #1DF0BB;
+    }
+    .phone-frame.dark .settings-sheet .settings-cta-btn svg {
+      width: 12px; height: 12px;
       stroke: currentColor; fill: none; stroke-width: 2;
       stroke-linecap: round; stroke-linejoin: round;
     }
@@ -3495,6 +3736,12 @@
         <!-- populated by _openChatDrawer() -->
       </div>
       <div class="chat-backdrop"></div>
+
+      <!-- Wyze AI settings sheet (opens on top of chat drawer) -->
+      <div class="settings-backdrop"></div>
+      <div class="settings-sheet">
+        <!-- populated by _openSettingsSheet() -->
+      </div>
 
       <!-- Floating Quiet-score cutoff chip (bottom-right) -->
       <div class="chip floating-quiet" title="Quiet score cutoff — tap to toggle" data-filter="score">
@@ -6069,6 +6316,11 @@
             <div class="chat-title">Wyze AI</div>
             <div class="chat-sub">Online</div>
           </div>
+          <button class="chat-settings" type="button" aria-label="Wyze AI settings" title="Settings">
+            <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6.37496 11.4383C6.66833 11.6986 7.02517 11.8768 7.40945 11.9551C7.79373 12.0334 8.19186 12.0089 8.56367 11.8842C8.93547 11.7594 9.26779 11.5388 9.5271 11.2446C9.7864 10.9504 9.9635 10.593 10.0405 10.2084L10.0683 10.0689C10.5634 9.96424 11.0135 9.70794 11.3563 9.33565C11.699 8.96336 11.9173 8.49357 11.9807 7.99154C12.0442 7.48951 11.9498 6.98017 11.7106 6.53427C11.4713 6.08837 11.0991 5.72806 10.6457 5.50338C10.836 5.32787 10.9879 5.11486 11.0918 4.87777C11.1957 4.64067 11.2493 4.38462 11.2494 4.12576V3.97728C11.2492 3.50955 11.087 3.05632 10.7905 2.69459C10.494 2.33287 10.0814 2.08495 9.62284 1.99296L9.31838 1.93297L9.22389 1.46201C9.16416 1.16332 9.0303 0.884425 8.83462 0.650983C8.63893 0.417542 8.3877 0.237042 8.10403 0.126078C7.82035 0.0151137 7.51333 -0.0227527 7.21119 0.0159596C6.90905 0.0546719 6.6215 0.168721 6.37496 0.34762V11.4383ZM5.62504 0.34687C5.37849 0.167796 5.09087 0.053603 4.78864 0.014796C4.4864 -0.0240111 4.17926 0.0138147 3.89547 0.124793C3.61168 0.235772 3.36036 0.416339 3.16462 0.649882C2.96889 0.883424 2.83503 1.16244 2.77536 1.46126L2.68162 1.93222L2.37716 1.99296C1.91857 2.08495 1.50598 2.33287 1.20946 2.69459C0.91295 3.05632 0.750811 3.50955 0.750591 3.97728V4.12576C0.750591 4.67021 0.983065 5.16066 1.35427 5.50338C0.900865 5.72806 0.528686 6.08837 0.28944 6.53427C0.0501941 6.98017 -0.044241 7.48951 0.0192537 7.99154C0.0827483 8.49357 0.30102 8.96336 0.643747 9.33565C0.986474 9.70794 1.43664 9.96424 1.93171 10.0689L1.95945 10.2077C2.03639 10.5923 2.21342 10.9498 2.47268 11.2441C2.73194 11.5384 3.06425 11.7591 3.43607 11.884C3.80789 12.0088 4.20606 12.0333 4.5904 11.9551C4.97473 11.8768 5.33162 11.6986 5.62504 11.4383V0.34687Z" fill="currentColor"/>
+            </svg>
+          </button>
           <a class="chat-open-ext" href="https://lumen.wyzecam.com/chat" target="_blank" rel="noopener" title="Open in Wyze">
             <svg viewBox="0 0 14 14"><path d="M3 11l8-8M5 3h6v6"/></svg>
           </a>
@@ -6087,6 +6339,7 @@
           </button>
         </div>`;
       drawer.querySelector('.chat-close').addEventListener('click', _closeChatDrawer);
+      drawer.querySelector('.chat-settings')?.addEventListener('click', _openSettingsSheet);
       drawer.querySelectorAll('.chat-suggestion').forEach(b => {
         b.addEventListener('click', () => _sendChatMessage(b.textContent));
       });
@@ -6126,6 +6379,249 @@
         const list2 = drawer.querySelector('.chat-messages');
         if (list2) list2.scrollTop = list2.scrollHeight;
       }, 700 + Math.random() * 500);
+    }
+
+    // ════════════════════════════════════════
+    // Wyze AI settings sheet — mirrors lumen.wyzecam.com/settings:
+    //   • Account (display name, email, user id)
+    //   • Wits usage (plan + 8 usage stats)
+    //   • Household profile (quiet hours, timezone)
+    //   • Members / Pets / Devices pill lists
+    //   • Household memories (add / list / remove)
+    // Lumen doesn't expose a public settings JSON endpoint, so we render
+    // local placeholders and persist edits in localStorage["wyze:settings"].
+    // ════════════════════════════════════════
+
+    const _SETTINGS_KEY = 'wyze:settings';
+    function _loadSettings() {
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem(_SETTINGS_KEY) || '{}'); } catch {}
+      return Object.assign({
+        displayName: '',
+        email: 'rokeyzhang@hotmail.com',
+        userId: '5940b0aa2109c905be7a3e6e8dff95f6',
+        plan: 'Free',
+        balanceToday: 438, balanceTodayMax: 500,
+        balanceMonth: 9177, balanceMonthMax: 10000,
+        spentToday: 61.6, spentMonth: 823.5,
+        conversations: 747,
+        totalTokens: '15.7M', inputTokens: '15.0M', outputTokens: '733.6K',
+        householdName: '',
+        quietStart: '23:00',
+        quietEnd:   '07:00',
+        timezone: 'America/Los_Angeles',
+        memories: [],
+        members: ['Primary User (owner)'],
+        pets: []
+      }, saved);
+    }
+    function _saveSettings(s) {
+      try { localStorage.setItem(_SETTINGS_KEY, JSON.stringify(s)); } catch {}
+    }
+
+    function _openSettingsSheet() {
+      const frame = document.querySelector('.phone-frame.dark');
+      const sheet = frame?.querySelector('.settings-sheet');
+      const backdrop = frame?.querySelector('.settings-backdrop');
+      if (!sheet) return;
+      _renderSettingsSheet(sheet);
+      sheet.offsetHeight; backdrop.offsetHeight;
+      sheet.classList.add('open');
+      backdrop.classList.add('open');
+      backdrop.addEventListener('click', _closeSettingsSheet, { once: true });
+    }
+    function _closeSettingsSheet() {
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame) return;
+      frame.querySelector('.settings-sheet')?.classList.remove('open');
+      frame.querySelector('.settings-backdrop')?.classList.remove('open');
+    }
+
+    function _renderSettingsSheet(sheet) {
+      const s = _loadSettings();
+      const devices = window.__rawDevices || [];
+      const pct = (a, b) => Math.min(100, Math.max(0, Math.round(((+a) / (+b || 1)) * 100)));
+      const deviceLabel = (d) => {
+        const loc = (window.__camNameMap && window.__camNameMap.get?.(_normalizeMac(d.device_mac))) || '';
+        const base = (d.device_name || _normalizeMac(d.device_mac)) + ' (Camera)';
+        return loc ? base + ' · ' + loc : base;
+      };
+      sheet.innerHTML = `
+        <div class="settings-handle"><div></div></div>
+        <div class="settings-header">
+          <div>
+            <div class="settings-title">Settings</div>
+            <div class="settings-sub">Manage account, household, and memories.</div>
+          </div>
+          <button class="settings-close" type="button" aria-label="Close">
+            <svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg>
+          </button>
+        </div>
+        <div class="settings-body">
+
+          <div class="settings-section">
+            <div class="settings-section-head">
+              <div class="settings-section-title">Account</div>
+            </div>
+            <div class="settings-section-desc">Signed-in account details from the active session.</div>
+            <div class="settings-row">
+              <div class="settings-row-label">Display Name</div>
+              <input data-set="displayName" placeholder="Your name" value="${_esc(s.displayName)}" />
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">Email</div>
+              <div class="settings-row-value">${_esc(s.email)}</div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">User ID</div>
+              <div class="settings-row-value" style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#A0A0A0;word-break:break-all;">${_esc(s.userId)}</div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-head">
+              <div class="settings-section-title">Wits Usage</div>
+            </div>
+            <div class="settings-section-desc">1 Wit = 1 cent of AI compute. Daily refresh resets each day; the monthly budget accumulates all month.</div>
+            <div class="stats-grid">
+              <div class="stats-cell"><div class="stats-key">Plan</div><div class="stats-val">${_esc(s.plan)}</div></div>
+              <div class="stats-cell"><div class="stats-key">Balance · Today</div><div class="stats-val">${s.balanceToday} / ${s.balanceTodayMax}</div><div class="stats-bar"><span style="width:${pct(s.balanceToday, s.balanceTodayMax)}%"></span></div></div>
+              <div class="stats-cell"><div class="stats-key">Balance · Month</div><div class="stats-val">${s.balanceMonth.toLocaleString()} / ${s.balanceMonthMax.toLocaleString()}</div><div class="stats-bar"><span style="width:${pct(s.balanceMonth, s.balanceMonthMax)}%"></span></div></div>
+              <div class="stats-cell"><div class="stats-key">Spent Today</div><div class="stats-val">${s.spentToday}</div></div>
+              <div class="stats-cell"><div class="stats-key">Spent This Month</div><div class="stats-val">${s.spentMonth}</div></div>
+              <div class="stats-cell"><div class="stats-key">Conversations</div><div class="stats-val">${s.conversations.toLocaleString()}</div></div>
+              <div class="stats-cell"><div class="stats-key">Total Tokens</div><div class="stats-val">${_esc(s.totalTokens)}</div></div>
+              <div class="stats-cell"><div class="stats-key">Input Tokens</div><div class="stats-val">${_esc(s.inputTokens)}</div></div>
+              <div class="stats-cell"><div class="stats-key">Output Tokens</div><div class="stats-val">${_esc(s.outputTokens)}</div></div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-head">
+              <div class="settings-section-title">Household Profile</div>
+            </div>
+            <div class="settings-section-desc">Update shared preferences and review your household entities.</div>
+            <div class="settings-row">
+              <div class="settings-row-label">Household Name</div>
+              <input data-set="householdName" placeholder="e.g. Chen Home" value="${_esc(s.householdName)}" />
+            </div>
+            <div class="field-row">
+              <div class="settings-row">
+                <div class="settings-row-label">Quiet hours start</div>
+                <input data-set="quietStart" type="time" value="${_esc(s.quietStart)}" />
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-label">Quiet hours end</div>
+                <input data-set="quietEnd" type="time" value="${_esc(s.quietEnd)}" />
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">Timezone</div>
+              <input data-set="timezone" value="${_esc(s.timezone)}" />
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-head">
+              <div class="settings-section-title">Members <span class="settings-sub" style="margin-left:6px;">${s.members.length}</span></div>
+            </div>
+            <div class="pill-list">
+              ${s.members.map(m => `<span class="pill">${_esc(m)}</span>`).join('')}
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-head">
+              <div class="settings-section-title">Pets <span class="settings-sub" style="margin-left:6px;">${s.pets.length}</span></div>
+            </div>
+            ${s.pets.length
+              ? `<div class="pill-list">${s.pets.map(p => `<span class="pill">${_esc(p)}</span>`).join('')}</div>`
+              : `<div class="settings-section-desc" style="padding-bottom:0;">No household pets recorded.</div>`}
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-head">
+              <div class="settings-section-title">Devices <span class="settings-sub" style="margin-left:6px;">${devices.length}</span></div>
+            </div>
+            <div class="pill-list">
+              ${devices.length
+                ? devices.map(d => `<span class="pill">${_esc(deviceLabel(d))}</span>`).join('')
+                : `<span class="settings-sub">Load events first to populate.</span>`}
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-head">
+              <div class="settings-section-title">Household Memories</div>
+            </div>
+            <div class="settings-section-desc">Shared memories all agents can access about you and your household.</div>
+            <div class="memory-input-row">
+              <input class="memory-input" id="memoryInput" placeholder="Add a memory, e.g. &quot;I like running&quot;" />
+              <button class="memory-add-btn" id="memoryAdd" type="button" disabled>Add</button>
+            </div>
+            <div class="memory-list" id="memoryList">
+              ${s.memories.length
+                ? s.memories.map((m, i) => `
+                    <div class="memory-item">
+                      <div class="memory-item-text">${_esc(m)}</div>
+                      <button class="memory-remove" data-mem-idx="${i}" type="button" aria-label="Remove">
+                        <svg viewBox="0 0 12 12"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                      </button>
+                    </div>`).join('')
+                : '<div class="settings-section-desc" style="padding:6px 0 0;">No memories yet.</div>'}
+            </div>
+          </div>
+
+          <div class="settings-cta">
+            <a class="settings-cta-btn" href="https://lumen.wyzecam.com/settings" target="_blank" rel="noopener">
+              <svg viewBox="0 0 14 14"><path d="M3 11l8-8M5 3h6v6"/></svg>
+              Open in Wyze
+            </a>
+            <button class="settings-cta-btn primary" id="settingsSaveBtn" type="button">Save profile</button>
+          </div>
+        </div>`;
+      // Wire up handlers.
+      sheet.querySelector('.settings-close').addEventListener('click', _closeSettingsSheet);
+      sheet.querySelectorAll('input[data-set]').forEach(inp => {
+        inp.addEventListener('change', () => {
+          const cur = _loadSettings();
+          cur[inp.dataset.set] = inp.value;
+          _saveSettings(cur);
+        });
+      });
+      const memInput = sheet.querySelector('#memoryInput');
+      const memAdd   = sheet.querySelector('#memoryAdd');
+      memInput.addEventListener('input', () => {
+        memAdd.disabled = !memInput.value.trim();
+      });
+      memInput.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' && memInput.value.trim()) { ev.preventDefault(); memAdd.click(); }
+      });
+      memAdd.addEventListener('click', () => {
+        const v = (memInput.value || '').trim();
+        if (!v) return;
+        const cur = _loadSettings();
+        cur.memories = (cur.memories || []).concat(v);
+        _saveSettings(cur);
+        memInput.value = ''; memAdd.disabled = true;
+        _renderSettingsSheet(sheet);
+        if (typeof _showToast === 'function') _showToast('Memory added');
+      });
+      sheet.querySelectorAll('.memory-remove').forEach(b => {
+        b.addEventListener('click', () => {
+          const idx = parseInt(b.dataset.memIdx, 10);
+          const cur = _loadSettings();
+          if (cur.memories && idx >= 0 && idx < cur.memories.length) {
+            cur.memories.splice(idx, 1);
+            _saveSettings(cur);
+            _renderSettingsSheet(sheet);
+          }
+        });
+      });
+      sheet.querySelector('#settingsSaveBtn').addEventListener('click', () => {
+        // Inputs are already auto-saved on change; this just confirms.
+        if (typeof _showToast === 'function') _showToast('Profile saved');
+      });
     }
 
     function _refreshAlbumsChip() {
