@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Event Page – Wyze</title>
   <!-- Figma capture script removed in single-page extract -->
   <!-- <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script> -->
@@ -40,6 +40,10 @@
       align-items: center;
       padding: 40px 0 80px;
       gap: 40px;
+      /* Disable double-tap-to-zoom on iOS Safari (the viewport meta
+         covers pinch zoom across modern browsers). */
+      touch-action: manipulation;
+      -webkit-text-size-adjust: 100%;
     }
 
     /* ═══════ Mode indicator ═══════ */
