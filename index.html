@@ -1700,6 +1700,20 @@
     .phone-frame.dark .help-btn:hover { color: #fff; }
     .phone-frame.dark .help-btn svg { width: 20px; height: 20px; }
 
+    /* Clear-events button — sits right after the "Events" page title,
+       intentionally dim (lower opacity) so it reads as secondary chrome. */
+    .phone-frame.dark .clear-btn {
+      background: none; border: none; padding: 0;
+      color: #505050;
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-left: 6px;
+      transition: color .15s, opacity .15s;
+      align-self: center;
+    }
+    .phone-frame.dark .clear-btn svg { width: 16px; height: 16px; }
+    .phone-frame.dark .clear-btn:hover { color: #FF4F4F; }
+
     .phone-frame.dark .help-modal {
       position: absolute; inset: 0;
       z-index: 220;
@@ -3697,6 +3711,14 @@
       <!-- Page header: Events title + Classic toggle + Search -->
       <div class="page-header">
         <span class="page-title">Events</span>
+        <button class="clear-btn" id="clearDataBtn" type="button" aria-label="Clear loaded events" title="Clear loaded events">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7h16"/>
+            <path d="M9 7V4h6v3"/>
+            <path d="M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/>
+            <path d="M10 11v6M14 11v6"/>
+          </svg>
+        </button>
         <div class="header-right">
           <div class="classic-toggle">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -3718,14 +3740,6 @@
               <path d="M5 0 L5.8 3.2 L9 4 L5.8 4.8 L5 8 L4.2 4.8 L1 4 L4.2 3.2 Z"/>
             </svg>
           </div>
-          <button class="help-btn" id="clearDataBtn" type="button" aria-label="Clear loaded events" title="Clear loaded events">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 7h16"/>
-              <path d="M9 7V4h6v3"/>
-              <path d="M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/>
-              <path d="M10 11v6M14 11v6"/>
-            </svg>
-          </button>
           <button class="help-btn" id="openHelpBtn" type="button" aria-label="How to use">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
