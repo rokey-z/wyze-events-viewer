@@ -4663,6 +4663,9 @@
 
       const groups = entry.groups || [];
       // Flatten clips across every group; keep group context for caption.
+      // fmtCam is local to renderTimeline — use the top-level helper +
+      // exposed nameMap so this top-level function can resolve cam names.
+      const fmtCam = (c) => _camFriendlyName(c, window.__camNameMap);
       const cells = [];
       for (const g of groups) {
         const cam = fmtCam((g.cameras || [])[0]);
