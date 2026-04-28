@@ -2132,9 +2132,10 @@
       left: 12.5%;
       transform: translateX(-50%);
       /* Center the FAB on the same horizontal line as the view-toggle and
-         floating-quiet chip. They are ~34px tall at bottom: calc(96px +
-         safe). The FAB is 48px, so subtract 7px to keep centers aligned. */
-      bottom: calc(89px + max(env(safe-area-inset-bottom), 24px));
+         floating-quiet chip. They sit at bottom: calc(74px + safe) and
+         are ~34px tall; the FAB is 48px, so subtract 7px to keep centers
+         aligned. */
+      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 11px);
       width: 48px; height: 48px;
       border-radius: 50%;
       border: none;
@@ -2874,7 +2875,8 @@
     .phone-frame.dark .chip.floating-quiet {
       position: absolute;
       right: 14px;
-      bottom: calc(84px + max(env(safe-area-inset-bottom), 24px) + 12px);
+      /* Sit just above the 56px bottom-nav with a comfortable gap. */
+      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 18px);
       z-index: 40;
       background: rgba(40,40,40,0.94);
       border: 1px solid rgba(255,255,255,0.08);
@@ -2887,8 +2889,8 @@
     .phone-frame.dark .view-toggle {
       position: absolute;
       left: 50%;
-      /* Float above bottom-nav (56) + app-footer (~28) + safe-area (24–34) */
-      bottom: calc(84px + max(env(safe-area-inset-bottom), 24px) + 12px);
+      /* Sit just above the 56px bottom-nav with a comfortable gap. */
+      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 18px);
       transform: translateX(-50%);
       z-index: 40;
       display: flex;
