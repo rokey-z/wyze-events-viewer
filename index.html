@@ -5324,6 +5324,18 @@
       return _PRODUCT_LABELS[model] || model || 'Camera';
     }
 
+    // /api/devices returns "AN_RSCW_80482C904EB6"-style ids while events
+    // expose a bare 12-hex-char MAC. Strip the model prefix so lookups
+    // work across both shapes.
+    function _normalizeMac(mac) {
+      const m = String(mac || '');
+      const tail = m.match(/[0-9A-Fa-f]{12}$/);
+      return (tail ? tail[0] : m).toUpperCase();
+    }
+    function _macsMatch(a, b) {
+      return _normalizeMac(a) === _normalizeMac(b);
+    }
+
     // Look up the most recent event-group thumbnail for a given device mac
     // by scanning window.__rawGroups. Returns a URL or empty string.
     function _latestThumbForMac(mac) {
@@ -5331,7 +5343,7 @@
       for (let i = 0; i < groups.length; i++) {
         const g = groups[i];
         const cams = g.cameras || [];
-        if (cams.includes(mac)) {
+        if (cams.some(c => _macsMatch(c, mac))) {
           return g.preview_url || g.thumbnail_url ||
                  (g.clip_urls && g.clip_urls[0]) || '';
         }
@@ -5345,7 +5357,7 @@
       const groups = window.__rawGroups || [];
       for (let i = 0; i < groups.length; i++) {
         const g = groups[i];
-        if ((g.cameras || []).includes(mac)) {
+        if ((g.cameras || []).some(c => _macsMatch(c, mac))) {
           const dt = parseTs(g.start);
           if (!isNaN(dt)) return relTimeAgo(dt);
         }
@@ -5410,8 +5422,15 @@
           if (!mac) return;
           const dev = (window.__rawDevices || []).find(d => d.device_mac === mac);
           const friendly = dev ? (dev.device_name || mac) : mac;
+          // Event groups store cameras as bare 12-hex MACs; map device_mac
+          // to its normalized form so the filter actually matches.
+          const rawMac = _normalizeMac(mac);
+          // Find the matching value the events use (preserves casing).
+          const match = (window.__rawGroups || [])
+            .flatMap(g => g.cameras || [])
+            .find(c => _macsMatch(c, rawMac)) || rawMac;
           if (typeof setCameraChip === 'function') setCameraChip(friendly);
-          if (window.__filterState) window.__filterState.cameraRaw = mac;
+          if (window.__filterState) window.__filterState.cameraRaw = match;
           if (typeof applyFiltersAndRender === 'function') applyFiltersAndRender();
           // Switch the bottom-nav active state to Event and the view too.
           const nav = document.querySelectorAll('.bottom-nav .nav-item');
