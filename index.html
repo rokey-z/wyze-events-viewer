@@ -6135,10 +6135,20 @@
       const devices = window.__rawDevices || [];
       if (!devices.length) {
         host.innerHTML = `
-          <div class="home-empty">
-            No devices loaded yet. Run the producer snippet again to fetch
-            your camera list along with events.
+          <div class="empty-state">
+            <div class="empty-title">No cameras loaded</div>
+            <div class="empty-sub">
+              Bring your own Wyze data: copy an event-groups snippet from your
+              signed-in lumen.wyzecam.com tab, then tap Load.
+            </div>
+            <button class="load-btn" id="loadClipboardBtnHome" type="button">Load from clipboard</button>
+            <button class="help-btn-action tiny" id="emptyHelpBtnHome" type="button" style="margin-top:8px;">How to use &rsaquo;</button>
+            <div class="empty-err" id="loadErrHome"></div>
           </div>`;
+        host.querySelector('#loadClipboardBtnHome')
+          ?.addEventListener('click', () => loadFromClipboard({ silent: false }));
+        host.querySelector('#emptyHelpBtnHome')
+          ?.addEventListener('click', () => _openHelpModal());
         return;
       }
       const cards = devices.map(d => {
