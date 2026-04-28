@@ -1700,20 +1700,19 @@
     .phone-frame.dark .help-btn:hover { color: #fff; }
     .phone-frame.dark .help-btn svg { width: 20px; height: 20px; }
 
-    /* Clear-events button — only visible on the Home tab, right after
-       the page title text. Intentionally dim (lower opacity) so it
-       reads as secondary chrome. */
+    /* Refresh / clear-cache button — sits right after the page title
+       text on every tab. Intentionally dim (low contrast) so it reads
+       as secondary chrome. */
     .phone-frame.dark .clear-btn {
       background: none; border: none; padding: 0;
       color: #505050;
       cursor: pointer;
-      display: none;
+      display: inline-flex;
       align-items: center; justify-content: center;
       margin-left: 6px;
       transition: color .15s, opacity .15s;
       align-self: center;
     }
-    .phone-frame.dark.home-active .clear-btn { display: inline-flex; }
     .phone-frame.dark .clear-btn svg { width: 16px; height: 16px; }
     .phone-frame.dark .clear-btn:hover { color: #FF4F4F; }
 
