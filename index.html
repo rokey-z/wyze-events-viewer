@@ -1274,6 +1274,15 @@
       background: rgba(255,255,255,0.10);
     }
     .phone-frame.dark .gap-row .row-head { cursor: pointer; }
+    /* Thumb-first quiet row: thumb sits on top, time + summary phrase below.
+       Tighten row-head padding so the text hugs the thumb rather than the
+       ample default spacing meant for text-first rows. */
+    .phone-frame.dark .gap-row .content-col > .quiet-row:first-child {
+      padding-top: 10px;
+    }
+    .phone-frame.dark .gap-row .content-col > .quiet-row + .row-head {
+      padding-top: 4px;
+    }
 
     /* Compact card: score=1 renders a small fixed-width thumb in a horizontal row. */
     .phone-frame.dark .compact-row {
@@ -4226,13 +4235,13 @@
             <div class="rail"></div>
             <div class="marker"><span class="row-dot hollow"></span></div>
             <div class="content-col">
+              <div class="quiet-row">${thumbs}</div>
               <div class="row-head">
                 <span class="time-label">
                   <strong class="time-ago">${relTimeAgo(dt)}</strong>
                   <span class="time-stamp">${fmtHM(dt)} · ${_esc(quietPhrase(g))}</span>
                 </span>
               </div>
-              <div class="quiet-row">${thumbs}</div>
             </div>
           </div>`;
       };
@@ -4565,13 +4574,13 @@
           <div class="rail"></div>
           <div class="marker"><span class="row-dot hollow"></span></div>
           <div class="content-col">
+            <div class="quiet-row">${thumbs}</div>
             <div class="row-head">
               <span class="time-label">
                 <strong class="time-ago">${ago}</strong>
                 <span class="time-stamp">${stamp} · quiet event</span>
               </span>
             </div>
-            <div class="quiet-row">${thumbs}</div>
           </div>
         </div>`;
       _swapRow(tl, newHtml);
