@@ -1204,15 +1204,7 @@
       font-size: 12px;
     }
     .phone-frame.dark .gap-row .row-head .time-label {
-      flex-wrap: wrap;
       line-height: 1.35;
-    }
-    .phone-frame.dark .gap-row .row-head .time-label .time-stamp {
-      flex: 1 1 auto;
-      min-width: 0;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      white-space: normal;
     }
     /* Consecutive quiet rows fold: only the first shows, the rest are hidden
        behind a "Show N more" toggle row until revealed. */
@@ -1274,24 +1266,29 @@
       background: rgba(255,255,255,0.10);
     }
     .phone-frame.dark .gap-row .row-head { cursor: pointer; }
-    /* Inline quiet row: a single thumb on the left, time + summary phrase
-       wrapping on the right. Replaces the older stacked layout so each
-       quiet event takes only one visual row. */
-    .phone-frame.dark .gap-row .content-col {
+    /* Quiet row layout:
+       Line 1 (row-head): "Nd ago  HH:MM" — aligns horizontally with the
+                          rail's hollow dot in the marker column.
+       Line 2 (quiet-line): single thumb on the left, summary phrase
+                            wrapping on the right. */
+    .phone-frame.dark .gap-row .quiet-line {
       display: flex;
       flex-direction: row;
       align-items: flex-start;
       gap: 10px;
-      padding-top: 8px;
-      padding-bottom: 6px;
+      padding: 4px 0 4px;
     }
-    .phone-frame.dark .gap-row .content-col > .quiet-row {
+    .phone-frame.dark .gap-row .quiet-line .quiet-row {
       flex-shrink: 0;
       padding-bottom: 0;
     }
-    .phone-frame.dark .gap-row .content-col > .row-head {
+    .phone-frame.dark .gap-row .quiet-line .quiet-summary {
       flex: 1; min-width: 0;
-      padding: 0;
+      font-size: 12px; font-weight: 500;
+      color: #787878;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+      cursor: pointer;
     }
 
     /* Compact card: score=1 renders a small fixed-width thumb in a horizontal row. */
@@ -4247,12 +4244,15 @@
             <div class="rail"></div>
             <div class="marker"><span class="row-dot hollow"></span></div>
             <div class="content-col">
-              <div class="quiet-row">${thumbs}</div>
               <div class="row-head">
                 <span class="time-label">
                   <strong class="time-ago">${relTimeAgo(dt)}</strong>
-                  <span class="time-stamp">${fmtHM(dt)} · ${_esc(quietPhrase(g))}</span>
+                  <span class="time-stamp">${fmtHM(dt)}</span>
                 </span>
+              </div>
+              <div class="quiet-line">
+                <div class="quiet-row">${thumbs}</div>
+                <div class="quiet-summary">${_esc(quietPhrase(g))}</div>
               </div>
             </div>
           </div>`;
@@ -4588,12 +4588,15 @@
           <div class="rail"></div>
           <div class="marker"><span class="row-dot hollow"></span></div>
           <div class="content-col">
-            <div class="quiet-row">${thumbs}</div>
             <div class="row-head">
               <span class="time-label">
                 <strong class="time-ago">${ago}</strong>
-                <span class="time-stamp">${stamp} · quiet event</span>
+                <span class="time-stamp">${stamp}</span>
               </span>
+            </div>
+            <div class="quiet-line">
+              <div class="quiet-row">${thumbs}</div>
+              <div class="quiet-summary">quiet event</div>
             </div>
           </div>
         </div>`;
