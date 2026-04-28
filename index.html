@@ -6130,10 +6130,6 @@
       const devices = window.__rawDevices || [];
       if (!devices.length) {
         host.innerHTML = `
-          <div class="home-greeting">
-            <h2>Home</h2>
-            <div class="home-sub">Your Wyze setup</div>
-          </div>
           <div class="home-empty">
             No devices loaded yet. Run the producer snippet again to fetch
             your camera list along with events.
@@ -6165,10 +6161,6 @@
           </div>`;
       }).join('');
       host.innerHTML = `
-        <div class="home-greeting">
-          <h2>Home</h2>
-          <div class="home-sub">${devices.length} device${devices.length === 1 ? '' : 's'}</div>
-        </div>
         <div class="home-section-title">
           Cameras <span class="home-section-count">${devices.length}</span>
         </div>
