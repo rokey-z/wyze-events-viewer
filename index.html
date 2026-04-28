@@ -2780,7 +2780,7 @@
           </svg>
         </div>
         <div class="chip" title="Quiet score cutoff — tap to toggle" data-filter="score">
-          <span>Quiet ≤ 3</span>
+          <span>Quiet ≤ 2</span>
         </div>
       </div>
 
@@ -3771,7 +3771,7 @@
     //   cameraRaw : raw camera id selected in the dropdown, or null
     //   view      : 'story' (default) | 'all'
     // ════════════════════════════════════════
-    window.__filterState = window.__filterState || { tag: null, cameraRaw: null, view: 'story', quietMax: 3 };
+    window.__filterState = window.__filterState || { tag: null, cameraRaw: null, view: 'story', quietMax: 2 };
     // Shared time helpers (also used by row-expand handler below).
     window._fmtHM = (dt) => dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
     window._relTimeAgo = (dt) => {
@@ -3987,7 +3987,7 @@
         if (f === 'cameras') return; // handled by camera dropdown
         if (f === 'score') {
           // Toggle quiet cutoff between 2 and 3
-          const cur = window.__filterState.quietMax ?? 3;
+          const cur = window.__filterState.quietMax ?? 2;
           const next = cur === 3 ? 2 : 3;
           window.__filterState.quietMax = next;
           const label = chip.querySelector('span');
@@ -4244,7 +4244,7 @@
       // <= quietMax → one "Nothing happened" row per quiet group. When two or
       // more consecutive quiet rows would appear, render only the first and
       // fold the rest behind a "Show N more" toggle row.
-      const quietMax = window.__filterState.quietMax ?? 3;
+      const quietMax = window.__filterState.quietMax ?? 2;
       let html = '';
       let i = 0;
       while (i < groups.length) {
