@@ -2109,7 +2109,12 @@
        fill so it reads as a primary action. */
     .phone-frame.dark .chat-fab {
       position: absolute;
-      left: 14px;
+      /* Vertically aligned (in screen X) with the bottom-nav's Home tab,
+         which sits in the first of four equally-spaced slots — its center
+         is at 12.5% of phone-frame width. translateX(-50%) anchors the
+         FAB on that center regardless of width. */
+      left: 12.5%;
+      transform: translateX(-50%);
       /* Center the FAB on the same horizontal line as the view-toggle and
          floating-quiet chip. They are ~34px tall at bottom: calc(96px +
          safe). The FAB is 48px, so subtract 7px to keep centers aligned. */
@@ -2126,7 +2131,7 @@
                   0 0 0 4px rgba(29,240,187,0.15);
       transition: transform .12s, box-shadow .15s;
     }
-    .phone-frame.dark .chat-fab:active { transform: scale(0.92); }
+    .phone-frame.dark .chat-fab:active { transform: translateX(-50%) scale(0.92); }
     .phone-frame.dark .chat-fab svg {
       width: 26px; height: 23px;
       transform-origin: center;
