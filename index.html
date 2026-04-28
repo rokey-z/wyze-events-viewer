@@ -2293,6 +2293,48 @@
       line-height: 1.25;
       text-shadow: 0 1px 2px rgba(0,0,0,0.6);
     }
+    /* Per-clip right/wrong actions in the album grid */
+    .phone-frame.dark .album-sheet .album-cell .cell-actions {
+      position: absolute; top: 4px; right: 4px;
+      display: flex; gap: 4px;
+      z-index: 2;
+    }
+    .phone-frame.dark .album-sheet .album-cell .cell-act {
+      width: 22px; height: 22px;
+      border: none; border-radius: 50%;
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      transition: background .15s, transform .15s;
+      padding: 0;
+    }
+    .phone-frame.dark .album-sheet .album-cell .cell-act svg {
+      width: 11px; height: 11px;
+      stroke: #fff;
+      stroke-width: 2.4;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .phone-frame.dark .album-sheet .album-cell .cell-act:active { transform: scale(0.9); }
+    .phone-frame.dark .album-sheet .album-cell .cell-act.is-on[data-act="right"] {
+      background: #1DF0BB;
+    }
+    .phone-frame.dark .album-sheet .album-cell .cell-act.is-on[data-act="right"] svg {
+      stroke: #0d0d0d;
+    }
+    .phone-frame.dark .album-sheet .album-cell.is-correct {
+      box-shadow: 0 0 0 2px #1DF0BB inset;
+    }
+    /* Removing animation when user marks a cell wrong */
+    .phone-frame.dark .album-sheet .album-cell.is-removing {
+      transition: transform .22s ease-in, opacity .22s ease-in;
+      transform: scale(0.6);
+      opacity: 0;
+      pointer-events: none;
+    }
     .phone-frame.dark .album-sheet .album-empty {
       grid-column: 1 / -1;
       text-align: center;
@@ -4666,6 +4708,11 @@
       // fmtCam is local to renderTimeline — use the top-level helper +
       // exposed nameMap so this top-level function can resolve cam names.
       const fmtCam = (c) => _camFriendlyName(c, window.__camNameMap);
+      // Persistent feedback store keyed by subject. Surviving in memory only —
+      // when the page reloads the user's calls are lost, which is fine for a
+      // design-iteration prototype.
+      window.__SUBJECT_FEEDBACK = window.__SUBJECT_FEEDBACK || {};
+      const fb = window.__SUBJECT_FEEDBACK[key] = window.__SUBJECT_FEEDBACK[key] || { right: {}, wrong: {} };
       const cells = [];
       for (const g of groups) {
         const cam = fmtCam((g.cameras || [])[0]);
@@ -4676,15 +4723,28 @@
           ? g.clip_urls
           : [g.preview_url || g.thumbnail_url].filter(Boolean);
         urls.forEach((u, i) => {
+          const cellKey = g.id + ':' + i;
+          // Skip cells the user already marked wrong in a previous album open.
+          if (fb.wrong[cellKey]) return;
+          const isRight = !!fb.right[cellKey];
           cells.push(`
-            <div class="album-cell" data-group="${_esc(g.id)}">
+            <div class="album-cell${isRight ? ' is-correct' : ''}" data-group="${_esc(g.id)}" data-cell-key="${_esc(cellKey)}">
               <img src="${_esc(u)}" alt="" data-gid="${_esc(g.id)}" data-idx="${i}" onerror="window._clipErr(this);" />
               <div class="album-cell-meta">${_esc(time)} · ${_esc(cam || 'Camera')}</div>
+              <div class="cell-actions">
+                <button class="cell-act${isRight ? ' is-on' : ''}" data-act="right" type="button" aria-label="Correct subject">
+                  <svg viewBox="0 0 12 12"><path d="M2.5 6.5l2.5 2.5 4.5-5"/></svg>
+                </button>
+                <button class="cell-act" data-act="wrong" type="button" aria-label="Wrong subject — remove">
+                  <svg viewBox="0 0 12 12"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+              </div>
             </div>`);
         });
       }
+      const totalCells = cells.length;
       const cover = groups[0] ? _subjectThumbUrlForGroup(groups[0]) : '';
-      const meta = groups.length + ' event' + (groups.length === 1 ? '' : 's');
+      const meta = totalCells + ' clip' + (totalCells === 1 ? '' : 's');
 
       const backdrop = document.createElement('div');
       backdrop.className = 'album-backdrop';
@@ -4720,6 +4780,53 @@
       sheet.classList.add('open');
       backdrop.addEventListener('click', _closeSubjectAlbum);
       sheet.querySelector('.album-close').addEventListener('click', _closeSubjectAlbum);
+
+      // Per-cell right/wrong handler. ✓ marks the clip correct (Wyze AI
+      // should remember this is "<subject>"), ✗ marks it wrong and removes
+      // the cell from this album.
+      const grid = sheet.querySelector('.album-grid');
+      const metaEl = sheet.querySelector('.album-meta');
+      const subjectName = entry.display;
+      grid?.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.cell-act');
+        if (!btn) return;
+        ev.stopPropagation();
+        const cell = btn.closest('.album-cell');
+        const ck = cell?.dataset.cellKey;
+        if (!cell || !ck) return;
+        const act = btn.dataset.act;
+        if (act === 'wrong') {
+          fb.wrong[ck] = true;
+          delete fb.right[ck];
+          cell.classList.add('is-removing');
+          setTimeout(() => {
+            cell.remove();
+            // Update the live count in the header.
+            const remaining = grid.querySelectorAll('.album-cell').length;
+            if (metaEl) metaEl.textContent = remaining + ' clip' + (remaining === 1 ? '' : 's');
+            if (!remaining) {
+              grid.innerHTML = '<div class="album-empty">No clips left for this subject.</div>';
+            }
+          }, 220);
+          if (typeof _showToast === 'function') {
+            _showToast('Wyze AI won’t label this as ' + subjectName);
+          }
+        } else if (act === 'right') {
+          // Toggle off if already marked correct.
+          if (fb.right[ck]) {
+            delete fb.right[ck];
+            cell.classList.remove('is-correct');
+            btn.classList.remove('is-on');
+          } else {
+            fb.right[ck] = true;
+            cell.classList.add('is-correct');
+            btn.classList.add('is-on');
+            if (typeof _showToast === 'function') {
+              _showToast('Confirmed — Wyze AI will remember this as ' + subjectName);
+            }
+          }
+        }
+      });
     }
 
     function _closeSubjectAlbum() {
