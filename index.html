@@ -5169,7 +5169,12 @@
         const dt = parseTs(g.start);
         const cam = fmtCam((g.cameras || [])[0]);
         const camRaw = (g.cameras || [])[0] || '';
-        const heroUrl = g.preview_url || g.thumbnail_url || '';
+        // Most recent ONGOING groups often have neither preview_url nor
+        // thumbnail_url yet — Wyze hasn't finished uploading. Fall back to
+        // the next most-recent group from the same camera that DOES have
+        // an image, so the card always shows a recognizable scene.
+        let heroUrl = g.preview_url || g.thumbnail_url || '';
+        if (!heroUrl) heroUrl = _fallbackThumbForCamera(g, groups) || '';
         // If no live URL, start with the locally-cached GIF (stage 0) directly.
         const heroSrc = heroUrl || `wyze-thumbs/${g.id}.gif`;
         const heroStage = heroUrl ? '0' : '1';
@@ -6030,10 +6035,33 @@
       return out;
     }
 
+    // Find the most recent group from the SAME camera that has a real
+    // image, so groups whose own preview/thumbnail haven't finished
+    // uploading (typically the newest 1–3 ONGOING events) can borrow
+    // a recognizable scene from a sibling event.
+    function _fallbackThumbForCamera(g, sourceList) {
+      const cams = g && g.cameras || [];
+      if (!cams.length) return '';
+      const groups = sourceList || window.__rawGroups || [];
+      for (const other of groups) {
+        if (!other || other.id === g.id) continue;
+        const oc = other.cameras || [];
+        const shares = oc.some(c => cams.some(cc => _macsMatch ? _macsMatch(c, cc) : c === cc));
+        if (!shares) continue;
+        const u = other.preview_url || other.thumbnail_url ||
+                  (other.clip_urls && other.clip_urls[0]);
+        if (u) return u;
+      }
+      return '';
+    }
+
     // Pick a thumbnail URL for a subject inside a group — prefer the first
-    // event clip if available, otherwise the group's preview / hero.
+    // event clip if available, otherwise the group's preview / hero, then
+    // fall back to a sibling group's image from the same camera.
     function _subjectThumbUrlForGroup(g) {
-      return (g.clip_urls && g.clip_urls[0]) || g.preview_url || g.thumbnail_url || '';
+      return (g.clip_urls && g.clip_urls[0]) ||
+             g.preview_url || g.thumbnail_url ||
+             _fallbackThumbForCamera(g) || '';
     }
 
     // Build a global index keyed by subject. Each entry has a display name,
