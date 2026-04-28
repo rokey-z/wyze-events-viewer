@@ -1274,14 +1274,24 @@
       background: rgba(255,255,255,0.10);
     }
     .phone-frame.dark .gap-row .row-head { cursor: pointer; }
-    /* Thumb-first quiet row: thumb sits on top, time + summary phrase below.
-       Tighten row-head padding so the text hugs the thumb rather than the
-       ample default spacing meant for text-first rows. */
-    .phone-frame.dark .gap-row .content-col > .quiet-row:first-child {
-      padding-top: 10px;
+    /* Inline quiet row: a single thumb on the left, time + summary phrase
+       wrapping on the right. Replaces the older stacked layout so each
+       quiet event takes only one visual row. */
+    .phone-frame.dark .gap-row .content-col {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 10px;
+      padding-top: 8px;
+      padding-bottom: 6px;
     }
-    .phone-frame.dark .gap-row .content-col > .quiet-row + .row-head {
-      padding-top: 4px;
+    .phone-frame.dark .gap-row .content-col > .quiet-row {
+      flex-shrink: 0;
+      padding-bottom: 0;
+    }
+    .phone-frame.dark .gap-row .content-col > .row-head {
+      flex: 1; min-width: 0;
+      padding: 0;
     }
 
     /* Compact card: score=1 renders a small fixed-width thumb in a horizontal row. */
@@ -4229,7 +4239,9 @@
                   : (g.preview_url ? [g.preview_url]
                   : (g.thumbnail_url ? [g.thumbnail_url] : []));
         if (!urls.length) return ''; // skip quiet group with nothing to show
-        const thumbs = urls.map((u, i) => buildCompactClip(g, u, i)).join('');
+        // Only render the FIRST clip — the row sits inline with the summary
+        // text on its right, so a single thumb keeps the layout compact.
+        const thumbs = buildCompactClip(g, urls[0], 0);
         return `
           <div class="timeline-row gap-row ${extraClass}" data-group="${_esc(g.id)}" ${extraAttr}>
             <div class="rail"></div>
@@ -4563,10 +4575,12 @@
         return;
       }
       const escId = _esc(id);
-      const thumbs = urls.map((u, i) => `
-        <div class="compact-card" data-group="${escId}" data-idx="${i}" data-compact="1" title="${_esc(g.title || '')}">
-          <img src="${_esc(u)}" alt="" data-gid="${escId}" data-idx="${i}" onerror="window._clipErr(this);" />
-        </div>`).join('');
+      // Single thumb only — sits inline with the summary text on its right.
+      const u0 = urls[0];
+      const thumbs = `
+        <div class="compact-card" data-group="${escId}" data-idx="0" data-compact="1" title="${_esc(g.title || '')}">
+          <img src="${_esc(u0)}" alt="" data-gid="${escId}" data-idx="0" onerror="window._clipErr(this);" />
+        </div>`;
       const ago   = window._relTimeAgo?.(dt) || '';
       const stamp = window._fmtHM?.(dt) || '';
       const newHtml = `
