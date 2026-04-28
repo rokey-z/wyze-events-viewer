@@ -2661,6 +2661,118 @@
       z-index: 50;            /* above scroll-content so the dropdown isn't covered */
     }
     .chip { flex-shrink: 1; min-width: 0; }
+    /* Albums chip sits on the right end of the filter bar. */
+    .phone-frame.dark .chip.albums-chip {
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .phone-frame.dark .chip.albums-chip span { font-weight: 600; }
+
+    /* Albums browser sheet — a flat grid of subject albums opened by the
+       albums-chip in the filter bar. Each cell becomes a subject album. */
+    .phone-frame.dark .albums-sheet {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 90%;
+      z-index: 200;
+      background: #1A1A1A;
+      border-radius: 18px 18px 0 0;
+      box-shadow: 0 -10px 32px rgba(0,0,0,0.6);
+      transform: translateY(100%);
+      transition: transform .28s cubic-bezier(0.22, 0.65, 0.34, 1);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .phone-frame.dark .albums-sheet.open { transform: translateY(0); }
+    .phone-frame.dark .albums-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+      opacity: 0; transition: opacity .24s;
+    }
+    .phone-frame.dark .albums-backdrop.open { opacity: 1; }
+    .phone-frame.dark .albums-sheet .albums-handle {
+      flex-shrink: 0;
+      display: flex; justify-content: center;
+      padding: 8px 0 4px;
+    }
+    .phone-frame.dark .albums-sheet .albums-handle div {
+      width: 36px; height: 4px; border-radius: 2px;
+      background: #505050;
+    }
+    .phone-frame.dark .albums-sheet .albums-header {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 12px;
+      padding: 4px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .phone-frame.dark .albums-sheet .albums-title {
+      flex: 1;
+      font-weight: 700; font-size: 17px; color: #fff;
+    }
+    .phone-frame.dark .albums-sheet .albums-meta {
+      font-size: 12px; color: #A0A0A0;
+    }
+    .phone-frame.dark .albums-sheet .albums-close {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border: none; background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      color: #C8C8C8;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .albums-sheet .albums-close svg { width: 14px; height: 14px; }
+    .phone-frame.dark .albums-sheet .albums-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 12px 24px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      align-content: start;
+      grid-auto-rows: max-content;
+    }
+    .phone-frame.dark .albums-sheet .album-tile {
+      cursor: pointer;
+      display: flex; flex-direction: column;
+      gap: 8px;
+    }
+    .phone-frame.dark .albums-sheet .album-tile-thumb {
+      position: relative;
+      width: 100%; height: 0;
+      padding-bottom: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #2a2a2a;
+    }
+    .phone-frame.dark .albums-sheet .album-tile-thumb img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .phone-frame.dark .albums-sheet .album-tile-thumb .subj-icon {
+      position: absolute; right: 6px; bottom: 6px;
+      width: 22px; height: 22px;
+      background: rgba(0,0,0,0.78);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .albums-sheet .album-tile-thumb .subj-icon svg {
+      width: 13px; height: 13px;
+    }
+    .phone-frame.dark .albums-sheet .album-tile-name {
+      font-weight: 700; font-size: 14px; color: #fff;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .phone-frame.dark .albums-sheet .album-tile-meta {
+      font-size: 11px; color: #A0A0A0;
+      margin-top: -4px;
+    }
+    .phone-frame.dark .albums-sheet .albums-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: #787878; font-size: 13px;
+      padding: 32px 16px;
+    }
 
     /* Page header (Events title + Classic toggle + Search) */
     .page-header { padding: 8px 16px 4px; }
@@ -2797,6 +2909,14 @@
         </div>
         <div class="chip" title="Quiet score cutoff — tap to toggle" data-filter="score">
           <span>Quiet ≤ 2</span>
+        </div>
+        <div class="chip albums-chip" title="Browse subject albums" data-filter="albums">
+          <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+            <rect x="4" y="5" width="16" height="14" rx="2"/>
+            <path d="M4 10h16"/>
+            <path d="M9 5v5"/>
+          </svg>
+          <span class="albums-count">0 Albums</span>
         </div>
       </div>
 
@@ -4011,6 +4131,10 @@
           applyFiltersAndRender();
           return;
         }
+        if (f === 'albums') {
+          _openAlbumsBrowser();
+          return;
+        }
         if (!['person', 'pet', 'vehicle', 'package'].includes(f)) return;
         setActiveChip(f);
       });
@@ -4951,7 +5075,95 @@
         idx[k].groups.sort((a, b) => parseTs(b.start) - parseTs(a.start));
       }
       window.__SUBJECT_INDEX = idx;
+      _refreshAlbumsChip();
       return idx;
+    }
+
+    // Update the "X Albums" chip in the filter toolbar with the live count.
+    function _refreshAlbumsChip() {
+      const span = document.querySelector('.albums-chip .albums-count');
+      if (!span) return;
+      const n = Object.keys(window.__SUBJECT_INDEX || {}).length;
+      span.textContent = n + ' Album' + (n === 1 ? '' : 's');
+    }
+
+    // Slide-up sheet listing every subject album as a 2-col grid of tiles.
+    // Tap a tile to close this sheet and open the existing subject album.
+    function _openAlbumsBrowser() {
+      const idx = window.__SUBJECT_INDEX || {};
+      const keys = Object.keys(idx).sort((a, b) =>
+        (idx[b].groups.length || 0) - (idx[a].groups.length || 0));
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame) return;
+      frame.querySelector('.albums-sheet')?.remove();
+      frame.querySelector('.albums-backdrop')?.remove();
+
+      const tiles = keys.map(k => {
+        const e = idx[k];
+        const cover = e.groups[0] ? _subjectThumbUrlForGroup(e.groups[0]) : '';
+        const clipCount = (e.groups || []).reduce((sum, g) => {
+          const u = (g.clip_urls && g.clip_urls.length)
+            ? g.clip_urls.length
+            : ((g.preview_url || g.thumbnail_url) ? 1 : 0);
+          return sum + u;
+        }, 0);
+        return `
+          <div class="album-tile" data-subject-key="${_esc(e.key)}">
+            <div class="album-tile-thumb">
+              ${cover ? `<img src="${_esc(cover)}" alt="" onerror="window._clipErr(this);" data-gid="${_esc(e.groups[0].id)}" data-idx="0" />` : ''}
+              ${_subjectIconHtml(e.category)}
+            </div>
+            <div class="album-tile-name">${_esc(e.display)}</div>
+            <div class="album-tile-meta">${clipCount} clip${clipCount === 1 ? '' : 's'} · ${e.groups.length} event${e.groups.length === 1 ? '' : 's'}</div>
+          </div>`;
+      }).join('');
+
+      const total = keys.length;
+      const backdrop = document.createElement('div');
+      backdrop.className = 'albums-backdrop';
+      const sheet = document.createElement('div');
+      sheet.className = 'albums-sheet';
+      sheet.innerHTML = `
+        <div class="albums-handle"><div></div></div>
+        <div class="albums-header">
+          <div>
+            <div class="albums-title">Albums</div>
+            <div class="albums-meta">${total} subject${total === 1 ? '' : 's'} detected</div>
+          </div>
+          <button class="albums-close" type="button" aria-label="Close">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>
+          </button>
+        </div>
+        <div class="albums-grid">
+          ${tiles || '<div class="albums-empty">No albums yet — load some events first.</div>'}
+        </div>`;
+      frame.appendChild(backdrop);
+      frame.appendChild(sheet);
+      // Force reflow then animate.
+      sheet.offsetHeight; backdrop.offsetHeight;
+      backdrop.classList.add('open');
+      sheet.classList.add('open');
+      backdrop.addEventListener('click', _closeAlbumsBrowser);
+      sheet.querySelector('.albums-close').addEventListener('click', _closeAlbumsBrowser);
+      sheet.querySelector('.albums-grid').addEventListener('click', (ev) => {
+        const tile = ev.target.closest('.album-tile');
+        if (!tile) return;
+        const k = tile.dataset.subjectKey;
+        if (!k) return;
+        _closeAlbumsBrowser();
+        // Wait for slide-down then open the subject album.
+        setTimeout(() => _openSubjectAlbum(k), 290);
+      });
+    }
+
+    function _closeAlbumsBrowser() {
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame) return;
+      const sheet = frame.querySelector('.albums-sheet');
+      const backdrop = frame.querySelector('.albums-backdrop');
+      if (sheet) sheet.classList.remove('open');
+      if (backdrop) backdrop.classList.remove('open');
+      setTimeout(() => { sheet?.remove(); backdrop?.remove(); }, 280);
     }
 
     // Build the strip HTML for one group.
