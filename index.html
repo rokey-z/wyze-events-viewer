@@ -1190,6 +1190,9 @@
     .phone-frame.dark .timeline-row .row-head .time-label .time-stamp {
       font-weight: 500; color: #787878;
     }
+    .phone-frame.dark .timeline-row .row-head .time-label .clip-count {
+      font-weight: 500; color: #6B6B6B; margin-left: 2px;
+    }
     /* Quiet events rows: de-emphasize the whole header — no bold, all dimmed,
        one size smaller than full-card row heads. */
     .phone-frame.dark .gap-row .row-head .time-label,
@@ -2155,15 +2158,13 @@
       width: 11px; height: 11px;
     }
     .phone-frame.dark .card-thumbnail .subject-strip .subj-label {
-      position: absolute; left: 0; right: 0; bottom: 0;
-      padding: 1px 4px;
-      background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0));
+      position: absolute; top: 3px; left: 4px; right: 4px;
       color: #fff;
       font-size: 9px; font-weight: 600;
-      line-height: 1.2;
+      line-height: 1.1;
       text-align: left;
       letter-spacing: 0.2px;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 3px rgba(0,0,0,0.7);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       pointer-events: none;
     }
@@ -3854,7 +3855,7 @@
               <div class="row-head">
                 <span class="time-label">
                   <strong class="time-ago">${relTimeAgo(dt)}</strong>
-                  <span class="time-stamp">${fmtHM(dt)}</span>
+                  <span class="time-stamp">${fmtHM(dt)}${(g.clip_urls && g.clip_urls.length) ? ` <span class="clip-count">(${g.clip_urls.length} clip${g.clip_urls.length === 1 ? '' : 's'})</span>` : ''}</span>
                 </span>
               </div>
               ${buildEventCard(g)}
@@ -4678,11 +4679,14 @@
         </div>`;
       frame.appendChild(backdrop);
       frame.appendChild(sheet);
-      // Force reflow then add .open so the transition runs.
-      requestAnimationFrame(() => {
-        backdrop.classList.add('open');
-        sheet.classList.add('open');
-      });
+      // Force a synchronous layout pass so the initial translateY(100%) is
+      // committed BEFORE we add .open — otherwise the browser batches the
+      // two states into one frame and the transition never runs.
+      // eslint-disable-next-line no-unused-expressions
+      sheet.offsetHeight;
+      backdrop.offsetHeight;
+      backdrop.classList.add('open');
+      sheet.classList.add('open');
       backdrop.addEventListener('click', _closeSubjectAlbum);
       sheet.querySelector('.album-close').addEventListener('click', _closeSubjectAlbum);
     }
