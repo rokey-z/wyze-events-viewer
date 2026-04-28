@@ -1926,6 +1926,183 @@
       color: #787878; font-size: 13px;
     }
 
+    /* ───────── Live stream view ───────── */
+    .phone-frame.dark .live-view {
+      position: absolute; inset: 0;
+      z-index: 210;
+      background: #0a0a0a;
+      display: flex; flex-direction: column;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(0.22, 0.65, 0.34, 1);
+      overflow: hidden;
+    }
+    .phone-frame.dark .live-view.open { transform: translateY(0); }
+
+    .phone-frame.dark .live-view .live-header {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 14px 10px;
+      padding-top: max(14px, env(safe-area-inset-top));
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0));
+      position: relative;
+      z-index: 2;
+    }
+    .phone-frame.dark .live-view .live-close,
+    .phone-frame.dark .live-view .live-more {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border: none; border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+      color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    .phone-frame.dark .live-view .live-close svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2.2; fill: none; stroke-linecap: round; }
+    .phone-frame.dark .live-view .live-more svg  { width: 18px; height: 18px; fill: currentColor; }
+    .phone-frame.dark .live-view .live-title {
+      flex: 1; min-width: 0;
+    }
+    .phone-frame.dark .live-view .live-name {
+      font-weight: 700; font-size: 15px; color: #fff;
+      letter-spacing: -0.05px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .phone-frame.dark .live-view .live-sub {
+      font-size: 11px; color: #A0A0A0;
+      margin-top: 2px;
+    }
+
+    /* Video stage — placeholder using the latest event-group thumbnail
+       as a backdrop, with a Live badge + slight scan-line shimmer to
+       hint at a live feed. */
+    .phone-frame.dark .live-view .live-video {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .phone-frame.dark .live-view .live-video img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .phone-frame.dark .live-view .live-video.no-feed {
+      background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: #6B6B6B;
+      gap: 6px;
+      font-size: 13px;
+    }
+    .phone-frame.dark .live-view .live-video.no-feed svg {
+      width: 44px; height: 44px;
+      stroke: #4a4a4a; fill: none; stroke-width: 1.5;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .phone-frame.dark .live-view .live-badge {
+      position: absolute; top: 12px; left: 12px;
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 10px 5px 8px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 999px;
+      color: #fff;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.6px;
+      backdrop-filter: blur(6px);
+      z-index: 2;
+    }
+    .phone-frame.dark .live-view .live-badge .live-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #FF4F4F;
+      box-shadow: 0 0 8px rgba(255,79,79,0.7);
+      animation: live-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes live-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .phone-frame.dark .live-view .live-time {
+      position: absolute; bottom: 10px; right: 12px;
+      font-size: 11px; color: rgba(255,255,255,0.85);
+      font-family: ui-monospace, Menlo, monospace;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+      z-index: 2;
+    }
+    .phone-frame.dark .live-view .live-shimmer {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(180deg, rgba(255,255,255,0.025) 0, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 3px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Action bar with circular icon buttons. */
+    .phone-frame.dark .live-view .live-actions {
+      flex-shrink: 0;
+      display: flex; justify-content: space-around;
+      padding: 18px 14px 12px;
+      background: #0a0a0a;
+    }
+    .phone-frame.dark .live-view .live-action {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      background: none; border: none; cursor: pointer;
+      color: #C8C8C8; font: inherit;
+      transition: color .15s, transform .12s;
+    }
+    .phone-frame.dark .live-view .live-action:active { transform: scale(0.94); }
+    .phone-frame.dark .live-view .live-action.is-on { color: #1DF0BB; }
+    .phone-frame.dark .live-view .live-action .live-action-icon {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .live-view .live-action svg {
+      width: 20px; height: 20px;
+      stroke: currentColor; fill: none; stroke-width: 1.8;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .phone-frame.dark .live-view .live-action.is-on .live-action-icon {
+      background: rgba(29,240,187,0.15);
+    }
+    .phone-frame.dark .live-view .live-action .live-action-label {
+      font-size: 11px; font-weight: 500;
+    }
+
+    /* Info strip + actions below the video. */
+    .phone-frame.dark .live-view .live-info {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 16px 24px;
+      background: #0a0a0a;
+    }
+    .phone-frame.dark .live-view .live-info-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .phone-frame.dark .live-view .live-info-key {
+      font-size: 12px; color: #A0A0A0;
+    }
+    .phone-frame.dark .live-view .live-info-val {
+      font-size: 13px; color: #fff; font-weight: 500;
+    }
+    .phone-frame.dark .live-view .live-events-btn {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 12px;
+      background: #1DF0BB;
+      color: #0d0d0d;
+      font: inherit; font-weight: 700; font-size: 13px;
+      cursor: pointer;
+      transition: transform .12s;
+    }
+    .phone-frame.dark .live-view .live-events-btn:active { transform: scale(0.98); }
+
     /* App footer (disclaimer) */
     .phone-frame.dark .app-footer {
       padding: 10px 16px 2px;
@@ -3081,6 +3258,12 @@
       <!-- Home view — list of cameras from /api/devices -->
       <div class="home-view">
         <!-- Populated by renderHomeView() -->
+      </div>
+
+      <!-- Live-stream sheet: full-frame view that slides up over Home or
+           Event when a camera is tapped. Populated by _openLiveView(). -->
+      <div class="live-view">
+        <!-- populated by _openLiveView() -->
       </div>
 
       <!-- Floating Quiet-score cutoff chip (bottom-right) -->
@@ -5415,30 +5598,152 @@
           Cameras <span class="home-section-count">${devices.length}</span>
         </div>
         ${cards}`;
-      // Tap a device → switch to Event view, filter to that camera.
+      // Tap a device → open the Live stream view for that camera.
       host.querySelectorAll('.home-device').forEach(el => {
         el.addEventListener('click', () => {
           const mac = el.dataset.mac;
-          if (!mac) return;
-          const dev = (window.__rawDevices || []).find(d => d.device_mac === mac);
-          const friendly = dev ? (dev.device_name || mac) : mac;
-          // Event groups store cameras as bare 12-hex MACs; map device_mac
-          // to its normalized form so the filter actually matches.
-          const rawMac = _normalizeMac(mac);
-          // Find the matching value the events use (preserves casing).
-          const match = (window.__rawGroups || [])
-            .flatMap(g => g.cameras || [])
-            .find(c => _macsMatch(c, rawMac)) || rawMac;
-          if (typeof setCameraChip === 'function') setCameraChip(friendly);
-          if (window.__filterState) window.__filterState.cameraRaw = match;
-          if (typeof applyFiltersAndRender === 'function') applyFiltersAndRender();
-          // Switch the bottom-nav active state to Event and the view too.
-          const nav = document.querySelectorAll('.bottom-nav .nav-item');
-          nav.forEach(n => n.classList.remove('active'));
-          nav[1]?.classList.add('active');
-          switchHomeView('event');
+          if (mac) _openLiveView(mac);
         });
       });
+    }
+
+    // ════════════════════════════════════════
+    // Live stream view — full-frame sheet that "streams" a camera. Wyze
+    // doesn't expose a public live-stream URL we can embed, so for the
+    // prototype we render the latest event-group thumbnail as the feed
+    // backdrop with a pulsing "LIVE" badge + simulated time stamp +
+    // action bar (mute / talk / snapshot / fullscreen) and an info strip
+    // below. Tapping "View recent events" closes the live view and
+    // filters the Event tab to this camera.
+    // ════════════════════════════════════════
+
+    function _openLiveView(mac) {
+      const dev = (window.__rawDevices || []).find(d => d.device_mac === mac);
+      if (!dev) return;
+      const view = document.querySelector('.phone-frame.dark .live-view');
+      if (!view) return;
+
+      const thumb   = _latestThumbForMac(mac);
+      const ago     = _latestEventAgoForMac(mac);
+      const product = _productLabel(dev.product_model);
+      const fw      = dev.firmware_ver ? String(dev.firmware_ver) : '—';
+
+      // Local clock used as a stand-in for stream timecode.
+      const now = new Date();
+      const stamp = now.toISOString().replace('T',' ').slice(0,19);
+
+      // Video stage — real thumb if we have it, otherwise a "no signal"
+      // placeholder. The shimmer overlay adds a hint of motion.
+      const stage = thumb
+        ? `<div class="live-video">
+             <img src="${_esc(thumb)}" alt="" />
+             <div class="live-shimmer"></div>
+             <div class="live-badge"><span class="live-dot"></span> LIVE</div>
+             <div class="live-time">${_esc(stamp)}</div>
+           </div>`
+        : `<div class="live-video no-feed">
+             <svg viewBox="0 0 24 24"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M17 10l4-2v8l-4-2"/></svg>
+             <div>Camera offline · no recent feed</div>
+             <div class="live-badge" style="background:rgba(40,40,40,0.7);"><span class="live-dot" style="background:#6B6B6B;animation:none;box-shadow:none;"></span> OFFLINE</div>
+           </div>`;
+
+      view.innerHTML = `
+        <div class="live-header">
+          <button class="live-close" type="button" aria-label="Close">
+            <svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg>
+          </button>
+          <div class="live-title">
+            <div class="live-name">${_esc(dev.device_name || mac)}</div>
+            <div class="live-sub">${_esc(product)}</div>
+          </div>
+          <button class="live-more" type="button" aria-label="More">
+            <svg viewBox="0 0 20 20"><circle cx="4" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="16" cy="10" r="1.6"/></svg>
+          </button>
+        </div>
+        ${stage}
+        <div class="live-actions">
+          <button class="live-action is-on" data-act="mic" type="button">
+            <span class="live-action-icon"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg></span>
+            <span class="live-action-label">Sound</span>
+          </button>
+          <button class="live-action" data-act="talk" type="button">
+            <span class="live-action-icon"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h7l5 4v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 4v4h4"/></svg></span>
+            <span class="live-action-label">Talk</span>
+          </button>
+          <button class="live-action" data-act="snap" type="button">
+            <span class="live-action-icon"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-2h6l2 2h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+            <span class="live-action-label">Snapshot</span>
+          </button>
+          <button class="live-action" data-act="full" type="button">
+            <span class="live-action-icon"><svg viewBox="0 0 24 24"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg></span>
+            <span class="live-action-label">Full</span>
+          </button>
+        </div>
+        <div class="live-info">
+          <div class="live-info-row"><span class="live-info-key">Model</span><span class="live-info-val">${_esc(dev.product_model || '—')}</span></div>
+          <div class="live-info-row"><span class="live-info-key">Firmware</span><span class="live-info-val">${_esc(fw)}</span></div>
+          <div class="live-info-row"><span class="live-info-key">MAC</span><span class="live-info-val">${_esc(_normalizeMac(mac))}</span></div>
+          <div class="live-info-row"><span class="live-info-key">Last activity</span><span class="live-info-val">${_esc(ago || 'No recent events')}</span></div>
+          <button class="live-events-btn" type="button" data-act="events">View recent events &rsaquo;</button>
+        </div>`;
+
+      // Force reflow so the slide-up transition actually animates.
+      view.offsetHeight;
+      view.classList.add('open');
+
+      const close = () => _closeLiveView();
+      view.querySelector('.live-close').addEventListener('click', close);
+
+      // Action button toggles (visual-only for the prototype).
+      view.querySelectorAll('.live-action').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const act = btn.dataset.act;
+          if (act === 'snap') {
+            if (typeof _showToast === 'function') _showToast('Snapshot saved');
+            return;
+          }
+          if (act === 'full') {
+            if (typeof _showToast === 'function') _showToast('Fullscreen not available in prototype');
+            return;
+          }
+          // mic / talk are toggleable
+          btn.classList.toggle('is-on');
+          if (typeof _showToast === 'function') {
+            const on = btn.classList.contains('is-on');
+            const label = act === 'mic' ? 'Sound' : 'Talk-back';
+            _showToast(label + (on ? ' on' : ' off'));
+          }
+        });
+      });
+
+      // "View recent events" → filter the Event view to this camera and
+      // close the live sheet.
+      view.querySelector('.live-events-btn').addEventListener('click', () => {
+        const rawMac = _normalizeMac(mac);
+        const match = (window.__rawGroups || [])
+          .flatMap(g => g.cameras || [])
+          .find(c => _macsMatch(c, rawMac)) || rawMac;
+        const friendly = dev.device_name || mac;
+        if (typeof setCameraChip === 'function') setCameraChip(friendly);
+        if (window.__filterState) window.__filterState.cameraRaw = match;
+        if (typeof applyFiltersAndRender === 'function') applyFiltersAndRender();
+        const nav = document.querySelectorAll('.bottom-nav .nav-item');
+        nav.forEach(n => n.classList.remove('active'));
+        nav[1]?.classList.add('active');
+        switchHomeView('event');
+        _closeLiveView();
+      });
+    }
+
+    function _closeLiveView() {
+      const view = document.querySelector('.phone-frame.dark .live-view');
+      if (!view) return;
+      view.classList.remove('open');
+      // Wait for slide-down to finish before clearing innerHTML so the
+      // user doesn't see the content disappear instantly.
+      setTimeout(() => {
+        if (!view.classList.contains('open')) view.innerHTML = '';
+      }, 320);
     }
 
     function _refreshAlbumsChip() {
