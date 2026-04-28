@@ -3718,6 +3718,14 @@
               <path d="M5 0 L5.8 3.2 L9 4 L5.8 4.8 L5 8 L4.2 4.8 L1 4 L4.2 3.2 Z"/>
             </svg>
           </div>
+          <button class="help-btn" id="clearDataBtn" type="button" aria-label="Clear loaded events" title="Clear loaded events">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h16"/>
+              <path d="M9 7V4h6v3"/>
+              <path d="M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/>
+              <path d="M10 11v6M14 11v6"/>
+            </svg>
+          </button>
           <button class="help-btn" id="openHelpBtn" type="button" aria-label="How to use">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
@@ -6456,6 +6464,37 @@
       }, 700 + Math.random() * 500);
     }
 
+    // Wipe every loaded event/device from memory + localStorage and
+    // re-render the empty state. Triggered by the trash icon in the
+    // page header.
+    function _clearAllEvents() {
+      try {
+        const total = (window.__rawGroups || []).length;
+        if (total > 0 && !confirm('Clear all ' + total + ' loaded event' + (total === 1 ? '' : 's') + ' on this device?')) return;
+        if (total === 0 && !confirm('Clear cached data on this device?')) return;
+        // In-memory state
+        window.__rawGroups   = [];
+        window.__rawDevices  = [];
+        window.__GROUPS_BY_ID = {};
+        window.__SUBJECT_INDEX = {};
+        window.__camNameMap = new Map();
+        // Persisted snapshot
+        try { localStorage.removeItem('wyze:lastData'); } catch {}
+        // Re-render UI
+        if (typeof populateCamDropdown === 'function') populateCamDropdown([]);
+        if (typeof renderEmptyState === 'function') renderEmptyState();
+        // Reset Home view if it was visible
+        const homeView = document.querySelector('.phone-frame.dark .home-view');
+        if (homeView && homeView.classList.contains('is-active') && typeof renderHomeView === 'function') {
+          renderHomeView();
+        }
+        if (typeof _refreshAlbumsChip === 'function') _refreshAlbumsChip();
+        if (typeof _showToast === 'function') _showToast('Cleared all loaded events');
+      } catch (e) {
+        if (typeof _showToast === 'function') _showToast('Could not clear: ' + e.message);
+      }
+    }
+
     // ════════════════════════════════════════
     // Wyze AI settings sheet — mirrors lumen.wyzecam.com/settings:
     //   • Account (display name, email, user id)
@@ -7593,6 +7632,7 @@
       document.querySelector('.phone-frame.dark .chat-backdrop')
         ?.addEventListener('click', _closeChatDrawer);
       document.getElementById('openHelpBtn')?.addEventListener('click', _openHelpModal);
+      document.getElementById('clearDataBtn')?.addEventListener('click', _clearAllEvents);
       // Data-load priority on each page load:
       // 1. Clipboard (fresh data the user just copied — top priority)
       // 2. localStorage (the most recent snapshot we saved on this device)
