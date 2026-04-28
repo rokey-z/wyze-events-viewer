@@ -425,7 +425,10 @@
     /* ── Bottom Nav ── */
     .bottom-nav {
       height: 64px; border-top: 1px solid rgba(0,0,0,0.06);
-      display: flex; align-items: center; justify-content: space-around;
+      /* Anchor nav-item content to the bottom edge so labels hug the
+         frame bottom instead of leaving a visual gap below them. */
+      display: flex; align-items: flex-end; justify-content: space-around;
+      padding-bottom: 8px;
       background: #fff; flex-shrink: 0;
     }
     .nav-item {
