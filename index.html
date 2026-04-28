@@ -1194,13 +1194,25 @@
       font-weight: 500; color: #6B6B6B; margin-left: 2px;
     }
     /* Quiet events rows: de-emphasize the whole header — no bold, all dimmed,
-       one size smaller than full-card row heads. */
+       one size smaller than full-card row heads. Allow the longer summary
+       phrase to wrap onto multiple lines instead of getting clipped. */
     .phone-frame.dark .gap-row .row-head .time-label,
     .phone-frame.dark .gap-row .row-head .time-label .time-ago,
     .phone-frame.dark .gap-row .row-head .time-label .time-stamp {
       font-weight: 500;
       color: #787878;
       font-size: 12px;
+    }
+    .phone-frame.dark .gap-row .row-head .time-label {
+      flex-wrap: wrap;
+      line-height: 1.35;
+    }
+    .phone-frame.dark .gap-row .row-head .time-label .time-stamp {
+      flex: 1 1 auto;
+      min-width: 0;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      white-space: normal;
     }
     /* Consecutive quiet rows fold: only the first shows, the rest are hidden
        behind a "Show N more" toggle row until revealed. */
@@ -3876,8 +3888,6 @@
         s = s.replace(/^(a|an|the)\s+/i, '');
         // Lowercase first letter so it flows after the time stamp.
         s = s.charAt(0).toLowerCase() + s.slice(1);
-        // Cap length so it doesn't push the row too wide.
-        if (s.length > 42) s = s.slice(0, 40).trimEnd() + '…';
         return s || 'quiet event';
       };
 
