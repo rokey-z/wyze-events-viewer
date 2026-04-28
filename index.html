@@ -424,7 +424,7 @@
 
     /* ── Bottom Nav ── */
     .bottom-nav {
-      height: 56px; border-top: 1px solid rgba(0,0,0,0.06);
+      height: 64px; border-top: 1px solid rgba(0,0,0,0.06);
       display: flex; align-items: center; justify-content: space-around;
       background: #fff; flex-shrink: 0;
     }
@@ -2134,9 +2134,9 @@
       left: 12.5%;
       transform: translateX(-50%);
       /* Center the FAB on the same horizontal line as the view-toggle and
-         floating-quiet chip (which sit 18px above the bottom-nav). The
-         FAB is 48px tall vs ~34px for the others, so subtract 7px. */
-      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 11px);
+         floating-quiet chip (which sit 18px above the 64px bottom-nav).
+         The FAB is 48px tall vs ~34px for the others, so subtract 7px. */
+      bottom: calc(64px + max(env(safe-area-inset-bottom), 0px) + 11px);
       width: 48px; height: 48px;
       border-radius: 50%;
       border: none;
@@ -2876,8 +2876,8 @@
     .phone-frame.dark .chip.floating-quiet {
       position: absolute;
       right: 14px;
-      /* Sit just above the 56px bottom-nav with a comfortable gap. */
-      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 18px);
+      /* Sit just above the 64px bottom-nav with a comfortable gap. */
+      bottom: calc(64px + max(env(safe-area-inset-bottom), 0px) + 18px);
       z-index: 40;
       background: rgba(40,40,40,0.94);
       border: 1px solid rgba(255,255,255,0.08);
@@ -2890,8 +2890,8 @@
     .phone-frame.dark .view-toggle {
       position: absolute;
       left: 50%;
-      /* Sit just above the 56px bottom-nav with a comfortable gap. */
-      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 18px);
+      /* Sit just above the 64px bottom-nav with a comfortable gap. */
+      bottom: calc(64px + max(env(safe-area-inset-bottom), 0px) + 18px);
       transform: translateX(-50%);
       z-index: 40;
       display: flex;
