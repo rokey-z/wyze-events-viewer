@@ -2298,7 +2298,38 @@
       line-height: 1.25;
       text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     }
-    /* Album header buttons (Edit / Done + Close). */
+    /* Album header action buttons (Share / Contributors / Edit + Close). */
+    .phone-frame.dark .album-sheet .album-header { gap: 8px; }
+    .phone-frame.dark .album-sheet .album-icon-btn {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border: none;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      color: #C8C8C8;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s;
+      padding: 0;
+    }
+    .phone-frame.dark .album-sheet .album-icon-btn svg {
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .phone-frame.dark .album-sheet .album-icon-btn.is-on {
+      background: #1DF0BB; color: #0d0d0d;
+    }
+    .phone-frame.dark .album-sheet .album-icon-btn .pub-dot {
+      position: absolute; top: 1px; right: 1px;
+      width: 8px; height: 8px;
+      background: #1DF0BB;
+      border: 2px solid #1A1A1A;
+      border-radius: 50%;
+    }
+    .phone-frame.dark .album-sheet .album-icon-btn { position: relative; }
     .phone-frame.dark .album-sheet .album-edit-btn {
       flex-shrink: 0;
       height: 32px; padding: 0 12px;
@@ -2312,6 +2343,177 @@
     }
     .phone-frame.dark .album-sheet.edit-mode .album-edit-btn {
       background: #1DF0BB; color: #0d0d0d;
+    }
+
+    /* Mini-sheet (Share / Contributors) overlaid inside the album-sheet */
+    .phone-frame.dark .album-sheet .mini-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 5;
+      opacity: 0; transition: opacity .2s;
+    }
+    .phone-frame.dark .album-sheet .mini-backdrop.open { opacity: 1; }
+    .phone-frame.dark .album-sheet .mini-sheet {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      max-height: 70%;
+      background: #232323;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -6px 22px rgba(0,0,0,0.5);
+      z-index: 6;
+      transform: translateY(100%);
+      transition: transform .26s cubic-bezier(0.22, 0.65, 0.34, 1);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .phone-frame.dark .album-sheet .mini-sheet.open { transform: translateY(0); }
+    .phone-frame.dark .album-sheet .mini-sheet .mini-handle {
+      flex-shrink: 0;
+      display: flex; justify-content: center;
+      padding: 8px 0 4px;
+    }
+    .phone-frame.dark .album-sheet .mini-sheet .mini-handle div {
+      width: 36px; height: 4px; border-radius: 2px;
+      background: #505050;
+    }
+    .phone-frame.dark .album-sheet .mini-sheet .mini-title {
+      font-weight: 700; font-size: 16px; color: #fff;
+      padding: 4px 16px 12px;
+    }
+    .phone-frame.dark .album-sheet .mini-sheet .mini-body {
+      padding: 0 16px 16px;
+      overflow-y: auto;
+    }
+
+    /* Share mini-sheet contents */
+    .phone-frame.dark .album-sheet .share-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .phone-frame.dark .album-sheet .share-row:last-child { border-bottom: none; }
+    .phone-frame.dark .album-sheet .share-label-block .share-label {
+      font-weight: 600; font-size: 13px; color: #fff;
+    }
+    .phone-frame.dark .album-sheet .share-label-block .share-sub {
+      font-size: 11px; color: #A0A0A0; margin-top: 2px;
+      max-width: 220px;
+    }
+    .phone-frame.dark .album-sheet .toggle {
+      flex-shrink: 0;
+      width: 38px; height: 22px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px; position: relative;
+      cursor: pointer; transition: background .18s;
+    }
+    .phone-frame.dark .album-sheet .toggle::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 18px; height: 18px;
+      background: #fff; border-radius: 50%;
+      transition: transform .18s;
+    }
+    .phone-frame.dark .album-sheet .toggle.is-on { background: #1DF0BB; }
+    .phone-frame.dark .album-sheet .toggle.is-on::after { transform: translateX(16px); }
+
+    .phone-frame.dark .album-sheet .public-url-row {
+      display: flex; gap: 8px; padding: 12px 0;
+    }
+    .phone-frame.dark .album-sheet .public-url-row.disabled { opacity: 0.4; pointer-events: none; }
+    .phone-frame.dark .album-sheet .public-url-input {
+      flex: 1;
+      background: rgba(0,0,0,0.4);
+      color: #C8C8C8;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font: inherit; font-size: 12px;
+      font-family: ui-monospace, Menlo, monospace;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .phone-frame.dark .album-sheet .copy-url-btn {
+      flex-shrink: 0;
+      height: 36px; padding: 0 14px;
+      border: none; background: #1DF0BB; color: #0d0d0d;
+      border-radius: 999px;
+      font: inherit; font-weight: 600; font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Contributors mini-sheet contents */
+    .phone-frame.dark .album-sheet .contrib-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .phone-frame.dark .album-sheet .contrib-row:last-child { border-bottom: none; }
+    .phone-frame.dark .album-sheet .contrib-avatar {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4a8cff, #1DF0BB);
+      color: #0d0d0d;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 12px;
+    }
+    .phone-frame.dark .album-sheet .contrib-info { flex: 1; min-width: 0; }
+    .phone-frame.dark .album-sheet .contrib-name {
+      font-weight: 600; font-size: 13px; color: #fff;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .phone-frame.dark .album-sheet .contrib-email {
+      font-size: 11px; color: #A0A0A0; margin-top: 1px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .phone-frame.dark .album-sheet .contrib-role {
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.08);
+      color: #C8C8C8;
+      border: none;
+      border-radius: 999px;
+      padding: 6px 10px 6px 12px;
+      font: inherit; font-size: 11px; font-weight: 600;
+      cursor: pointer;
+    }
+    .phone-frame.dark .album-sheet .contrib-role:disabled {
+      opacity: 0.6; cursor: default;
+    }
+    .phone-frame.dark .album-sheet .contrib-remove {
+      flex-shrink: 0;
+      width: 26px; height: 26px;
+      border: none; background: transparent;
+      color: #787878; cursor: pointer;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .album-sheet .contrib-remove:hover { color: #FF4F4F; background: rgba(255,79,79,0.08); }
+    .phone-frame.dark .album-sheet .contrib-remove svg { width: 12px; height: 12px; }
+    .phone-frame.dark .album-sheet .contrib-add-row {
+      display: flex; gap: 8px;
+      padding: 14px 0 4px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 8px;
+    }
+    .phone-frame.dark .album-sheet .contrib-add-input {
+      flex: 1;
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font: inherit; font-size: 12px;
+    }
+    .phone-frame.dark .album-sheet .contrib-add-input::placeholder { color: #6B6B6B; }
+    .phone-frame.dark .album-sheet .contrib-add-btn {
+      flex-shrink: 0;
+      height: 36px; padding: 0 14px;
+      border: none; background: #1DF0BB; color: #0d0d0d;
+      border-radius: 999px;
+      font: inherit; font-weight: 600; font-size: 12px;
+      cursor: pointer;
+    }
+    .phone-frame.dark .album-sheet .contrib-add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .phone-frame.dark .album-sheet .contrib-empty {
+      color: #6B6B6B; font-size: 12px;
+      padding: 16px 0; text-align: center;
     }
     /* Per-clip right/wrong actions live in the album grid but only show
        when the sheet is in edit-mode. Default view is a clean photo grid. */
@@ -4824,6 +5026,13 @@
             <div class="album-title">${_esc(entry.display)}</div>
             <div class="album-meta">${_esc(meta)}</div>
           </div>
+          <button class="album-icon-btn album-share-btn" type="button" aria-label="Share album" title="Share">
+            <svg viewBox="0 0 16 16"><path d="M11 5l-3-3-3 3"/><path d="M8 2v8"/><path d="M3 9v3a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9"/></svg>
+            <span class="pub-dot" style="display:none;"></span>
+          </button>
+          <button class="album-icon-btn album-contrib-btn" type="button" aria-label="Manage contributors" title="Contributors">
+            <svg viewBox="0 0 16 16"><circle cx="6" cy="5.5" r="2.2"/><path d="M2.5 13.5c.5-2 2-3 3.5-3s3 1 3.5 3"/><circle cx="11.5" cy="6" r="1.7"/><path d="M9.5 13.5c.4-1.5 1.5-2.4 2.5-2.4s2 .8 2.5 2.4"/></svg>
+          </button>
           <button class="album-edit-btn" type="button" aria-label="Edit album">Edit</button>
           <button class="album-close" type="button" aria-label="Close">
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>
@@ -4849,7 +5058,195 @@
       const grid = sheet.querySelector('.album-grid');
       const metaEl = sheet.querySelector('.album-meta');
       const editBtn = sheet.querySelector('.album-edit-btn');
+      const shareBtn = sheet.querySelector('.album-share-btn');
+      const contribBtn = sheet.querySelector('.album-contrib-btn');
       const subjectName = entry.display;
+
+      // Sharing + contributor state, persisted per-subject in localStorage.
+      const _SHARE_LS_KEY = 'wyze:sharing';
+      const _loadSharing = () => {
+        try { return JSON.parse(localStorage.getItem(_SHARE_LS_KEY) || '{}'); } catch { return {}; }
+      };
+      const _saveSharing = (s) => {
+        try { localStorage.setItem(_SHARE_LS_KEY, JSON.stringify(s)); } catch {}
+      };
+      const sharingState = _loadSharing();
+      sharingState[key] = sharingState[key] || {
+        isPublic: false,
+        slug: (key.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Math.random().toString(36).slice(2, 6)),
+        contributors: []
+      };
+      const sharing = sharingState[key];
+      const publicUrl = () => 'https://wyze.app/album/' + sharing.slug;
+
+      // Show the green dot on the share button if the album is public.
+      const refreshShareDot = () => {
+        const dot = shareBtn?.querySelector('.pub-dot');
+        if (dot) dot.style.display = sharing.isPublic ? 'block' : 'none';
+      };
+      refreshShareDot();
+
+      // Mini-sheet plumbing: open/close + render body. Only one mini-sheet is
+      // open at a time; clicking a second header button closes the first.
+      let openMini = null;
+      const closeMini = () => {
+        if (!openMini) return;
+        const { sheet: ms, backdrop: mb } = openMini;
+        ms.classList.remove('open'); mb.classList.remove('open');
+        setTimeout(() => { ms.remove(); mb.remove(); }, 260);
+        openMini = null;
+      };
+      const openMiniSheet = (titleText, bodyHtml, onMount) => {
+        closeMini();
+        const mb = document.createElement('div');
+        mb.className = 'mini-backdrop';
+        const ms = document.createElement('div');
+        ms.className = 'mini-sheet';
+        ms.innerHTML = `
+          <div class="mini-handle"><div></div></div>
+          <div class="mini-title">${_esc(titleText)}</div>
+          <div class="mini-body">${bodyHtml}</div>`;
+        sheet.appendChild(mb);
+        sheet.appendChild(ms);
+        // force reflow then animate
+        mb.offsetHeight; ms.offsetHeight;
+        mb.classList.add('open'); ms.classList.add('open');
+        mb.addEventListener('click', closeMini);
+        openMini = { sheet: ms, backdrop: mb };
+        if (typeof onMount === 'function') onMount(ms);
+      };
+
+      // ── Share sheet ─────────────────────────────────────────────
+      const renderShareSheet = () => {
+        openMiniSheet('Share album', `
+          <div class="share-row">
+            <div class="share-label-block">
+              <div class="share-label">Public link</div>
+              <div class="share-sub">Anyone with the link can view this album.</div>
+            </div>
+            <div class="toggle${sharing.isPublic ? ' is-on' : ''}" data-role="public-toggle"></div>
+          </div>
+          <div class="public-url-row${sharing.isPublic ? '' : ' disabled'}">
+            <div class="public-url-input" data-role="url">${_esc(publicUrl())}</div>
+            <button class="copy-url-btn" type="button" data-role="copy-url">Copy</button>
+          </div>
+          <div class="share-row">
+            <div class="share-label-block">
+              <div class="share-label">${sharing.contributors.length} contributor${sharing.contributors.length === 1 ? '' : 's'}</div>
+              <div class="share-sub">Tap the people icon in the header to invite teammates.</div>
+            </div>
+          </div>
+        `, (ms) => {
+          const toggle = ms.querySelector('[data-role="public-toggle"]');
+          const urlRow = ms.querySelector('.public-url-row');
+          toggle?.addEventListener('click', () => {
+            sharing.isPublic = !sharing.isPublic;
+            toggle.classList.toggle('is-on', sharing.isPublic);
+            urlRow?.classList.toggle('disabled', !sharing.isPublic);
+            refreshShareDot();
+            _saveSharing(sharingState);
+            if (typeof _showToast === 'function') {
+              _showToast(sharing.isPublic
+                ? 'Public link enabled — anyone with the link can view'
+                : 'Public link off');
+            }
+          });
+          ms.querySelector('[data-role="copy-url"]')?.addEventListener('click', async () => {
+            try { await navigator.clipboard.writeText(publicUrl()); _showToast?.('Link copied'); }
+            catch { _showToast?.('Copy blocked — long-press the URL to copy'); }
+          });
+        });
+      };
+      shareBtn?.addEventListener('click', renderShareSheet);
+
+      // ── Contributors sheet ──────────────────────────────────────
+      const initials = (name) => {
+        const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+        if (!parts.length) return '?';
+        return ((parts[0][0] || '') + (parts[parts.length - 1][0] || '')).toUpperCase();
+      };
+      const renderContribSheet = () => {
+        const owner = `
+          <div class="contrib-row">
+            <div class="contrib-avatar">YO</div>
+            <div class="contrib-info">
+              <div class="contrib-name">You</div>
+              <div class="contrib-email">Owner of this album</div>
+            </div>
+            <button class="contrib-role" disabled>Owner</button>
+          </div>`;
+        const list = (sharing.contributors || []).map((c, i) => `
+          <div class="contrib-row" data-idx="${i}">
+            <div class="contrib-avatar">${_esc(initials(c.name || c.email))}</div>
+            <div class="contrib-info">
+              <div class="contrib-name">${_esc(c.name || c.email.split('@')[0])}</div>
+              <div class="contrib-email">${_esc(c.email)}</div>
+            </div>
+            <button class="contrib-role" data-role-btn data-idx="${i}">${c.role === 'edit' ? 'Contributor' : 'Viewer'}</button>
+            <button class="contrib-remove" type="button" data-remove-idx="${i}" aria-label="Remove">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l6 6M9 3L3 9"/></svg>
+            </button>
+          </div>`).join('');
+        const empty = !sharing.contributors.length
+          ? '<div class="contrib-empty">No contributors yet — invite by email below.</div>'
+          : '';
+        const body = `
+          ${owner}
+          ${list || empty}
+          <div class="contrib-add-row">
+            <input class="contrib-add-input" type="email" placeholder="Invite by email…" data-role="add-input" />
+            <button class="contrib-add-btn" type="button" data-role="add-btn" disabled>Invite</button>
+          </div>`;
+        openMiniSheet('Contributors', body, (ms) => {
+          const input = ms.querySelector('[data-role="add-input"]');
+          const addBtn = ms.querySelector('[data-role="add-btn"]');
+          const reRender = () => {
+            closeMini();
+            // Re-open with refreshed state.
+            renderContribSheet();
+          };
+          input?.addEventListener('input', () => {
+            const v = (input.value || '').trim();
+            const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+            addBtn.disabled = !valid;
+          });
+          addBtn?.addEventListener('click', () => {
+            const v = (input.value || '').trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return;
+            sharing.contributors.push({ email: v, role: 'edit' });
+            _saveSharing(sharingState);
+            _showToast?.('Invited ' + v);
+            reRender();
+          });
+          ms.querySelectorAll('[data-role-btn]').forEach(b => {
+            b.addEventListener('click', () => {
+              const idx = parseInt(b.dataset.idx, 10);
+              const c = sharing.contributors[idx];
+              if (!c) return;
+              c.role = (c.role === 'edit') ? 'view' : 'edit';
+              _saveSharing(sharingState);
+              b.textContent = c.role === 'edit' ? 'Contributor' : 'Viewer';
+            });
+          });
+          ms.querySelectorAll('[data-remove-idx]').forEach(b => {
+            b.addEventListener('click', () => {
+              const idx = parseInt(b.dataset.removeIdx, 10);
+              const c = sharing.contributors[idx];
+              if (!c) return;
+              sharing.contributors.splice(idx, 1);
+              _saveSharing(sharingState);
+              _showToast?.('Removed ' + c.email);
+              reRender();
+            });
+          });
+        });
+      };
+      contribBtn?.addEventListener('click', renderContribSheet);
+
+      // Close any open mini-sheet when the user closes the whole album.
+      const origClose = sheet.querySelector('.album-close');
+      // We already wired close to _closeSubjectAlbum; add a side-effect for mini.
+      origClose?.addEventListener('click', () => closeMini(), { once: false });
 
       // Recompute and write the visible clip count to the header. Wrong-marked
       // cells are excluded.
