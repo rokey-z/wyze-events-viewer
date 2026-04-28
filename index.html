@@ -6545,28 +6545,21 @@
     function _clearAllEvents() {
       try {
         const total = (window.__rawGroups || []).length;
-        if (total > 0 && !confirm('Refresh — clear cached ' + total + ' event' + (total === 1 ? '' : 's') + ' on this device?')) return;
-        if (total === 0 && !confirm('Clear cached data on this device?')) return;
-        // In-memory state
-        window.__rawGroups   = [];
-        window.__rawDevices  = [];
-        window.__GROUPS_BY_ID = {};
-        window.__SUBJECT_INDEX = {};
-        window.__camNameMap = new Map();
-        // Persisted snapshot
+        const msg = total > 0
+          ? 'Restart the app and clear cached ' + total + ' event' + (total === 1 ? '' : 's') + '?'
+          : 'Restart the app and clear cached data?';
+        if (!confirm(msg)) return;
+        // Wipe everything we persist on this device.
         try { localStorage.removeItem('wyze:lastData'); } catch {}
-        // Re-render UI
-        if (typeof populateCamDropdown === 'function') populateCamDropdown([]);
-        if (typeof renderEmptyState === 'function') renderEmptyState();
-        // Reset Home view if it was visible
-        const homeView = document.querySelector('.phone-frame.dark .home-view');
-        if (homeView && homeView.classList.contains('is-active') && typeof renderHomeView === 'function') {
-          renderHomeView();
-        }
-        if (typeof _refreshAlbumsChip === 'function') _refreshAlbumsChip();
-        if (typeof _showToast === 'function') _showToast('Cache cleared — re-run the snippet for fresh data');
+        try { localStorage.removeItem('wyze:settings'); } catch {}
+        try { localStorage.removeItem('wyze:sharing'); } catch {}
+        // Hard restart — full page reload. Cache-bust via a timestamp
+        // query so the browser also re-fetches the HTML/asset bundle.
+        const url = new URL(location.href);
+        url.searchParams.set('reset', Date.now().toString(36));
+        location.replace(url.toString());
       } catch (e) {
-        if (typeof _showToast === 'function') _showToast('Could not clear: ' + e.message);
+        if (typeof _showToast === 'function') _showToast('Could not restart: ' + e.message);
       }
     }
 
