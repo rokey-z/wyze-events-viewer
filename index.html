@@ -859,7 +859,12 @@
 
     /* Bottom navigation */
     .phone-frame.dark .bottom-nav {
-      background: #1E1E1E; border-top-color: rgba(255,255,255,0.08);
+      background: #1E1E1E;
+      /* Lifted 15% up the viewport for breathing room; no top border so it
+         blends into the content above it. */
+      border-top: none;
+      position: relative;
+      bottom: 15vh;
     }
     .phone-frame.dark .nav-item svg { stroke: #787878; }
     .phone-frame.dark .nav-item span { color: #787878; }
@@ -2132,10 +2137,9 @@
       left: 12.5%;
       transform: translateX(-50%);
       /* Center the FAB on the same horizontal line as the view-toggle and
-         floating-quiet chip. They sit at bottom: calc(74px + safe) and
-         are ~34px tall; the FAB is 48px, so subtract 7px to keep centers
-         aligned. */
-      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 11px);
+         floating-quiet chip (which sit 18px above the bottom-nav). The
+         FAB is 48px tall vs ~34px for the others, so subtract 7px. */
+      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 11px + 15vh);
       width: 48px; height: 48px;
       border-radius: 50%;
       border: none;
@@ -2875,8 +2879,9 @@
     .phone-frame.dark .chip.floating-quiet {
       position: absolute;
       right: 14px;
-      /* Sit just above the 56px bottom-nav with a comfortable gap. */
-      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 18px);
+      /* Sit just above the 56px bottom-nav (which is itself shifted 15vh
+         higher) with a comfortable gap. */
+      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 18px + 15vh);
       z-index: 40;
       background: rgba(40,40,40,0.94);
       border: 1px solid rgba(255,255,255,0.08);
@@ -2889,8 +2894,8 @@
     .phone-frame.dark .view-toggle {
       position: absolute;
       left: 50%;
-      /* Sit just above the 56px bottom-nav with a comfortable gap. */
-      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 18px);
+      /* Sit just above the 56px bottom-nav (shifted 15vh up) with a gap. */
+      bottom: calc(56px + max(env(safe-area-inset-bottom), 0px) + 18px + 15vh);
       transform: translateX(-50%);
       z-index: 40;
       display: flex;
