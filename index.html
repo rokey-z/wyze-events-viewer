@@ -2103,6 +2103,225 @@
     }
     .phone-frame.dark .live-view .live-events-btn:active { transform: scale(0.98); }
 
+    /* ───────── Wyze AI chat ───────── */
+    /* Floating chat button — bottom-left, persistent across all tabs.
+       Mirrors the floating-quiet button on the right but with a Wyze-green
+       fill so it reads as a primary action. */
+    .phone-frame.dark .chat-fab {
+      position: absolute;
+      left: 14px;
+      bottom: calc(56px + max(env(safe-area-inset-bottom), 24px) + 12px);
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: #1DF0BB;
+      color: #0d0d0d;
+      cursor: pointer;
+      z-index: 41;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.45),
+                  0 0 0 4px rgba(29,240,187,0.15);
+      transition: transform .12s, box-shadow .15s;
+    }
+    .phone-frame.dark .chat-fab:active { transform: scale(0.92); }
+    .phone-frame.dark .chat-fab svg { width: 22px; height: 22px; }
+    /* Hide the chat-fab when the live view or chat drawer is itself open
+       so it doesn't float above its own modal. */
+    .phone-frame.dark .live-view.open ~ .chat-fab,
+    .phone-frame.dark.chat-open .chat-fab { display: none; }
+
+    /* Chat drawer — slide-up sheet, ~80% of phone-frame height. */
+    .phone-frame.dark .chat-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 220;
+      opacity: 0; pointer-events: none;
+      transition: opacity .24s;
+    }
+    .phone-frame.dark.chat-open .chat-backdrop { opacity: 1; pointer-events: auto; }
+
+    .phone-frame.dark .chat-drawer {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 80%;
+      z-index: 221;
+      background: #181818;
+      border-radius: 18px 18px 0 0;
+      box-shadow: 0 -10px 32px rgba(0,0,0,0.6);
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(0.22, 0.65, 0.34, 1);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .phone-frame.dark.chat-open .chat-drawer { transform: translateY(0); }
+
+    .phone-frame.dark .chat-drawer .chat-handle {
+      flex-shrink: 0;
+      display: flex; justify-content: center;
+      padding: 8px 0 4px;
+    }
+    .phone-frame.dark .chat-drawer .chat-handle div {
+      width: 36px; height: 4px; border-radius: 2px;
+      background: #505050;
+    }
+    .phone-frame.dark .chat-drawer .chat-header {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 12px;
+      padding: 4px 16px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .phone-frame.dark .chat-drawer .chat-avatar {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1DF0BB, #4a8cff);
+      color: #0d0d0d;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .chat-drawer .chat-avatar svg {
+      width: 18px; height: 18px;
+      stroke: #0d0d0d; fill: none; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .phone-frame.dark .chat-drawer .chat-title-block { flex: 1; min-width: 0; }
+    .phone-frame.dark .chat-drawer .chat-title {
+      font-weight: 700; font-size: 15px; color: #fff;
+      letter-spacing: -0.05px;
+    }
+    .phone-frame.dark .chat-drawer .chat-sub {
+      font-size: 11px; color: #1DF0BB; margin-top: 2px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .phone-frame.dark .chat-drawer .chat-sub::before {
+      content: ''; width: 6px; height: 6px;
+      background: #1DF0BB; border-radius: 50%;
+    }
+    .phone-frame.dark .chat-drawer .chat-open-ext,
+    .phone-frame.dark .chat-drawer .chat-close {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border: none; border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      color: #C8C8C8;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .chat-drawer .chat-open-ext svg,
+    .phone-frame.dark .chat-drawer .chat-close svg {
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .phone-frame.dark .chat-drawer .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px 8px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg {
+      display: flex;
+      max-width: 85%;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-bot { align-self: flex-start; }
+    .phone-frame.dark .chat-drawer .chat-msg-user { align-self: flex-end; }
+    .phone-frame.dark .chat-drawer .chat-bubble {
+      padding: 10px 13px;
+      border-radius: 16px;
+      font-size: 13px; line-height: 1.4;
+      word-wrap: break-word;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-bot .chat-bubble {
+      background: rgba(255,255,255,0.06);
+      color: #E8E8E8;
+      border-bottom-left-radius: 4px;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-user .chat-bubble {
+      background: #1DF0BB;
+      color: #0d0d0d;
+      border-bottom-right-radius: 4px;
+      font-weight: 500;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-typing .chat-bubble {
+      background: rgba(255,255,255,0.06);
+      color: #C8C8C8;
+      display: inline-flex; gap: 4px;
+      align-items: center;
+    }
+    .phone-frame.dark .chat-drawer .chat-typing-dot {
+      width: 6px; height: 6px;
+      background: #C8C8C8;
+      border-radius: 50%;
+      animation: chat-typing 1.2s ease-in-out infinite;
+    }
+    .phone-frame.dark .chat-drawer .chat-typing-dot:nth-child(2) { animation-delay: 0.15s; }
+    .phone-frame.dark .chat-drawer .chat-typing-dot:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes chat-typing {
+      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+      30%           { opacity: 1;   transform: translateY(-3px); }
+    }
+
+    .phone-frame.dark .chat-drawer .chat-suggestions {
+      flex-shrink: 0;
+      display: flex; gap: 8px;
+      padding: 6px 16px 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .phone-frame.dark .chat-drawer .chat-suggestions::-webkit-scrollbar { display: none; }
+    .phone-frame.dark .chat-drawer .chat-suggestion {
+      flex-shrink: 0;
+      padding: 7px 12px;
+      background: rgba(255,255,255,0.06);
+      color: #C8C8C8;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      font: inherit; font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .phone-frame.dark .chat-drawer .chat-suggestion:hover {
+      background: rgba(255,255,255,0.10);
+    }
+
+    .phone-frame.dark .chat-drawer .chat-input-row {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.05);
+      background: #181818;
+    }
+    .phone-frame.dark .chat-drawer .chat-input {
+      flex: 1; min-width: 0;
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 22px;
+      padding: 11px 14px;
+      font: inherit; font-size: 14px;
+      outline: none;
+    }
+    .phone-frame.dark .chat-drawer .chat-input::placeholder { color: #6B6B6B; }
+    .phone-frame.dark .chat-drawer .chat-send {
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      border: none; border-radius: 50%;
+      background: #1DF0BB;
+      color: #0d0d0d;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity .15s, transform .12s;
+    }
+    .phone-frame.dark .chat-drawer .chat-send:disabled {
+      opacity: 0.35; cursor: default;
+    }
+    .phone-frame.dark .chat-drawer .chat-send:active { transform: scale(0.92); }
+    .phone-frame.dark .chat-drawer .chat-send svg {
+      width: 16px; height: 16px;
+      stroke: currentColor; fill: none; stroke-width: 2.4;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+
     /* App footer (disclaimer) */
     .phone-frame.dark .app-footer {
       padding: 10px 16px 2px;
@@ -3261,6 +3480,23 @@
       <div class="live-view">
         <!-- populated by _openLiveView() -->
       </div>
+
+      <!-- Floating Wyze AI chat button (bottom-left), persistent across
+           all tabs. Tapping opens the chat drawer. -->
+      <button class="chat-fab" type="button" aria-label="Wyze AI chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>
+          <circle cx="9" cy="11" r="0.9" fill="currentColor"/>
+          <circle cx="12.5" cy="11" r="0.9" fill="currentColor"/>
+          <circle cx="16" cy="11" r="0.9" fill="currentColor"/>
+        </svg>
+      </button>
+
+      <!-- Wyze AI chat drawer -->
+      <div class="chat-drawer">
+        <!-- populated by _openChatDrawer() -->
+      </div>
+      <div class="chat-backdrop"></div>
 
       <!-- Floating Quiet-score cutoff chip (bottom-right) -->
       <div class="chip floating-quiet" title="Quiet score cutoff — tap to toggle" data-filter="score">
@@ -5742,6 +5978,156 @@
       }, 320);
     }
 
+    // ════════════════════════════════════════
+    // Wyze AI chat drawer — floating bottom-left FAB across all tabs.
+    // The real lumen.wyzecam.com chat API is undocumented, so for the
+    // prototype we ship a polished UI with simulated AI replies plus a
+    // "Open Wyze AI" link to the actual chat at lumen.wyzecam.com/chat.
+    // ════════════════════════════════════════
+
+    // Canned, slightly data-aware responses so the chat feels grounded
+    // in the user's actual events / devices. Picks the first matching
+    // pattern; falls back to a generic acknowledgement.
+    function _wyzeAiReply(prompt) {
+      const p = String(prompt || '').toLowerCase();
+      const groups = window.__rawGroups || [];
+      const devices = window.__rawDevices || [];
+      const tag = (re) => groups.filter(g => re.test(String(g.summary || g.title || '') + ' ' + (g.ai_tags || []).join(' '))).length;
+      const today = new Date(); today.setHours(0,0,0,0);
+      const todayCount = groups.filter(g => parseTs(g.start) >= today).length;
+      if (/\bdevice|camera/.test(p)) {
+        return `You have ${devices.length} cameras: ${devices.slice(0,4).map(d => d.device_name).join(', ')}${devices.length > 4 ? ', …' : ''}.`;
+      }
+      if (/\btoday|today\b/.test(p)) {
+        return `${todayCount} event${todayCount === 1 ? '' : 's'} so far today across your cameras.`;
+      }
+      if (/\bperson|people|stranger/.test(p)) {
+        return `I see ${tag(/\bperson|people\b/i)} person-related event${tag(/\bperson|people\b/i) === 1 ? '' : 's'} in the last week.`;
+      }
+      if (/\bvehicle|car|truck|sedan|van/.test(p)) {
+        return `${tag(/\b(vehicle|car|sedan|truck|van)/i)} vehicle event${tag(/\b(vehicle|car|sedan|truck|van)/i) === 1 ? '' : 's'} this week — mostly around the garage and driveway.`;
+      }
+      if (/\bpet|dog|cat|raccoon|animal/.test(p)) {
+        return `${tag(/\b(pet|dog|cat|raccoon|animal|squirrel|bird)/i)} animal event${tag(/\b(pet|dog|cat|raccoon|animal|squirrel|bird)/i) === 1 ? '' : 's'} detected this week.`;
+      }
+      if (/\bdeliver|package|ups|fedex|amazon/.test(p)) {
+        return `I found ${tag(/\b(deliver|package|UPS|FedEx|Amazon|parcel)/i)} delivery event${tag(/\b(deliver|package|UPS|FedEx|Amazon|parcel)/i) === 1 ? '' : 's'} this week.`;
+      }
+      if (/\bgarage/.test(p)) {
+        return `${tag(/\bgarage\b/i)} event${tag(/\bgarage\b/i) === 1 ? '' : 's'} mention the garage. Any specifics — vehicles, people entering, or door-state?`;
+      }
+      if (/\b(hi|hello|hey)\b/.test(p)) {
+        return `Hi! I can summarize what's happening across your ${devices.length} cameras. Try "what happened today?" or "any vehicles".`;
+      }
+      return `Got it. I'll keep an eye out for "${prompt.trim()}" across your ${devices.length} cameras and ${groups.length} loaded events.`;
+    }
+
+    function _openChatDrawer() {
+      const frame = document.querySelector('.phone-frame.dark');
+      const drawer = frame?.querySelector('.chat-drawer');
+      if (!frame || !drawer) return;
+      // Keep messages between opens so the conversation persists.
+      window.__chatHistory = window.__chatHistory || [
+        { from: 'bot', text: 'Hi! I\'m Wyze AI. Ask me about your cameras, events, or activity.' }
+      ];
+      _renderChatDrawer(drawer);
+      frame.classList.add('chat-open');
+      // Scroll to the bottom of the message list.
+      requestAnimationFrame(() => {
+        const list = drawer.querySelector('.chat-messages');
+        if (list) list.scrollTop = list.scrollHeight;
+      });
+    }
+
+    function _closeChatDrawer() {
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame) return;
+      frame.classList.remove('chat-open');
+    }
+
+    function _renderChatDrawer(drawer) {
+      const history = window.__chatHistory || [];
+      const msgs = history.map(m => {
+        if (m.typing) {
+          return `<div class="chat-msg chat-msg-bot chat-msg-typing"><div class="chat-bubble"><span class="chat-typing-dot"></span><span class="chat-typing-dot"></span><span class="chat-typing-dot"></span></div></div>`;
+        }
+        return `<div class="chat-msg chat-msg-${m.from}"><div class="chat-bubble">${_esc(m.text)}</div></div>`;
+      }).join('');
+      const suggestions = [
+        'What happened today?',
+        'Any vehicles around?',
+        'Show me deliveries',
+        'How are the cameras?'
+      ];
+      drawer.innerHTML = `
+        <div class="chat-handle"><div></div></div>
+        <div class="chat-header">
+          <div class="chat-avatar">
+            <svg viewBox="0 0 16 16"><path d="M3 4h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H6l-3 2v-2h0a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/></svg>
+          </div>
+          <div class="chat-title-block">
+            <div class="chat-title">Wyze AI</div>
+            <div class="chat-sub">Online</div>
+          </div>
+          <a class="chat-open-ext" href="https://lumen.wyzecam.com/chat" target="_blank" rel="noopener" title="Open in Wyze">
+            <svg viewBox="0 0 14 14"><path d="M3 11l8-8M5 3h6v6"/></svg>
+          </a>
+          <button class="chat-close" type="button" aria-label="Close">
+            <svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg>
+          </button>
+        </div>
+        <div class="chat-messages">${msgs}</div>
+        <div class="chat-suggestions">
+          ${suggestions.map(s => `<button class="chat-suggestion" type="button">${_esc(s)}</button>`).join('')}
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" type="text" placeholder="Ask Wyze AI…" autocomplete="off" />
+          <button class="chat-send" type="button" aria-label="Send" disabled>
+            <svg viewBox="0 0 16 16"><path d="M3 13L13 3M13 3v6M13 3H7"/></svg>
+          </button>
+        </div>`;
+      drawer.querySelector('.chat-close').addEventListener('click', _closeChatDrawer);
+      drawer.querySelectorAll('.chat-suggestion').forEach(b => {
+        b.addEventListener('click', () => _sendChatMessage(b.textContent));
+      });
+      const input = drawer.querySelector('.chat-input');
+      const send = drawer.querySelector('.chat-send');
+      input.addEventListener('input', () => {
+        send.disabled = !input.value.trim();
+      });
+      input.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' && input.value.trim()) {
+          ev.preventDefault();
+          _sendChatMessage(input.value);
+        }
+      });
+      send.addEventListener('click', () => {
+        if (input.value.trim()) _sendChatMessage(input.value);
+      });
+    }
+
+    function _sendChatMessage(text) {
+      const t = String(text || '').trim();
+      if (!t) return;
+      const drawer = document.querySelector('.phone-frame.dark .chat-drawer');
+      if (!drawer) return;
+      window.__chatHistory = window.__chatHistory || [];
+      window.__chatHistory.push({ from: 'user', text: t });
+      // Show a typing indicator while we "think", then reply.
+      window.__chatHistory.push({ from: 'bot', typing: true });
+      _renderChatDrawer(drawer);
+      const list = drawer.querySelector('.chat-messages');
+      if (list) list.scrollTop = list.scrollHeight;
+      setTimeout(() => {
+        // Replace the typing indicator with the actual reply.
+        window.__chatHistory.pop();
+        window.__chatHistory.push({ from: 'bot', text: _wyzeAiReply(t) });
+        _renderChatDrawer(drawer);
+        const list2 = drawer.querySelector('.chat-messages');
+        if (list2) list2.scrollTop = list2.scrollHeight;
+      }, 700 + Math.random() * 500);
+    }
+
     function _refreshAlbumsChip() {
       const span = document.querySelector('.albums-chip .albums-count');
       if (!span) return;
@@ -6634,6 +7020,11 @@
       wireViewToggle();
       wireReactions();
       wireMoreMenu();
+      // Floating chat FAB — open drawer; backdrop tap closes.
+      document.querySelector('.phone-frame.dark .chat-fab')
+        ?.addEventListener('click', _openChatDrawer);
+      document.querySelector('.phone-frame.dark .chat-backdrop')
+        ?.addEventListener('click', _closeChatDrawer);
       document.getElementById('openHelpBtn')?.addEventListener('click', _openHelpModal);
       // Data-load priority on each page load:
       // 1. Clipboard (fresh data the user just copied — top priority)
