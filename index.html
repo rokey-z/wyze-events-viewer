@@ -2032,6 +2032,20 @@
     }
 
     /* Story / All view toggle (floating, bottom-right above bottom-nav) */
+    /* Floating Quiet-score chip (bottom-right) */
+    .phone-frame.dark .chip.floating-quiet {
+      position: absolute;
+      right: 14px;
+      bottom: calc(84px + max(env(safe-area-inset-bottom), 24px) + 12px);
+      z-index: 40;
+      background: rgba(40,40,40,0.94);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
     .phone-frame.dark .view-toggle {
       position: absolute;
       left: 50%;
@@ -2937,9 +2951,6 @@
             <path d="M12 7.5v11"/>
           </svg>
         </div>
-        <div class="chip" title="Quiet score cutoff — tap to toggle" data-filter="score">
-          <span>Quiet ≤ 2</span>
-        </div>
         <div class="chip albums-chip" title="Browse subject albums" data-filter="albums">
           <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
             <rect x="4" y="5" width="16" height="14" rx="2"/>
@@ -2954,6 +2965,11 @@
       <div class="scroll-content">
         <!-- Populated by renderTimeline() / renderAllView() from clipboard -->
       </div><!-- /scroll-content -->
+
+      <!-- Floating Quiet-score cutoff chip (bottom-right) -->
+      <div class="chip floating-quiet" title="Quiet score cutoff — tap to toggle" data-filter="score">
+        <span>Quiet ≤ 2</span>
+      </div>
 
       <!-- Floating Story / All view toggle -->
       <div class="view-toggle" role="tablist">
@@ -4146,9 +4162,7 @@
       const chipRow = document.querySelector('.phone-frame.dark .chip-row');
       if (!chipRow || chipRow._tagWired) return;
       chipRow._tagWired = true;
-      chipRow.addEventListener('click', (ev) => {
-        const chip = ev.target.closest('.chip[data-filter]');
-        if (!chip) return;
+      const handle = (chip) => {
         const f = chip.dataset.filter;
         if (f === 'cameras') return; // handled by camera dropdown
         if (f === 'score') {
@@ -4167,7 +4181,16 @@
         }
         if (!['person', 'pet', 'vehicle', 'package'].includes(f)) return;
         setActiveChip(f);
+      };
+      chipRow.addEventListener('click', (ev) => {
+        const chip = ev.target.closest('.chip[data-filter]');
+        if (!chip) return;
+        handle(chip);
       });
+      // The score chip lives outside chip-row as a floating button —
+      // wire it with the same handler.
+      const floating = document.querySelector('.phone-frame.dark .chip.floating-quiet[data-filter]');
+      floating?.addEventListener('click', () => handle(floating));
     }
 
     function wireKeywordClicks() {
