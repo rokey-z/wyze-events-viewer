@@ -2212,6 +2212,36 @@
       overflow: hidden;
     }
     .phone-frame.dark .album-sheet.open { transform: translateY(0); }
+    /* Slide-in from right when opened from the albums-list browser. */
+    .phone-frame.dark .album-sheet.from-right {
+      transform: translateX(100%);
+      transition: transform .28s cubic-bezier(0.22, 0.65, 0.34, 1);
+    }
+    .phone-frame.dark .album-sheet.from-right.open { transform: translateX(0); }
+    /* Floating back button (bottom-left). Only present when navigated
+       in from the albums browser — pops you back to the list. */
+    .phone-frame.dark .album-sheet .album-back-btn {
+      position: absolute;
+      left: 16px; bottom: 24px;
+      width: 48px; height: 48px;
+      border: none; border-radius: 50%;
+      background: rgba(28,28,28,0.92);
+      color: #fff;
+      cursor: pointer;
+      z-index: 10;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06) inset;
+      backdrop-filter: blur(10px);
+      transition: transform .12s, background .15s;
+    }
+    .phone-frame.dark .album-sheet .album-back-btn:active { transform: scale(0.92); }
+    .phone-frame.dark .album-sheet .album-back-btn svg {
+      width: 18px; height: 18px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
     .phone-frame.dark .album-backdrop {
       position: absolute; inset: 0;
       background: rgba(0,0,0,0.5);
@@ -5150,9 +5180,9 @@
         if (!tile) return;
         const k = tile.dataset.subjectKey;
         if (!k) return;
-        _closeAlbumsBrowser();
-        // Wait for slide-down then open the subject album.
-        setTimeout(() => _openSubjectAlbum(k), 290);
+        // Keep the albums browser mounted underneath; slide the subject
+        // album in from the right and add a back button that returns here.
+        _openSubjectAlbum(k, { fromAlbumsList: true });
       });
     }
 
@@ -5191,7 +5221,12 @@
 
     // Open the slide-up album sheet for one subject. Renders a 3-col grid
     // of every clip across every group that mentions this subject.
-    function _openSubjectAlbum(key) {
+    // opts.fromAlbumsList — opened from the Albums browser; uses a
+    //   slide-in-from-right transition + floating back button instead of
+    //   the default slide-up + dim backdrop. The albums browser stays
+    //   underneath so Back returns to it.
+    function _openSubjectAlbum(key, opts = {}) {
+      const fromList = !!opts.fromAlbumsList;
       const idx = window.__SUBJECT_INDEX || {};
       const entry = idx[key];
       if (!entry) return;
@@ -5199,7 +5234,9 @@
       if (!frame) return;
       // Close any existing album first.
       frame.querySelector('.album-sheet')?.remove();
-      frame.querySelector('.album-backdrop')?.remove();
+      // Only remove the album-backdrop when not coming from the list
+      // (the list has its own backdrop that should stay on screen).
+      if (!fromList) frame.querySelector('.album-backdrop')?.remove();
 
       const groups = entry.groups || [];
       // Flatten clips across every group; keep group context for caption.
@@ -5279,19 +5316,33 @@
         <div class="album-grid">
           ${cells.length ? cells.join('') : '<div class="album-empty">No clips available for this subject yet.</div>'}
         </div>
-        <div class="album-edit-hint">Tap ✓ to confirm, ✗ to remove. Removed clips appear dimmed — tap ✓ again to add them back.</div>`;
-      frame.appendChild(backdrop);
+        <div class="album-edit-hint">Tap ✓ to confirm, ✗ to remove. Removed clips appear dimmed — tap ✓ again to add them back.</div>
+        ${fromList ? `
+          <button class="album-back-btn" type="button" aria-label="Back to albums">
+            <svg viewBox="0 0 18 18"><path d="M11 4l-5 5 5 5"/></svg>
+          </button>` : ''}`;
+      // Slide-in style depends on entry point.
+      if (fromList) sheet.classList.add('from-right');
+      // Append: only add a backdrop when there isn't already one underneath
+      // (the albums browser keeps its own backdrop in place).
+      if (!fromList) frame.appendChild(backdrop);
       frame.appendChild(sheet);
-      // Force a synchronous layout pass so the initial translateY(100%) is
+      // Force a synchronous layout pass so the initial translate is
       // committed BEFORE we add .open — otherwise the browser batches the
       // two states into one frame and the transition never runs.
       // eslint-disable-next-line no-unused-expressions
       sheet.offsetHeight;
-      backdrop.offsetHeight;
-      backdrop.classList.add('open');
+      if (!fromList) backdrop.offsetHeight;
+      if (!fromList) backdrop.classList.add('open');
       sheet.classList.add('open');
-      backdrop.addEventListener('click', _closeSubjectAlbum);
+      if (!fromList) backdrop.addEventListener('click', _closeSubjectAlbum);
       sheet.querySelector('.album-close').addEventListener('click', _closeSubjectAlbum);
+      // Back button → slide subject album out to the right, leaving the
+      // albums browser visible underneath. No-op if not opened from list.
+      sheet.querySelector('.album-back-btn')?.addEventListener('click', () => {
+        sheet.classList.remove('open');
+        setTimeout(() => sheet.remove(), 300);
+      });
 
       const grid = sheet.querySelector('.album-grid');
       const metaEl = sheet.querySelector('.album-meta');
@@ -5562,9 +5613,17 @@
       const backdrop = frame.querySelector('.album-backdrop');
       if (sheet) sheet.classList.remove('open');
       if (backdrop) backdrop.classList.remove('open');
+      // If the album was nested over the albums browser (× = close all),
+      // also dismiss the browser underneath.
+      const albumsSheet = frame.querySelector('.albums-sheet');
+      const albumsBackdrop = frame.querySelector('.albums-backdrop');
+      if (albumsSheet) albumsSheet.classList.remove('open');
+      if (albumsBackdrop) albumsBackdrop.classList.remove('open');
       setTimeout(() => {
         sheet?.remove();
         backdrop?.remove();
+        albumsSheet?.remove();
+        albumsBackdrop?.remove();
       }, 280);
     }
 
