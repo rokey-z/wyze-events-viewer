@@ -2110,7 +2110,10 @@
     .phone-frame.dark .chat-fab {
       position: absolute;
       left: 14px;
-      bottom: calc(56px + max(env(safe-area-inset-bottom), 24px) + 12px);
+      /* Center the FAB on the same horizontal line as the view-toggle and
+         floating-quiet chip. They are ~34px tall at bottom: calc(96px +
+         safe). The FAB is 48px, so subtract 7px to keep centers aligned. */
+      bottom: calc(89px + max(env(safe-area-inset-bottom), 24px));
       width: 48px; height: 48px;
       border-radius: 50%;
       border: none;
