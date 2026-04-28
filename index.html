@@ -1894,6 +1894,7 @@
     .phone-frame.dark .event-card.feedback-active .hero-caption,
     .phone-frame.dark .event-card.feedback-active .more-btn,
     .phone-frame.dark .event-card.feedback-active .clip-strip,
+    .phone-frame.dark .event-card.feedback-active .subject-strip,
     .phone-frame.dark .event-card.feedback-active .reactions-pill {
       display: none !important;
     }
@@ -2111,6 +2112,181 @@
     .phone-frame.dark .card-thumbnail .clip-strip .clip.clip-ph {
       background: rgba(220, 220, 220, 0.35);
     }
+    /* Subject strip — square thumbs of subjects detected in this group.
+       Replaces the old clip-strip. Each square shows a sample frame from
+       the group, with a small category-icon badge in the bottom-right. */
+    .phone-frame.dark .card-thumbnail .subject-strip {
+      position: absolute; left: 8px; right: 8px; bottom: 8px;
+      z-index: 2;
+      display: flex; gap: 6px;
+      overflow-x: auto; scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .phone-frame.dark .card-thumbnail .subject-strip::-webkit-scrollbar { display: none; }
+    .phone-frame.dark .card-thumbnail .subject-strip .subj {
+      position: relative;
+      flex: 0 0 auto;
+      width: 48px; height: 48px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: rgba(40,40,40,0.6);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.45);
+      cursor: pointer;
+      transition: transform .12s;
+    }
+    .phone-frame.dark .card-thumbnail .subject-strip .subj:active { transform: scale(0.94); }
+    .phone-frame.dark .card-thumbnail .subject-strip .subj > img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; top: 0; left: 0;
+    }
+    .phone-frame.dark .card-thumbnail .subject-strip .subj.subj-ph {
+      background: rgba(220, 220, 220, 0.35);
+    }
+    .phone-frame.dark .card-thumbnail .subject-strip .subj-icon {
+      position: absolute; right: 2px; bottom: 2px;
+      width: 18px; height: 18px;
+      background: rgba(0,0,0,0.78);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    }
+    .phone-frame.dark .card-thumbnail .subject-strip .subj-icon svg {
+      width: 11px; height: 11px;
+    }
+    .phone-frame.dark .card-thumbnail .subject-strip .subj-label {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 1px 4px;
+      background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0));
+      color: #fff;
+      font-size: 9px; font-weight: 600;
+      line-height: 1.2;
+      text-align: left;
+      letter-spacing: 0.2px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      pointer-events: none;
+    }
+
+    /* Subject album — sheet that slides up from the bottom (90% height)
+       with a grid of every clip across all groups for one subject. */
+    .phone-frame.dark .album-sheet {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 90%;
+      z-index: 200;
+      background: #1A1A1A;
+      border-radius: 18px 18px 0 0;
+      box-shadow: 0 -10px 32px rgba(0,0,0,0.6);
+      transform: translateY(100%);
+      transition: transform .28s cubic-bezier(0.22, 0.65, 0.34, 1);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .phone-frame.dark .album-sheet.open { transform: translateY(0); }
+    .phone-frame.dark .album-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+      opacity: 0; transition: opacity .24s;
+    }
+    .phone-frame.dark .album-backdrop.open { opacity: 1; }
+    .phone-frame.dark .album-sheet .album-handle {
+      flex-shrink: 0;
+      display: flex; justify-content: center;
+      padding: 8px 0 4px;
+    }
+    .phone-frame.dark .album-sheet .album-handle div {
+      width: 36px; height: 4px; border-radius: 2px;
+      background: #505050;
+    }
+    .phone-frame.dark .album-sheet .album-header {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .phone-frame.dark .album-sheet .album-cover {
+      width: 56px; height: 56px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #2a2a2a;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .phone-frame.dark .album-sheet .album-cover img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .phone-frame.dark .album-sheet .album-cover .subj-icon {
+      position: absolute; right: 2px; bottom: 2px;
+      width: 18px; height: 18px;
+      background: rgba(0,0,0,0.78);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .album-sheet .album-cover .subj-icon svg {
+      width: 11px; height: 11px;
+    }
+    .phone-frame.dark .album-sheet .album-title-block {
+      flex: 1; min-width: 0;
+    }
+    .phone-frame.dark .album-sheet .album-title {
+      font-weight: 700; font-size: 17px; color: #fff;
+      letter-spacing: 0.1px;
+    }
+    .phone-frame.dark .album-sheet .album-meta {
+      font-size: 12px; color: #A0A0A0;
+      margin-top: 2px;
+    }
+    .phone-frame.dark .album-sheet .album-close {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border: none; background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      color: #C8C8C8;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .album-sheet .album-close svg { width: 14px; height: 14px; }
+    .phone-frame.dark .album-sheet .album-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      align-content: start;
+    }
+    .phone-frame.dark .album-sheet .album-cell {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #2a2a2a;
+      cursor: pointer;
+    }
+    .phone-frame.dark .album-sheet .album-cell img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .phone-frame.dark .album-sheet .album-cell .album-cell-meta {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 14px 6px 4px;
+      background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0));
+      color: #fff;
+      font-size: 10px; font-weight: 500;
+      line-height: 1.25;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    }
+    .phone-frame.dark .album-sheet .album-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: #787878; font-size: 13px;
+      padding: 32px 16px;
+    }
+
     /* Thumbs-up / thumbs-down pill — back on the cover thumb, bottom-right. */
     .phone-frame.dark .card-thumbnail .reactions-pill {
       position: absolute; bottom: 8px; right: 8px;
@@ -3615,15 +3791,9 @@
                data-gid="${_esc(g.id)}" data-stage="${heroStage}"
                onerror="window._heroErr(this);" />`;
         const heroClass = 'card-thumbnail';
-        const clipCells = g.clip_urls.length
-          ? g.clip_urls.map((u, i) => `
-              <div class="clip">
-                <img src="${_esc(u)}" alt=""
-                     data-gid="${_esc(g.id)}" data-idx="${i}"
-                     onerror="window._clipErr(this);" />
-              </div>`).join('')
-          : Array.from({ length: 5 }, () => `<div class="clip clip-ph"></div>`).join('');
-        const clipsHtml = `<div class="clip-strip">${clipCells}</div>`;
+        // Subject strip: row of square thumbs of subjects detected in this
+        // group (person, vehicle, raccoon, …). Replaces the old clip-strip.
+        const clipsHtml = _buildSubjectStripHtml(g);
         let caption = (g.summary || '').trim();
         if (caption.length > 110) {
           const cut = caption.search(/[.,;](\s|$)/);
@@ -3790,6 +3960,9 @@
       // handler (defined outside this closure) can rebuild a single card.
       window.__GROUPS_BY_ID = Object.fromEntries(groups.map(g => [g.id, g]));
       window.__buildEventCard = buildEventCard;
+      // Build the cross-group subject index so .subject-strip clicks can
+      // open the album with every clip mentioning that subject.
+      try { _buildSubjectIndex(groups); } catch {}
     }
 
     // Delegated click: expand a per-group Nothing-happened row (click anywhere
@@ -3799,6 +3972,14 @@
       const scroll = document.querySelector('.phone-frame.dark .scroll-content');
       if (!scroll || scroll._compactWired) return;
       scroll.addEventListener('click', (ev) => {
+        // 0a. Subject-strip thumb click → open the cross-group album.
+        const subj = ev.target.closest('.subject-strip .subj');
+        if (subj) {
+          ev.stopPropagation();
+          const key = subj.dataset.subjectKey;
+          if (key) _openSubjectAlbum(key);
+          return;
+        }
         // 0. Fold-toggle button → reveal/hide folded quiet rows sharing its id
         const foldBtn = ev.target.closest('.fold-toggle-btn');
         if (foldBtn) {
@@ -3860,7 +4041,6 @@
         const gapRow = ev.target.closest('.gap-row');
         if (gapRow && !gapRow.querySelector('.compact-card')) {
           const label = gapRow.dataset.label || gapRow.querySelector('.time-label')?.textContent || 'Nothing happened';
-          const phs = Array.from({ length: 5 }, () => '<div class="clip clip-ph"></div>').join('');
           const synth = document.createElement('div');
           synth.innerHTML = `
             <div class="timeline-row">
@@ -3872,7 +4052,6 @@
                   <div class="card-thumbnail no-thumb">
                     <div class="hero-caption">${label.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</div>
                     <div class="more-btn"><svg viewBox="0 0 20 20"><circle cx="4" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="16" cy="10" r="1.6"/></svg></div>
-                    <div class="clip-strip">${phs}</div>
                     <div class="reactions-pill" aria-label="Was this useful?">
                       <svg viewBox="0 0 16 16"><path d="M2 7h2v7H2zM6 14h6.5c.7 0 1.3-.4 1.5-1l1.4-4.4c.2-.6 0-1.3-.5-1.7-.4-.3-.9-.4-1.4-.4H10l.5-2.4c.1-.5-.1-1-.5-1.3-.5-.3-1.1-.2-1.5.2L6 6v8z"/></svg>
                       <svg viewBox="0 0 16 16"><path d="M2 2h2v7H2zM6 2v8l2.5 4.4c.4.4 1 .5 1.5.2.4-.3.6-.8.5-1.3L10 11h3.5c.5 0 1-.1 1.4-.4.5-.4.7-1.1.5-1.7L14 4.5c-.2-.6-.8-1-1.5-1H6z"/></svg>
@@ -4325,6 +4504,200 @@
         // Click outside any menu → close all
         if (!ev.target.closest('.more-menu')) _closeAllMoreMenus(null);
       });
+    }
+
+    // ════════════════════════════════════════
+    // Subject albums — replace per-group clip strip with a row of subjects
+    // (person, vehicle, pet/raccoon/dog, package…). Tapping a subject thumb
+    // slides up an album of every clip across all groups for that subject.
+    // ════════════════════════════════════════
+
+    // Small icon set keyed by category. Same visual language as the chip-row
+    // filter chips so users get instant recognition.
+    const _SUBJECT_ICONS = {
+      person:  '<svg viewBox="0 0 24 24" fill="#fff"><circle cx="13" cy="4.5" r="2"/><path d="M13.8 7.5c-1.1 0-2 .5-2.5 1.4L9 13l-2.7-.5-.3 1.8 4 .8 1.6-2.4v3.1l-3.3 5 1.5 1 3.2-4.6 1.6 3.1 3.4 1.6.8-1.7-2.8-1.4-1.6-4.1v-3l2.5 2.2 2.5-1 .6-1.7-3.1 1L14.9 8a1.4 1.4 0 0 0-1.1-.5z"/></svg>',
+      pet:     '<svg viewBox="0 0 24 24" fill="#fff"><path d="M5 4l2.5 4.5A6.2 6.2 0 0 1 12 7.5c1.5 0 2.9.5 4 1.2L18.5 4v7.5a6.5 6.5 0 0 1-13 0V4z"/><circle cx="9.3" cy="12" r="0.8" fill="#1E1E1E"/><circle cx="14.7" cy="12" r="0.8" fill="#1E1E1E"/></svg>',
+      vehicle: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2.2L5.7 7.5A2 2 0 0 1 7.6 6h8.8a2 2 0 0 1 1.9 1.5L20 11.8V14"/><rect x="3" y="14" width="18" height="4" rx="1"/><circle cx="7" cy="17.8" r="1.6" fill="#fff"/><circle cx="17" cy="17.8" r="1.6" fill="#fff"/></svg>',
+      package: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"><rect x="4.5" y="7.5" width="15" height="11" rx="1.2"/><path d="M4.5 11.5h15"/><path d="M12 7.5v11"/></svg>',
+      other:   '<svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="3"/></svg>'
+    };
+
+    function _subjectIconHtml(category) {
+      return '<div class="subj-icon">' + (_SUBJECT_ICONS[category] || _SUBJECT_ICONS.other) + '</div>';
+    }
+
+    // Match each keyword in a summary back to its category so we can group
+    // specific words ("Raccoon", "UPS", "sedan") under their parent bucket.
+    function _categoryForWord(word) {
+      const w = String(word || '').toLowerCase();
+      for (const { filter, re } of _KEYWORD_PATTERNS) {
+        const fresh = new RegExp(re.source, re.flags);
+        if (fresh.test(w)) {
+          if (filter === 'cameras') return null; // places aren't subjects
+          return filter; // person | pet | vehicle | package
+        }
+      }
+      return 'other';
+    }
+
+    // Detect subjects appearing in a single group. Returns an array of
+    // { key, display, category } — most specific words first.
+    function _extractGroupSubjects(g) {
+      const summary = String(g.summary || '');
+      const out = [];
+      const seen = new Set();
+      const push = (raw, category) => {
+        const display = String(raw).trim().replace(/\s+/g, ' ')
+          .replace(/^./, c => c.toUpperCase());
+        const key = display.toLowerCase();
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        out.push({ key, display, category: category || 'other' });
+      };
+
+      // ai_tags first (most reliable, already specific)
+      (g.ai_tags || []).forEach(t => push(t, _categoryForWord(t)));
+
+      // Keyword matches in the summary
+      for (const { filter, re } of _KEYWORD_PATTERNS) {
+        if (filter === 'cameras') continue;
+        const fresh = new RegExp(re.source, re.flags);
+        let m;
+        while ((m = fresh.exec(summary)) !== null) {
+          push(m[0], filter);
+        }
+      }
+      return out;
+    }
+
+    // Pick a thumbnail URL for a subject inside a group — prefer the first
+    // event clip if available, otherwise the group's preview / hero.
+    function _subjectThumbUrlForGroup(g) {
+      return (g.clip_urls && g.clip_urls[0]) || g.preview_url || g.thumbnail_url || '';
+    }
+
+    // Build a global index keyed by subject. Each entry has a display name,
+    // a category, and the list of groups that mention it (newest first).
+    function _buildSubjectIndex(groups) {
+      const idx = {};
+      for (const g of groups) {
+        const subs = _extractGroupSubjects(g);
+        for (const s of subs) {
+          if (!idx[s.key]) {
+            idx[s.key] = { key: s.key, display: s.display, category: s.category, groups: [] };
+          }
+          idx[s.key].groups.push(g);
+        }
+      }
+      // Sort each subject's groups newest-first.
+      for (const k in idx) {
+        idx[k].groups.sort((a, b) => parseTs(b.start) - parseTs(a.start));
+      }
+      window.__SUBJECT_INDEX = idx;
+      return idx;
+    }
+
+    // Build the strip HTML for one group.
+    function _buildSubjectStripHtml(g) {
+      const subs = _extractGroupSubjects(g);
+      const thumb = _subjectThumbUrlForGroup(g);
+      if (!subs.length) {
+        // Nothing detected — fall back to a single "scene" thumb so the row
+        // doesn't look broken. Tapping it does nothing (no album yet).
+        return '';
+      }
+      const cells = subs.slice(0, 6).map(s => {
+        const img = thumb
+          ? `<img src="${_esc(thumb)}" alt="" data-gid="${_esc(g.id)}" data-idx="0" onerror="window._clipErr(this);" />`
+          : '';
+        return `
+          <div class="subj" data-subject-key="${_esc(s.key)}" data-subject-cat="${_esc(s.category)}" title="${_esc(s.display)}">
+            ${img || ''}
+            <div class="subj-label">${_esc(s.display)}</div>
+            ${_subjectIconHtml(s.category)}
+          </div>`;
+      }).join('');
+      return `<div class="subject-strip">${cells}</div>`;
+    }
+
+    // Open the slide-up album sheet for one subject. Renders a 3-col grid
+    // of every clip across every group that mentions this subject.
+    function _openSubjectAlbum(key) {
+      const idx = window.__SUBJECT_INDEX || {};
+      const entry = idx[key];
+      if (!entry) return;
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame) return;
+      // Close any existing album first.
+      frame.querySelector('.album-sheet')?.remove();
+      frame.querySelector('.album-backdrop')?.remove();
+
+      const groups = entry.groups || [];
+      // Flatten clips across every group; keep group context for caption.
+      const cells = [];
+      for (const g of groups) {
+        const cam = fmtCam((g.cameras || [])[0]);
+        const dt = parseTs(g.start);
+        const time = isNaN(dt) ? '' : (dt.getMonth()+1) + '/' + dt.getDate() + ' ' +
+          dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
+        const urls = (g.clip_urls && g.clip_urls.length)
+          ? g.clip_urls
+          : [g.preview_url || g.thumbnail_url].filter(Boolean);
+        urls.forEach((u, i) => {
+          cells.push(`
+            <div class="album-cell" data-group="${_esc(g.id)}">
+              <img src="${_esc(u)}" alt="" data-gid="${_esc(g.id)}" data-idx="${i}" onerror="window._clipErr(this);" />
+              <div class="album-cell-meta">${_esc(time)} · ${_esc(cam || 'Camera')}</div>
+            </div>`);
+        });
+      }
+      const cover = groups[0] ? _subjectThumbUrlForGroup(groups[0]) : '';
+      const meta = groups.length + ' event' + (groups.length === 1 ? '' : 's');
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'album-backdrop';
+      const sheet = document.createElement('div');
+      sheet.className = 'album-sheet';
+      sheet.innerHTML = `
+        <div class="album-handle"><div></div></div>
+        <div class="album-header">
+          <div class="album-cover">
+            ${cover ? `<img src="${_esc(cover)}" alt="" />` : ''}
+            ${_subjectIconHtml(entry.category)}
+          </div>
+          <div class="album-title-block">
+            <div class="album-title">${_esc(entry.display)}</div>
+            <div class="album-meta">${_esc(meta)}</div>
+          </div>
+          <button class="album-close" type="button" aria-label="Close">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>
+          </button>
+        </div>
+        <div class="album-grid">
+          ${cells.length ? cells.join('') : '<div class="album-empty">No clips available for this subject yet.</div>'}
+        </div>`;
+      frame.appendChild(backdrop);
+      frame.appendChild(sheet);
+      // Force reflow then add .open so the transition runs.
+      requestAnimationFrame(() => {
+        backdrop.classList.add('open');
+        sheet.classList.add('open');
+      });
+      backdrop.addEventListener('click', _closeSubjectAlbum);
+      sheet.querySelector('.album-close').addEventListener('click', _closeSubjectAlbum);
+    }
+
+    function _closeSubjectAlbum() {
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame) return;
+      const sheet = frame.querySelector('.album-sheet');
+      const backdrop = frame.querySelector('.album-backdrop');
+      if (sheet) sheet.classList.remove('open');
+      if (backdrop) backdrop.classList.remove('open');
+      setTimeout(() => {
+        sheet?.remove();
+        backdrop?.remove();
+      }, 280);
     }
 
     // Pull candidate subjects / actions / places out of a summary so the user
