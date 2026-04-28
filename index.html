@@ -3863,6 +3863,24 @@
           </div>`;
       };
 
+      // Build a short phrase describing what happened in a quiet group.
+      // Used as the trailing label on .gap-row time-stamps in place of the
+      // generic "quiet event". Falls back to "quiet event" if the summary
+      // is missing or unparseable.
+      const quietPhrase = (g) => {
+        const raw = String(g.summary || g.title || '').trim();
+        if (!raw) return 'quiet event';
+        // First sentence only.
+        let s = raw.split(/(?<=[.!?])\s+/)[0].trim().replace(/[.!?]+$/, '');
+        // Drop leading article so the phrase is shorter / scannable.
+        s = s.replace(/^(a|an|the)\s+/i, '');
+        // Lowercase first letter so it flows after the time stamp.
+        s = s.charAt(0).toLowerCase() + s.slice(1);
+        // Cap length so it doesn't push the row too wide.
+        if (s.length > 42) s = s.slice(0, 40).trimEnd() + '…';
+        return s || 'quiet event';
+      };
+
       // Nothing-happened row: label + horizontal strip of clickable thumbs
       // for any quiet (score<=1) events within that gap; falls back to faint
       // placeholder cells if the gap contains no events.
@@ -3902,7 +3920,7 @@
               <div class="row-head">
                 <span class="time-label">
                   <strong class="time-ago">${relTimeAgo(dt)}</strong>
-                  <span class="time-stamp">${fmtHM(dt)} · quiet event</span>
+                  <span class="time-stamp">${fmtHM(dt)} · ${_esc(quietPhrase(g))}</span>
                 </span>
               </div>
               <div class="quiet-row">${thumbs}</div>
