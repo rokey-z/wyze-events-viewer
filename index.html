@@ -2665,7 +2665,9 @@
       position: absolute;
       bottom: 96px; left: 50%;
       transform: translateX(-50%) translateY(20px);
-      z-index: 200;
+      /* Sit above every modal layer (albums:200, live:210, chat:221,
+         settings:230) so toasts surface even when sheets are open. */
+      z-index: 9999;
       background: #1DF0BB;              /* Wyze accent green */
       color: #0d0d0d;
       font-size: 13px; font-weight: 600;
