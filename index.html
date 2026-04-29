@@ -7563,8 +7563,26 @@
   }
   let devices = [];
   try { devices = (await (await fetch('/api/devices', { credentials:'include' })).json()).devices || []; } catch {}
-  await navigator.clipboard.writeText(JSON.stringify({ groups: all, devices }));
-  alert('Copied ' + all.length + ' groups + ' + devices.length + ' devices to clipboard. Switch back to the app and tap Load.');
+  const payload = JSON.stringify({ groups: all, devices });
+  // DevTools steals document focus, so navigator.clipboard.writeText
+  // throws "Document is not focused". Fall back to a hidden textarea +
+  // execCommand('copy') which works without focus.
+  let copied = false;
+  try { await navigator.clipboard.writeText(payload); copied = true; } catch {}
+  if (!copied) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = payload;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select(); ta.setSelectionRange(0, payload.length);
+      copied = !!(document.execCommand && document.execCommand('copy'));
+      document.body.removeChild(ta);
+    } catch {}
+  }
+  if (copied) alert('Copied ' + all.length + ' groups + ' + devices.length + ' devices to clipboard. Switch back to the app and tap Load.');
+  else { window.__WYZE_DATA = payload; alert('Could not copy automatically. Run  copy(window.__WYZE_DATA)  in the console, then tap Load.'); }
 })();`;
 
     function _bookmarkletHref() {
