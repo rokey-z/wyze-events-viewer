@@ -5590,13 +5590,26 @@
       // generic "quiet event". Falls back to "quiet event" if the summary
       // is missing or unparseable.
       const quietPhrase = (g) => {
-        const raw = String(g.summary || g.title || '').trim();
+        // Quiet rows want a very short brief — favour the Wyze-supplied
+        // title (usually 2–4 word labels like "Vehicle Parked in Garage"),
+        // strip a leading emoji, and lowercase the first letter so it
+        // reads inline after the time stamp. Fall back to a 4-word slice
+        // of the summary when there's no title.
+        const stripEmoji = (s) =>
+          String(s || '').replace(/^[\p{Extended_Pictographic}\s]+/u, '').trim();
+        const title = stripEmoji(g.title);
+        if (title) {
+          let s = title.replace(/^(a|an|the)\s+/i, '');
+          s = s.charAt(0).toLowerCase() + s.slice(1);
+          return s;
+        }
+        const raw = String(g.summary || '').trim();
         if (!raw) return 'quiet event';
-        // First sentence only.
         let s = raw.split(/(?<=[.!?])\s+/)[0].trim().replace(/[.!?]+$/, '');
-        // Drop leading article so the phrase is shorter / scannable.
         s = s.replace(/^(a|an|the)\s+/i, '');
-        // Lowercase first letter so it flows after the time stamp.
+        // Trim to first ~5 words for a tight one-line brief.
+        const words = s.split(/\s+/);
+        if (words.length > 5) s = words.slice(0, 5).join(' ');
         s = s.charAt(0).toLowerCase() + s.slice(1);
         return s || 'quiet event';
       };
