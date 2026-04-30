@@ -6856,7 +6856,14 @@
       if (!host) return;
       const devices = window.__rawDevices || [];
       if (!devices.length) {
+        // Even with no events / devices loaded, render the agent widgets
+        // as placeholders ("No data yet") above the load CTA so the
+        // section communicates what the Home tab will contain once data
+        // is loaded.
+        const agentsGrid = (typeof _renderAgentsGrid === 'function')
+          ? _renderAgentsGrid(window.__rawGroups || []) : '';
         host.innerHTML = `
+          ${agentsGrid}
           <div class="empty-state">
             <div class="empty-title">No cameras loaded</div>
             <div class="empty-sub">
@@ -6871,6 +6878,12 @@
           ?.addEventListener('click', () => loadFromClipboard({ silent: false }));
         host.querySelector('#emptyHelpBtnHome')
           ?.addEventListener('click', () => _openHelpModal());
+        host.querySelectorAll('.home-agent').forEach(el => {
+          el.addEventListener('click', () => {
+            const id = el.dataset.agent;
+            if (id) _openAgentSheet(id);
+          });
+        });
         return;
       }
       const cards = devices.map(d => {
