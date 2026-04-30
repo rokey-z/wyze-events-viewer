@@ -1941,6 +1941,308 @@
     .phone-frame.dark .home-device .home-device-recent {
       font-size: 10px; color: #A0A0A0;
     }
+
+    /* ── Camera Agent widgets ── */
+    .phone-frame.dark .home-view .home-agents {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 4px 0 18px;
+    }
+    .phone-frame.dark .home-view .home-agent {
+      position: relative;
+      display: flex; align-items: center; gap: 10px;
+      min-height: 88px;
+      padding: 10px;
+      background: #1A1A1A;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer;
+      transition: transform .12s, background .15s;
+      overflow: hidden;
+    }
+    .phone-frame.dark .home-view .home-agent:active { transform: scale(0.98); }
+    .phone-frame.dark .home-view .home-agent-thumb {
+      flex-shrink: 0;
+      width: 64px; height: 64px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2a2a2a, #161616);
+      position: relative; overflow: hidden;
+    }
+    .phone-frame.dark .home-view .home-agent-thumb img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .phone-frame.dark .home-view .home-agent-emblem {
+      position: absolute; right: 4px; bottom: 4px;
+      width: 20px; height: 20px;
+      background: rgba(0,0,0,0.85);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 1.5px rgba(255,255,255,0.18);
+    }
+    .phone-frame.dark .home-view .home-agent-emblem svg {
+      width: 12px; height: 12px;
+    }
+    .phone-frame.dark .home-view .home-agent-info { flex: 1; min-width: 0; }
+    .phone-frame.dark .home-view .home-agent-label {
+      font-size: 11px; color: #6B6B6B;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .phone-frame.dark .home-view .home-agent-state {
+      font-size: 14px; font-weight: 700; color: #fff;
+      margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .phone-frame.dark .home-view .home-agent-state.is-warn   { color: #FFB340; }
+    .phone-frame.dark .home-view .home-agent-state.is-active { color: #1DF0BB; }
+    .phone-frame.dark .home-view .home-agent-state.is-quiet  { color: #6B6B6B; }
+    .phone-frame.dark .home-view .home-agent-since {
+      font-size: 11px; color: #787878; margin-top: 2px;
+    }
+
+    /* ── Agent detail sheet (slide-up) ── */
+    .phone-frame.dark .agent-sheet {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 90%;
+      z-index: 215;
+      background: #1A1A1A;
+      border-radius: 18px 18px 0 0;
+      box-shadow: 0 -10px 32px rgba(0,0,0,0.6);
+      transform: translateY(100%);
+      transition: transform .28s cubic-bezier(0.22, 0.65, 0.34, 1);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .phone-frame.dark .agent-sheet.open { transform: translateY(0); }
+    .phone-frame.dark .agent-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 214;
+      opacity: 0; pointer-events: none;
+      transition: opacity .24s;
+    }
+    .phone-frame.dark .agent-backdrop.open { opacity: 1; pointer-events: auto; }
+    .phone-frame.dark .agent-sheet .agent-handle {
+      flex-shrink: 0;
+      display: flex; justify-content: center;
+      padding: 8px 0 4px;
+    }
+    .phone-frame.dark .agent-sheet .agent-handle div {
+      width: 36px; height: 4px; border-radius: 2px;
+      background: #505050;
+    }
+    .phone-frame.dark .agent-sheet .agent-header {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 12px;
+      padding: 4px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .phone-frame.dark .agent-sheet .agent-emblem {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .agent-sheet .agent-emblem svg {
+      width: 18px; height: 18px;
+    }
+    .phone-frame.dark .agent-sheet .agent-title-block { flex: 1; min-width: 0; }
+    .phone-frame.dark .agent-sheet .agent-title {
+      font-weight: 700; font-size: 17px; color: #fff;
+      letter-spacing: -0.05px;
+    }
+    .phone-frame.dark .agent-sheet .agent-sub {
+      font-size: 11px; color: #A0A0A0; margin-top: 2px;
+    }
+    .phone-frame.dark .agent-sheet .agent-close {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border: none; border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      color: #C8C8C8; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .agent-sheet .agent-close svg {
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round;
+    }
+    .phone-frame.dark .agent-sheet .agent-body {
+      flex: 1; overflow-y: auto;
+      padding: 14px 16px max(20px, env(safe-area-inset-bottom));
+    }
+    .phone-frame.dark .agent-sheet .agent-hero {
+      position: relative;
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.05);
+      margin-bottom: 16px;
+    }
+    .phone-frame.dark .agent-sheet .agent-hero-thumb {
+      flex-shrink: 0;
+      width: 88px; height: 88px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #2a2a2a;
+      position: relative;
+    }
+    .phone-frame.dark .agent-sheet .agent-hero-thumb img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .phone-frame.dark .agent-sheet .agent-hero-info { flex: 1; min-width: 0; }
+    .phone-frame.dark .agent-sheet .agent-hero-state {
+      font-size: 22px; font-weight: 800; color: #fff;
+      letter-spacing: -0.4px;
+    }
+    .phone-frame.dark .agent-sheet .agent-hero-state.is-warn   { color: #FFB340; }
+    .phone-frame.dark .agent-sheet .agent-hero-state.is-active { color: #1DF0BB; }
+    .phone-frame.dark .agent-sheet .agent-hero-since {
+      font-size: 13px; color: #A0A0A0; margin-top: 4px;
+    }
+    .phone-frame.dark .agent-sheet .agent-section {
+      margin: 18px 0 6px;
+      font-size: 12px; color: #6B6B6B;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+    .phone-frame.dark .agent-sheet .agent-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .phone-frame.dark .agent-sheet .agent-row-thumb {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #2a2a2a;
+      position: relative;
+    }
+    .phone-frame.dark .agent-sheet .agent-row-thumb img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .phone-frame.dark .agent-sheet .agent-row-info { flex: 1; min-width: 0; }
+    .phone-frame.dark .agent-sheet .agent-row-title {
+      font-size: 13px; color: #fff; font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .phone-frame.dark .agent-sheet .agent-row-meta {
+      font-size: 11px; color: #787878; margin-top: 2px;
+    }
+    .phone-frame.dark .agent-sheet .pill {
+      flex-shrink: 0;
+      display: inline-flex; align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+    .phone-frame.dark .agent-sheet .pill.open    { background: rgba(255,179,64,0.15);   color: #FFB340; }
+    .phone-frame.dark .agent-sheet .pill.closed  { background: rgba(29,240,187,0.15);   color: #1DF0BB; }
+    .phone-frame.dark .agent-sheet .pill.muted   { background: rgba(255,255,255,0.06);  color: #C8C8C8; }
+    /* Notify rule row */
+    .phone-frame.dark .agent-sheet .notify-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .phone-frame.dark .agent-sheet .notify-row-label {
+      font-size: 13px; font-weight: 500; color: #E8E8E8;
+    }
+    .phone-frame.dark .agent-sheet .notify-options {
+      display: flex; gap: 6px;
+    }
+    .phone-frame.dark .agent-sheet .notify-opt {
+      padding: 5px 10px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      color: #C8C8C8;
+      font-size: 11px; font-weight: 600;
+      cursor: pointer; border: none;
+    }
+    .phone-frame.dark .agent-sheet .notify-opt.is-on {
+      background: #1DF0BB; color: #0d0d0d;
+    }
+    /* Mark-picked button */
+    .phone-frame.dark .agent-sheet .mark-picked {
+      flex-shrink: 0;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #C8C8C8;
+      font-size: 11px; font-weight: 600;
+      cursor: pointer;
+    }
+    .phone-frame.dark .agent-sheet .agent-row.picked .mark-picked {
+      background: #1DF0BB; color: #0d0d0d; border-color: #1DF0BB;
+    }
+    .phone-frame.dark .agent-sheet .agent-row.picked .agent-row-title,
+    .phone-frame.dark .agent-sheet .agent-row.picked .agent-row-meta {
+      opacity: 0.45; text-decoration: line-through;
+    }
+    /* Birds activity sparkline */
+    .phone-frame.dark .agent-sheet .activity-bars {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 2px;
+      align-items: end;
+      height: 60px;
+      margin: 8px 0 4px;
+      padding: 8px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+    }
+    .phone-frame.dark .agent-sheet .activity-bar {
+      background: rgba(255,255,255,0.10);
+      border-radius: 2px;
+      min-height: 2px;
+    }
+    .phone-frame.dark .agent-sheet .activity-bar.has { background: #1DF0BB; }
+    .phone-frame.dark .agent-sheet .activity-axis {
+      display: flex; justify-content: space-between;
+      font-size: 9px; color: #6B6B6B;
+      padding: 0 8px;
+      letter-spacing: 0.4px;
+    }
+    /* Birds sightings grid */
+    .phone-frame.dark .agent-sheet .sightings-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .phone-frame.dark .agent-sheet .sightings-cell {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #2a2a2a;
+    }
+    .phone-frame.dark .agent-sheet .sightings-cell img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .phone-frame.dark .agent-sheet .sightings-cell-time {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 8px 4px 3px;
+      background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0));
+      color: #fff; font-size: 9px; font-weight: 600;
+      text-align: center;
+      letter-spacing: 0.2px;
+    }
+    .phone-frame.dark .agent-sheet .agent-empty {
+      text-align: center;
+      color: #6B6B6B; font-size: 13px;
+      padding: 24px 16px;
+    }
     .phone-frame.dark .home-view .home-empty {
       padding: 40px 16px;
       text-align: center;
@@ -3847,6 +4149,12 @@
         <!-- populated by _openChatDrawer() -->
       </div>
       <div class="chat-backdrop"></div>
+
+      <!-- Camera Agent detail sheet (Home → tap a widget) -->
+      <div class="agent-backdrop"></div>
+      <div class="agent-sheet">
+        <!-- populated by _openAgentSheet(id) -->
+      </div>
 
       <!-- Wyze AI settings sheet (opens on top of chat drawer) -->
       <div class="settings-backdrop"></div>
@@ -6073,6 +6381,359 @@
              _fallbackThumbForCamera(g) || '';
     }
 
+    // ════════════════════════════════════════
+    // Camera Agent widgets (Home tab)
+    //   Each agent evaluates the current state of a monitoring goal from
+    //   __rawGroups and renders a compact widget. Tap → domain-specific
+    //   detail sheet (agent-sheet shell + per-agent body).
+    // ════════════════════════════════════════
+
+    // SVG marks used by widget emblems and sheet headers.
+    const _AGENT_ICONS = {
+      garage:  '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-6 9 6v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M6 13h12"/><path d="M6 17h12"/></svg>',
+      package: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7.5l7.5-3 7.5 3v9l-7.5 3-7.5-3z"/><path d="M4.5 7.5L12 10.5l7.5-3"/><path d="M12 10.5v9"/></svg>',
+      birds:   '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l3 3-3 3"/><path d="M5 13c2 4 6 5 10 4 3-1 5-3 5-7"/><path d="M5 13c-1-2 0-4 2-5l4 1"/><circle cx="11" cy="9" r="0.8" fill="#fff"/></svg>'
+    };
+
+    // Format a duration in ms into a short "Xh Ym" / "Ym" string.
+    function _agentDuration(ms) {
+      if (!isFinite(ms) || ms < 0) return '';
+      const m = Math.floor(ms / 60000);
+      if (m < 1)  return 'just now';
+      if (m < 60) return m + 'm';
+      const h = Math.floor(m / 60);
+      const rem = m % 60;
+      if (h < 24) return rem ? h + 'h ' + rem + 'm' : h + 'h';
+      const d = Math.floor(h / 24);
+      return d + 'd ' + (h % 24) + 'h';
+    }
+
+    // ── Garage door evaluator ─────────────────
+    const _GARAGE_RE       = /\bgarage\s*door\b|\bgarage\b/i;
+    const _GARAGE_OPEN_RE  = /\b(open(s|ing|ed)?|opening|opened|raised|raises|raising|lifted|lifts|lifting)\b/i;
+    const _GARAGE_CLOSE_RE = /\b(closed?|closes|closing|shut|shuts|lowered|lowers|lowering|down)\b/i;
+    function _agentGarage(groups) {
+      const matches = (groups || [])
+        .filter(g => _GARAGE_RE.test(g.summary || g.title || ''))
+        .map(g => {
+          const s = String(g.summary || g.title || '');
+          let st = null;
+          if (_GARAGE_OPEN_RE.test(s) && !_GARAGE_CLOSE_RE.test(s)) st = 'open';
+          else if (_GARAGE_CLOSE_RE.test(s) && !_GARAGE_OPEN_RE.test(s)) st = 'closed';
+          else if (_GARAGE_OPEN_RE.test(s)) st = 'open'; // ambiguous → favor open
+          return { g, t: parseTs(g.start), st };
+        })
+        .filter(m => m.st && !isNaN(m.t))
+        .sort((a, b) => b.t - a.t);
+      if (!matches.length) {
+        return { state: 'No data yet', since: '', thumb: '', accent: 'is-quiet', primary: null, history: [] };
+      }
+      const latest = matches[0];
+      const ageMs = Date.now() - latest.t.getTime();
+      const isOpen = latest.st === 'open';
+      const dur = _agentDuration(ageMs);
+      return {
+        state:   isOpen ? 'Open' : 'Closed',
+        since:   isOpen ? ('for ' + dur) : (dur + ' ago'),
+        thumb:   _subjectThumbUrlForGroup(latest.g),
+        accent:  isOpen && ageMs > 30 * 60 * 1000 ? 'is-warn' : (isOpen ? 'is-warn' : 'is-active'),
+        primary: latest.g,
+        history: matches.slice(0, 12) // newest first
+      };
+    }
+
+    // ── Package evaluator ─────────────────────
+    const _PACKAGE_RE       = /\b(UPS|FedEx|Amazon|packages?|parcels?|deliveries|delivery|delivered|deliver)\b/i;
+    const _PACKAGE_PICKUP_RE = /\b(picked\s*up|pick\s*up|carried|retrieved|grabbed|brought\s*in|took\s*in)\b/i;
+    function _agentPackage(groups) {
+      const now = Date.now();
+      const since24 = now - 24 * 3600 * 1000;
+      const since7d = now - 7  * 24 * 3600 * 1000;
+      const all = (groups || [])
+        .filter(g => _PACKAGE_RE.test(g.summary || g.title || '') || (g.ai_tags || []).some(t => _PACKAGE_RE.test(t)))
+        .map(g => ({ g, t: parseTs(g.start) }))
+        .filter(x => !isNaN(x.t))
+        .sort((a, b) => b.t - a.t);
+      const recent7 = all.filter(x => x.t.getTime() >= since7d);
+      const recent24 = all.filter(x => x.t.getTime() >= since24);
+      // "Waiting" heuristic: a delivery in last 24h that doesn't have a later
+      // pickup-keyword event from the same camera within the same 24h window.
+      const waiting = recent24.filter(({ g, t }) => {
+        const cams = g.cameras || [];
+        const later = (groups || []).find(o => {
+          if (o === g) return false;
+          const ot = parseTs(o.start);
+          if (isNaN(ot) || ot <= t) return false;
+          if (!_PACKAGE_PICKUP_RE.test(o.summary || o.title || '')) return false;
+          return (o.cameras || []).some(c => cams.some(cc => _macsMatch ? _macsMatch(c, cc) : c === cc));
+        });
+        return !later;
+      });
+      if (!recent7.length) {
+        return { state: 'No packages', since: 'past 7 days', thumb: '', accent: 'is-quiet', primary: null, recent: [] };
+      }
+      const latest = recent7[0];
+      return {
+        state:   waiting.length ? (waiting.length + ' waiting') : 'No packages',
+        since:   waiting.length ? ('latest ' + relTimeAgo(latest.t)) : ('last ' + relTimeAgo(latest.t)),
+        thumb:   _subjectThumbUrlForGroup(latest.g),
+        accent:  waiting.length ? 'is-warn' : 'is-quiet',
+        primary: latest.g,
+        recent:  recent7.slice(0, 12)
+      };
+    }
+
+    // ── Birds watcher evaluator ───────────────
+    const _BIRD_RE = /\b(bird|birds?|blue\s*jay|crow|hummingbird|sparrow|robin|cardinal|owl|finch|hawk|chickadee)\b/i;
+    function _agentBirds(groups) {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const todayMs = today.getTime();
+      const all = (groups || [])
+        .filter(g => _BIRD_RE.test(g.summary || g.title || '') || (g.ai_tags || []).some(t => _BIRD_RE.test(t)))
+        .map(g => ({ g, t: parseTs(g.start) }))
+        .filter(x => !isNaN(x.t))
+        .sort((a, b) => b.t - a.t);
+      const todayList = all.filter(x => x.t.getTime() >= todayMs);
+      if (!all.length) {
+        return { state: 'None today', since: '', thumb: '', accent: 'is-quiet', primary: null, today: [], all: [] };
+      }
+      const latest = all[0];
+      const n = todayList.length;
+      return {
+        state:   n ? (n + ' today') : 'None today',
+        since:   'latest ' + relTimeAgo(latest.t),
+        thumb:   _subjectThumbUrlForGroup(latest.g),
+        accent:  n ? 'is-active' : 'is-quiet',
+        primary: latest.g,
+        today:   todayList,
+        all:     all.slice(0, 24)
+      };
+    }
+
+    const _AGENTS = [
+      { id: 'garage',  label: 'Garage Door',    iconHtml: _AGENT_ICONS.garage,  evaluate: _agentGarage  },
+      { id: 'package', label: 'Packages',       iconHtml: _AGENT_ICONS.package, evaluate: _agentPackage },
+      { id: 'birds',   label: 'Birds Watcher',  iconHtml: _AGENT_ICONS.birds,   evaluate: _agentBirds   }
+    ];
+
+    // Render the 2-column widget grid above the device list.
+    function _renderAgentsGrid(groups) {
+      const cards = _AGENTS.map(a => {
+        const s = a.evaluate(groups);
+        const thumbHtml = s.thumb
+          ? `<img src="${_esc(s.thumb)}" alt="" onerror="this.style.display='none';" />`
+          : '';
+        return `
+          <div class="home-agent" data-agent="${a.id}">
+            <div class="home-agent-thumb">
+              ${thumbHtml}
+              <div class="home-agent-emblem">${a.iconHtml}</div>
+            </div>
+            <div class="home-agent-info">
+              <div class="home-agent-label">${_esc(a.label)}</div>
+              <div class="home-agent-state ${_esc(s.accent || '')}">${_esc(s.state)}</div>
+              ${s.since ? `<div class="home-agent-since">${_esc(s.since)}</div>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+      return `<section class="home-agents">${cards}</section>`;
+    }
+
+    // Open / close the agent detail sheet.
+    function _openAgentSheet(id) {
+      const agent = _AGENTS.find(a => a.id === id);
+      if (!agent) return;
+      const frame = document.querySelector('.phone-frame.dark');
+      const sheet = frame?.querySelector('.agent-sheet');
+      const backdrop = frame?.querySelector('.agent-backdrop');
+      if (!sheet || !backdrop) return;
+      const groups = window.__rawGroups || [];
+      const state = agent.evaluate(groups);
+      let bodyHtml = '';
+      if (id === 'garage')       bodyHtml = _renderGarageSheet(state);
+      else if (id === 'package') bodyHtml = _renderPackageSheet(state);
+      else if (id === 'birds')   bodyHtml = _renderBirdsSheet(state);
+      sheet.innerHTML = `
+        <div class="agent-handle"><div></div></div>
+        <div class="agent-header">
+          <div class="agent-emblem">${agent.iconHtml}</div>
+          <div class="agent-title-block">
+            <div class="agent-title">${_esc(agent.label)}</div>
+            <div class="agent-sub">${_esc(state.state)}${state.since ? ' · ' + _esc(state.since) : ''}</div>
+          </div>
+          <button class="agent-close" type="button" aria-label="Close">
+            <svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg>
+          </button>
+        </div>
+        <div class="agent-body">${bodyHtml}</div>`;
+      sheet.offsetHeight; backdrop.offsetHeight;
+      sheet.classList.add('open');
+      backdrop.classList.add('open');
+      sheet.querySelector('.agent-close').addEventListener('click', _closeAgentSheet);
+      backdrop.addEventListener('click', _closeAgentSheet, { once: true });
+      // Per-sheet wiring (notify rule, mark-picked, etc.)
+      if (id === 'garage')       _wireGarageSheet(sheet);
+      else if (id === 'package') _wirePackageSheet(sheet);
+      else if (id === 'birds')   _wireBirdsSheet(sheet);
+    }
+    function _closeAgentSheet() {
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame) return;
+      frame.querySelector('.agent-sheet')?.classList.remove('open');
+      frame.querySelector('.agent-backdrop')?.classList.remove('open');
+    }
+
+    // ── Garage sheet body ────────────────────────────
+    function _renderGarageSheet(s) {
+      const heroThumb = s.thumb
+        ? `<img src="${_esc(s.thumb)}" alt="" onerror="this.style.display='none';" />`
+        : '';
+      const heroAccent = s.accent || '';
+      const isOpen = s.state === 'Open';
+      const heroState = isOpen ? 'OPEN' : (s.state === 'Closed' ? 'CLOSED' : s.state);
+      const sinceLine = s.since || (s.primary ? relTimeAgo(parseTs(s.primary.start)) : '');
+      const items = (s.history || []).map(m => {
+        const t = m.t;
+        const time = isNaN(t) ? '' :
+          ('' + ((t.getMonth()+1) + '/' + t.getDate() + ' ' +
+                 t.getHours().toString().padStart(2,'0') + ':' +
+                 t.getMinutes().toString().padStart(2,'0')));
+        const thumb = _subjectThumbUrlForGroup(m.g);
+        return `
+          <div class="agent-row">
+            <div class="agent-row-thumb">${thumb ? `<img src="${_esc(thumb)}" alt="" onerror="this.style.display='none';" />` : ''}</div>
+            <div class="agent-row-info">
+              <div class="agent-row-title">${_esc(time)}</div>
+              <div class="agent-row-meta">${_esc(_camFriendlyName((m.g.cameras||[])[0], window.__camNameMap) || '')}</div>
+            </div>
+            <span class="pill ${m.st === 'open' ? 'open' : 'closed'}">${_esc(m.st === 'open' ? 'Opened' : 'Closed')}</span>
+          </div>`;
+      }).join('');
+      return `
+        <div class="agent-hero">
+          <div class="agent-hero-thumb">${heroThumb}</div>
+          <div class="agent-hero-info">
+            <div class="agent-hero-state ${_esc(heroAccent)}">${_esc(heroState)}</div>
+            <div class="agent-hero-since">${_esc(sinceLine)}</div>
+          </div>
+        </div>
+        <div class="notify-row">
+          <div class="notify-row-label">Notify if open longer than</div>
+          <div class="notify-options" data-role="notify">
+            <button class="notify-opt" data-min="15" type="button">15m</button>
+            <button class="notify-opt is-on" data-min="30" type="button">30m</button>
+            <button class="notify-opt" data-min="60" type="button">60m</button>
+          </div>
+        </div>
+        <div class="agent-section">Recent state changes</div>
+        ${items || '<div class="agent-empty">No garage door events in the loaded data.</div>'}`;
+    }
+    function _wireGarageSheet(sheet) {
+      sheet.querySelectorAll('.notify-opt').forEach(b => {
+        b.addEventListener('click', () => {
+          sheet.querySelectorAll('.notify-opt').forEach(x => x.classList.remove('is-on'));
+          b.classList.add('is-on');
+          if (typeof _showToast === 'function') _showToast('Notify if open > ' + b.dataset.min + 'm');
+        });
+      });
+    }
+
+    // ── Package sheet body ───────────────────────────
+    function _renderPackageSheet(s) {
+      const heroThumb = s.thumb
+        ? `<img src="${_esc(s.thumb)}" alt="" onerror="this.style.display='none';" />`
+        : '';
+      const carrierFromSummary = (txt) => {
+        const t = String(txt || '');
+        if (/\bUPS\b/i.test(t))    return 'UPS';
+        if (/\bFedEx\b/i.test(t))  return 'FedEx';
+        if (/\bAmazon\b/i.test(t)) return 'Amazon';
+        if (/\bUSPS\b/i.test(t))   return 'USPS';
+        if (/\bDHL\b/i.test(t))    return 'DHL';
+        return 'Delivery';
+      };
+      const items = (s.recent || []).map(({ g, t }) => {
+        const time = isNaN(t) ? '' : (relTimeAgo(t));
+        const carrier = carrierFromSummary(g.summary || g.title);
+        const cam = _camFriendlyName((g.cameras||[])[0], window.__camNameMap) || '';
+        const thumb = _subjectThumbUrlForGroup(g);
+        return `
+          <div class="agent-row" data-gid="${_esc(g.id)}">
+            <div class="agent-row-thumb">${thumb ? `<img src="${_esc(thumb)}" alt="" onerror="this.style.display='none';" />` : ''}</div>
+            <div class="agent-row-info">
+              <div class="agent-row-title">${_esc(carrier)}${cam ? ' · ' + _esc(cam) : ''}</div>
+              <div class="agent-row-meta">${_esc(time)}</div>
+            </div>
+            <button class="mark-picked" type="button">Picked up</button>
+          </div>`;
+      }).join('');
+      return `
+        <div class="agent-hero">
+          <div class="agent-hero-thumb">${heroThumb}</div>
+          <div class="agent-hero-info">
+            <div class="agent-hero-state ${_esc(s.accent || '')}">${_esc(s.state)}</div>
+            <div class="agent-hero-since">${_esc(s.since)}</div>
+          </div>
+        </div>
+        <div class="agent-section">Recent deliveries · last 7 days</div>
+        ${items || '<div class="agent-empty">No packages detected in the last 7 days.</div>'}`;
+    }
+    function _wirePackageSheet(sheet) {
+      sheet.querySelectorAll('.mark-picked').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const row = btn.closest('.agent-row');
+          if (!row) return;
+          const wasPicked = row.classList.toggle('picked');
+          btn.textContent = wasPicked ? 'Picked ✓' : 'Picked up';
+          if (typeof _showToast === 'function') {
+            _showToast(wasPicked ? 'Marked as picked up' : 'Reverted');
+          }
+        });
+      });
+    }
+
+    // ── Birds sheet body ─────────────────────────────
+    function _renderBirdsSheet(s) {
+      const heroThumb = s.thumb
+        ? `<img src="${_esc(s.thumb)}" alt="" onerror="this.style.display='none';" />`
+        : '';
+      // Hour-by-hour bars from today's sightings.
+      const counts = new Array(24).fill(0);
+      (s.today || []).forEach(({ t }) => {
+        if (!isNaN(t)) counts[t.getHours()]++;
+      });
+      const max = Math.max(1, ...counts);
+      const bars = counts.map((n) => {
+        const h = Math.round((n / max) * 100);
+        return `<div class="activity-bar${n ? ' has' : ''}" style="height:${Math.max(2, h)}%;"></div>`;
+      }).join('');
+      const cells = (s.all || []).slice(0, 12).map(({ g, t }) => {
+        const time = isNaN(t) ? '' :
+          (t.getHours().toString().padStart(2,'0') + ':' +
+           t.getMinutes().toString().padStart(2,'0'));
+        const thumb = _subjectThumbUrlForGroup(g);
+        return `
+          <div class="sightings-cell">
+            ${thumb ? `<img src="${_esc(thumb)}" alt="" onerror="this.style.display='none';" />` : ''}
+            <div class="sightings-cell-time">${_esc(time)}</div>
+          </div>`;
+      }).join('');
+      return `
+        <div class="agent-hero">
+          <div class="agent-hero-thumb">${heroThumb}</div>
+          <div class="agent-hero-info">
+            <div class="agent-hero-state ${_esc(s.accent || '')}">${_esc(s.state)}</div>
+            <div class="agent-hero-since">${_esc(s.since)}</div>
+          </div>
+        </div>
+        <div class="agent-section">Today's activity</div>
+        <div class="activity-bars">${bars}</div>
+        <div class="activity-axis"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+        <div class="agent-section">Recent sightings</div>
+        ${cells ? `<div class="sightings-grid">${cells}</div>` : '<div class="agent-empty">No sightings in the loaded data.</div>'}`;
+    }
+    function _wireBirdsSheet(/* sheet */) { /* no extra wiring */ }
+
     // Build a global index keyed by subject. Each entry has a display name,
     // a category, and the list of groups that mention it (newest first).
     function _buildSubjectIndex(groups) {
@@ -6236,7 +6897,10 @@
             </div>
           </div>`;
       }).join('');
+      const agentsGrid = (typeof _renderAgentsGrid === 'function')
+        ? _renderAgentsGrid(window.__rawGroups || []) : '';
       host.innerHTML = `
+        ${agentsGrid}
         <div class="home-section-title">
           Cameras <span class="home-section-count">${devices.length}</span>
         </div>
@@ -6246,6 +6910,13 @@
         el.addEventListener('click', () => {
           const mac = el.dataset.mac;
           if (mac) _openLiveView(mac);
+        });
+      });
+      // Tap an agent widget → open its domain-specific detail sheet.
+      host.querySelectorAll('.home-agent').forEach(el => {
+        el.addEventListener('click', () => {
+          const id = el.dataset.agent;
+          if (id) _openAgentSheet(id);
         });
       });
     }
