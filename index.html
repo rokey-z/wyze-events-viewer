@@ -2624,22 +2624,24 @@
       align-self: stretch;
       max-width: 100%;
     }
+    /* Match the regular bot bubble — same background / radius / padding —
+       so agent messages feel like plain conversational replies, not cards. */
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-card {
       background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
-      padding: 12px 14px 12px 14px;
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      padding: 10px 13px;
       position: relative;
     }
-    /* Floating thumbnail — top-right of the card. Title/body wrap around it
-       via padding-right so they don't get hidden behind the image. */
+    /* Floating thumbnail — top-right of the bubble. Text wraps via
+       padding-right so it doesn't get hidden behind the image. */
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-card.has-thumb {
-      padding-right: 88px;
-      min-height: 88px;
+      padding-right: 76px;
+      min-height: 76px;
     }
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-thumb {
-      position: absolute; top: 12px; right: 12px;
-      width: 64px; height: 64px;
+      position: absolute; top: 10px; right: 10px;
+      width: 56px; height: 56px;
       border-radius: 10px;
       overflow: hidden;
       background: linear-gradient(135deg, #2a2a2a, #161616);
@@ -2697,13 +2699,13 @@
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-confidence.high::before   { background: #1DF0BB; }
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-confidence.medium::before { background: #FFB340; }
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-confidence.low::before    { background: #FF6B6B; }
-    .phone-frame.dark .chat-drawer .chat-msg-agent .agent-title {
-      font-weight: 700; font-size: 14px; color: #fff;
-      line-height: 1.3;
-    }
-    .phone-frame.dark .chat-drawer .chat-msg-agent .agent-body {
-      font-size: 13px; color: #C8C8C8;
-      margin-top: 4px; line-height: 1.45;
+    /* Plain-text message body — feels like a regular bot bubble, not a
+       formatted card. Title + first body sentence are merged into one
+       paragraph so the agent reads conversationally. */
+    .phone-frame.dark .chat-drawer .chat-msg-agent .agent-text {
+      font-size: 13px; font-weight: 500;
+      color: #E8E8E8;
+      line-height: 1.45;
     }
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-evidence {
       display: inline-flex; align-items: center; gap: 5px;
@@ -2727,24 +2729,24 @@
     }
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-actions {
       display: flex; flex-wrap: wrap; gap: 6px;
-      margin-top: 10px;
+      margin-top: 8px;
     }
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-cta {
-      padding: 7px 12px;
+      padding: 5px 11px;
       border-radius: 999px;
       border: none;
       background: #1DF0BB;
       color: #0d0d0d;
-      font: inherit; font-size: 12px; font-weight: 700;
+      font: inherit; font-size: 11px; font-weight: 700;
       cursor: pointer;
     }
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-cta-secondary {
-      padding: 7px 10px;
+      padding: 5px 11px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.08);
       background: transparent;
       color: #A0A0A0;
-      font: inherit; font-size: 12px; font-weight: 600;
+      font: inherit; font-size: 11px; font-weight: 600;
       cursor: pointer;
     }
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-cta-secondary:hover { color: #fff; }
@@ -7326,15 +7328,18 @@
         : (a.thumbFallback
             ? `<div class="agent-thumb no-image"><span class="agent-thumb-fallback">${_esc(a.thumbFallback)}</span></div>`
             : '');
-      // Trim body to the first sentence so the bubble stays compact.
+      // Merge title and the first sentence of the body into a single
+      // plain-text message so the bubble reads conversationally rather
+      // than like a formatted card.
+      const title = String(a.title || '').trim();
       const fullBody = String(a.body || '');
-      const firstSentence = fullBody.split(/(?<=[.!?])\s+/)[0];
+      const firstSentence = fullBody.split(/(?<=[.!?])\s+/)[0].trim();
+      const text = [title, firstSentence].filter(Boolean).join(' ');
       return `
         <div class="chat-msg chat-msg-bot chat-msg-agent">
           <div class="agent-card${thumbHtml ? ' has-thumb' : ''}">
             ${thumbHtml}
-            <div class="agent-title">${_esc(a.title || '')}</div>
-            ${firstSentence ? `<div class="agent-body">${_esc(firstSentence)}</div>` : ''}
+            <div class="agent-text">${_esc(text)}</div>
             ${(primaryHtml || secHtml)
               ? `<div class="agent-actions">${primaryHtml}${secHtml}</div>`
               : ''}
