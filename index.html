@@ -7366,14 +7366,15 @@
         wkCount[t.getDay()]++;
       });
       const day = wkCount.indexOf(Math.max(...wkCount));
-      const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][day];
+      const dayShort = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][day];
+      const dayPlural = ['Sundays','Mondays','Tuesdays','Wednesdays','Thursdays','Fridays','Saturdays'][day];
       const n = wkCount[day];
       const conf = n >= 3 ? 'High' : (n >= 1 ? 'Medium' : 'Low');
       return {
         type: 'B',
-        title: `Trash truck ${dayName} ~6:50 AM`,
-        body: `Looks like collection runs every ${dayName} morning. Want a heads-up the night before?`,
-        evidence: `Detected ${n} ${dayName}${n === 1 ? '' : 's'} in the last month`,
+        title: `Trash truck ${dayShort} ~6:50 AM`,
+        body: `Looks like collection runs every ${dayShort} morning. Want a heads-up the night before?`,
+        evidence: `Detected on ${n} ${n === 1 ? dayShort : dayPlural} in the last month`,
         confidence: conf,
         primary_cta: 'Remind me',
         secondary: ['Already do', 'Stop'],
@@ -7387,11 +7388,18 @@
       const subjN = s.topSubject ? s.topSubject[1] : 0;
       const total = s.lastWeek.length || 1;
       const pct = Math.round((subjN / total) * 100);
+      // Count distinct subjects + distinct cameras across the week.
+      const subjSet = new Set();
+      const camSet  = new Set();
+      s.lastWeek.forEach(g => {
+        (g.ai_tags || []).forEach(t => subjSet.add(String(t).toLowerCase()));
+        (g.cameras  || []).forEach(c => camSet.add(c));
+      });
       return {
         type: 'C',
         title: `Last 7 days · ${s.lastWeek.length} events`,
         body: `Top subject: ${subj} (${pct}%). Most active camera: ${s.topCamLabel || '—'}. Quietest hour: ${String(s.quietHour).padStart(2,'0')}:00.`,
-        evidence: `${s.lastWeek.length} events · ${Object.keys(s.topSubject ? { [s.topSubject[0]]: 1 } : {}).length || (Object.keys({}).length)} subjects · ${Object.keys((groups[0] && groups[0].cameras) ? { c: 1 } : {}).length} cameras`,
+        evidence: `${s.lastWeek.length} events · ${subjSet.size} subject${subjSet.size === 1 ? '' : 's'} · ${camSet.size} camera${camSet.size === 1 ? '' : 's'}`,
         confidence: 'High',
         primary_cta: 'See details',
         secondary: ['Share'],
