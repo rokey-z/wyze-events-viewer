@@ -2511,7 +2511,7 @@
 
     .phone-frame.dark .chat-drawer {
       position: absolute; left: 0; right: 0; bottom: 0;
-      height: 80%;
+      height: 90%;
       z-index: 221;
       background: #181818;
       border-radius: 18px 18px 0 0;
@@ -7486,11 +7486,45 @@
     const _AGENT_GENS = [_agentMsg_A, _agentMsg_B, _agentMsg_C, _agentMsg_D, _agentMsg_E];
     let _agentTypeCursor = 0;
 
+    // Tiny in-memory dataset that lets the Push-test button render a
+    // realistic proactive message before the user has loaded any real
+    // Wyze events. Used only when window.__rawGroups is empty.
+    function _syntheticAgentGroups() {
+      const now = Date.now();
+      const t = (offMs) => {
+        const d = new Date(now - offMs);
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ` +
+               `${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
+      };
+      return [
+        { id:'demo-1', score:3, cameras:['80482CFRONT'], ai_tags:['person','vehicle'],
+          summary:'A person walked past the front door',
+          title:'Person at Front Door', start: t(2*3600*1000) },
+        { id:'demo-2', score:3, cameras:['80482CDRIVE'], ai_tags:['vehicle','tesla'],
+          summary:'Tesla pulled into the driveway',
+          title:'Tesla Parked in Driveway', start: t(8*3600*1000) },
+        { id:'demo-3', score:2, cameras:['80482CFRONT'], ai_tags:['package','UPS'],
+          summary:'UPS truck dropped off a package',
+          title:'Package Delivered', start: t(28*3600*1000) },
+        { id:'demo-4', score:3, cameras:['80482CDRIVE'], ai_tags:['person'],
+          summary:'Person walked through the side yard',
+          title:'Person Walking Through Yard', start: t(3.5*86400*1000) },
+        { id:'demo-5', score:2, cameras:['80482CDRIVE'], ai_tags:['vehicle','tesla'],
+          summary:'Tesla departed the driveway at 7:45 AM',
+          title:'Tesla Departed', start: t(2*86400*1000) },
+        { id:'demo-6', score:3, cameras:['80482CSIDE'], ai_tags:['person'],
+          summary:'A pedestrian walked by at 02:14',
+          title:'Late-night Pedestrian', start: t(60*60*1000 + 22*3600*1000) }
+      ];
+    }
+
     function _testProactiveMessage() {
-      const groups = window.__rawGroups || [];
+      let groups = window.__rawGroups || [];
+      let usedSynthetic = false;
       if (!groups.length) {
-        if (typeof _showToast === 'function') _showToast('Load some events first');
-        return;
+        groups = _syntheticAgentGroups();
+        usedSynthetic = true;
       }
       // Rotate A → B → C → D → E → A …
       const gen = _AGENT_GENS[_agentTypeCursor % _AGENT_GENS.length];
@@ -7510,7 +7544,10 @@
         if (list) list.scrollTop = list.scrollHeight;
       }
       if (typeof _showToast === 'function') {
-        _showToast('Proactive (' + agent.type + ' · ' + (agent.confidence || '') + ') queued');
+        const tag = (agent.type || '?') + ' · ' + (agent.confidence || '');
+        _showToast(usedSynthetic
+          ? ('Demo (' + tag + ') — load events for real data')
+          : ('Proactive (' + tag + ') queued'));
       }
     }
 
@@ -7543,10 +7580,10 @@
             <div class="chat-title">Wyze AI</div>
             <div class="chat-sub">Online</div>
           </div>
-          <button class="chat-test" type="button" aria-label="Test proactive message" title="Test proactive message">
+          <button class="chat-test" type="button" aria-label="Push test message" title="Push test">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 1.5L9.7 5l3.8.4-2.8 2.5.8 3.7L8 9.8 4.5 11.6l.8-3.7L2.5 5.4 6.3 5z"/>
-              <path d="M3 13.5l2-1M11 13.5l-2-1"/>
+              <path d="M8 2a4 4 0 0 0-4 4v3l-1.4 2h10.8L12 9V6a4 4 0 0 0-4-4z"/>
+              <path d="M6.5 13.5a1.6 1.6 0 0 0 3 0"/>
             </svg>
           </button>
           <button class="chat-settings" type="button" aria-label="Wyze AI settings" title="Settings">
