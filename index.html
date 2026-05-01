@@ -7644,10 +7644,10 @@
         sampleMatcher: (g) => /\b(UPS|FedEx|Amazon|package|parcel|deliver)/i.test(g.summary || g.title || ''),
         defaultCam: 'Front Door',
         emoji: '📦',
-        line: 'Package waiting for 3h 12m.',
+        line: 'Hey — UPS dropped a package on the front porch around 11:48 AM. It\'s been sitting there for 3 hours now. Want me to ping you again later?',
         replies: [
-          { n: 1, label: 'picked up' },
-          { n: 2, label: 'snooze 1h' },
+          { n: 1, label: 'got it, grabbing now' },
+          { n: 2, label: 'remind me at 5 PM' },
           { n: 3, label: 'show me' }
         ],
         fallback: '📦'
@@ -7657,10 +7657,10 @@
         sampleMatcher: (g) => /\bgarage\b/i.test(g.summary || g.title || ''),
         defaultCam: 'Garage',
         emoji: '🚪',
-        line: 'Garage door has been open for 47 min — longer than usual.',
+        line: 'Heads up — your garage door has been open since 10:14 PM, almost 50 minutes now. Just flagging in case you forgot.',
         replies: [
-          { n: 1, label: 'already aware' },
-          { n: 2, label: 'remind me at 30 min' },
+          { n: 1, label: 'on it, closing now' },
+          { n: 2, label: 'ping me again in 30' },
           { n: 3, label: 'show me' }
         ],
         fallback: '🚪'
@@ -7670,10 +7670,10 @@
         sampleMatcher: (g) => parseTs(g.start).getHours() <= 5,
         defaultCam: 'Front Door',
         emoji: '⚠️',
-        line: 'Person at the door at 2:14 AM — first in 30 days.',
+        line: 'Someone just walked up to your front door at 2:14 AM. First time I\'ve seen anyone there that late in the past 30 days — thought you\'d want to see.',
         replies: [
-          { n: 1, label: 'mark normal' },
-          { n: 2, label: 'alert me again' },
+          { n: 1, label: 'all good, ignore' },
+          { n: 2, label: 'tell me if it happens again' },
           { n: 3, label: 'show me' }
         ],
         fallback: '⚠️'
@@ -7683,10 +7683,10 @@
         sampleMatcher: (g) => /\b(vehicle|car|sedan|truck|van|tesla)/i.test(g.summary || g.title || ''),
         defaultCam: 'Driveway',
         emoji: '🚗',
-        line: 'Tesla in driveway for 12h 30m, 4× your average.',
+        line: 'Your Tesla\'s been in the driveway since 7:30 PM yesterday — 12.5 hours, about 4× longer than usual. Wanted to flag in case you forgot to plug it in.',
         replies: [
-          { n: 1, label: 'expected' },
-          { n: 2, label: 'alert me on the next one' },
+          { n: 1, label: 'all good, plugged in' },
+          { n: 2, label: 'flag me next time' },
           { n: 3, label: 'show me' }
         ],
         fallback: '🚗'
@@ -7696,10 +7696,10 @@
         sampleMatcher: (g) => false, // no real-data match — always synthetic
         defaultCam: 'Backyard 2',
         emoji: '📷',
-        line: 'Camera offline since 1:42 PM. Battery 4%.',
+        line: 'Quick heads-up — your Backyard 2 cam dropped off at 1:42 PM. Battery was at 4%. Worth a swap while it\'s still light out.',
         replies: [
-          { n: 1, label: 'will swap battery' },
-          { n: 2, label: 'ignore' },
+          { n: 1, label: 'on it, swapping battery' },
+          { n: 2, label: 'ignore for now' },
           { n: 3, label: 'show me' }
         ],
         fallback: '📷',
@@ -7709,11 +7709,11 @@
         key: 'wildlife',
         sampleMatcher: (g) => /\b(raccoon|coyote|deer|fox|squirrel|bird|owl|raccoons?)\b/i.test(g.summary || g.title || ''),
         defaultCam: 'Backyard',
-        emoji: '🐦',
-        line: 'Raccoon detected at 3:12 AM. 3rd time this week.',
+        emoji: '🦝',
+        line: 'Saw a raccoon out back at 3:12 AM, near the trash bins again. Third time this week — looks like the same one.',
         replies: [
-          { n: 1, label: 'noted' },
-          { n: 2, label: 'alert me each time' },
+          { n: 1, label: 'noted, thanks' },
+          { n: 2, label: 'tell me each time' },
           { n: 3, label: 'show me' }
         ],
         fallback: '🦝'

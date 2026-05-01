@@ -298,11 +298,27 @@ Every SMS alert has exactly three parts, in this order:
                    Always include a "Show me" option if a richer view exists.
 ```
 
+### Voice — write like a watchful housemate, not an app
+
+The SMS should read as if someone who lives at home is texting you, not as an automated alert. Same data — warmer voice. Compare:
+
+- ❌ App-notification: *"Garage door open for 47 min."*
+- ✅ Housemate: *"Heads up — your garage door has been open since 10:14 PM, almost 50 minutes now. Just flagging in case you forgot."*
+
+Six rules:
+
+1. **Open with a connector, not a label.** *"Hey,"*, *"Heads up —"*, *"Quick heads-up —"*, *"Saw a …"*. Never `Wyze · Front Door:` inside the body — the sender header already says that.
+2. **Anchor on real time AND duration.** *"since 10:14 PM, almost 50 minutes now"*. Readers latch onto either; both feel grounded.
+3. **Use possessives.** *"your Tesla"*, *"your front porch"*, *"your Backyard 2 cam"*. Sounds like a roommate, not an alarm system.
+4. **End with intent, not a command.** *"Just flagging."*, *"Thought you'd want to see."*, *"Worth a swap while it's still light out."*
+5. **Reply labels are voice replies, not buttons.** *"got it, grabbing now"*, *"on it, closing now"*, *"all good, ignore"* — what you'd actually text back to a friend.
+6. **No caps, no marketing, no exclamations.** A friend doesn't say "ALERT!".
+
 ### Style rules
 
-- Always sign off with the surface so the user knows where this came from: prefix every text with the camera name (e.g. `Wyze · Front Door:`).
-- Keep the body **≤ 110 characters** so it fits on a single SMS without segmentation surcharges.
-- Use a single emoji at the start to convey type at a glance: 📦 package, 🚪 garage, ⚠️ anomaly, 🚗 vehicle, 🐦 wildlife, 🔋 battery, 📷 offline.
+- The sender header (e.g. `Wyze · Front Door:`) handles attribution. Don't repeat it inside the body.
+- Soft length cap: ≤ 220 characters works well for a chatty MMS body. Hard cap on standard SMS length only matters if there's no MMS.
+- Use a single emoji at the start to convey type at a glance: 📦 package, 🚪 garage, ⚠️ anomaly, 🚗 vehicle, 🦝 wildlife, 🔋 battery, 📷 offline.
 - Do **not** include URLs in the SMS body. The "Show me" reply triggers a deep-link push back to the user.
 - Quiet hours: an SMS only fires during quiet hours if confidence is High AND impact is irreversible (intruder, water leak, smoke). Everything else queues to morning.
 
@@ -324,8 +340,11 @@ Each template's three parts map to the bullets above.
 
 ```
 [mms] front_porch_pkg_2026-04-29_14:02.jpg
-Wyze · Front Door: 📦 Package waiting for 3h 12m.
-Reply 1 picked up · 2 snooze 1h · 3 show me
+Wyze · Front Door:
+📦 Hey — UPS dropped a package on the front porch around 11:48 AM.
+It's been sitting there for 3 hours now. Want me to ping you again
+later?
+Reply 1 got it, grabbing now · 2 remind me at 5 PM · 3 show me
 ```
 
 Trigger: a delivery group with no later "picked up / carried in" event from the same camera within `cooldown` (default 90 min).
@@ -335,8 +354,10 @@ Confidence: High. Cadence cap: ≥ 2 h between repeat texts on the same package.
 
 ```
 [mms] garage_door_open_2026-04-29_22:47.jpg
-Wyze · Garage: 🚪 Garage door has been open for 47 min — longer than usual.
-Reply 1 already aware · 2 remind me at 30 min · 3 show me
+Wyze · Garage:
+🚪 Heads up — your garage door has been open since 10:14 PM,
+almost 50 minutes now. Just flagging in case you forgot.
+Reply 1 on it, closing now · 2 ping me again in 30 · 3 show me
 ```
 
 Trigger: a garage open event with no later close event after the user-set threshold (default 30 min). Re-fire after another 30 min if no reply.
@@ -346,8 +367,11 @@ Confidence: High. Quiet-hours: allowed (impact = potentially overnight exposure)
 
 ```
 [mms] front_door_anom_2026-04-29_02:14.jpg
-Wyze · Front Door: ⚠️ Person at the door at 2:14 AM — first in 30 days.
-Reply 1 mark normal · 2 alert me again · 3 show me
+Wyze · Front Door:
+⚠️ Someone just walked up to your front door at 2:14 AM. First time
+I've seen anyone there that late in the past 30 days — thought you'd
+want to see.
+Reply 1 all good, ignore · 2 tell me if it happens again · 3 show me
 ```
 
 Trigger: a person event during the user's quiet window (00:00–05:00 by default) when baseline = 0 over the last 14 days at that hour.
@@ -357,8 +381,11 @@ Confidence: High. Impact: irreversible. Allowed in quiet hours.
 
 ```
 [mms] driveway_tesla_2026-04-29_07:30.jpg
-Wyze · Driveway: 🚗 Tesla in driveway for 12h 30m, 4× your average.
-Reply 1 expected · 2 alert me on the next one · 3 show me
+Wyze · Driveway:
+🚗 Your Tesla's been in the driveway since 7:30 PM yesterday — 12.5
+hours, about 4× longer than usual. Wanted to flag in case you forgot
+to plug it in.
+Reply 1 all good, plugged in · 2 flag me next time · 3 show me
 ```
 
 Trigger: a vehicle has been parked in the same camera's view ≥ 4× the user's median dwell time. Daytime only.
@@ -368,8 +395,10 @@ Confidence: Medium. Cadence cap: 1 SMS per vehicle dwell event.
 
 ```
 [no image — offline]
-Wyze · Backyard 2: 📷 Camera offline since 1:42 PM. Battery 4%.
-Reply 1 will swap battery · 2 ignore · 3 show me
+Wyze · Backyard 2:
+📷 Quick heads-up — your Backyard 2 cam dropped off at 1:42 PM.
+Battery was at 4%. Worth a swap while it's still light out.
+Reply 1 on it, swapping battery · 2 ignore for now · 3 show me
 ```
 
 Trigger: heartbeat missed > 10 min, OR battery <= 5% (whichever earlier).
@@ -379,8 +408,10 @@ Confidence: High. No image attachment (camera is offline). Allowed in quiet hour
 
 ```
 [mms] backyard_raccoon_2026-04-29_03:12.jpg
-Wyze · Backyard: 🐦 Raccoon detected at 3:12 AM. 3rd time this week.
-Reply 1 noted · 2 alert me each time · 3 show me
+Wyze · Backyard:
+🦝 Saw a raccoon out back at 3:12 AM, near the trash bins again.
+Third time this week — looks like the same one.
+Reply 1 noted, thanks · 2 tell me each time · 3 show me
 ```
 
 Trigger: same wildlife species detected ≥ 3 times in 7 days.
