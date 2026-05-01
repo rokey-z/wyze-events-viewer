@@ -7634,69 +7634,110 @@
       };
     }
 
-    // ── SMS / MMS preview (the 6th step) ─────────────
-    // A handful of canned templates that demo the SMS surface inside
-    // the chat as a visual preview. The agent picks one based on the
-    // strongest signal in __rawGroups; with synthetic data it falls
-    // back to the package template.
-    function _smsTemplate(groups) {
-      const hasGarageOpen = (groups || []).some(g => /\bgarage\b.*\bopen/i.test(g.summary || g.title || ''));
-      const hasPackage    = (groups || []).some(g => /\b(UPS|FedEx|Amazon|package|parcel|deliver)/i.test(g.summary || g.title || ''));
-      const lateNight     = (groups || []).some(g => {
-        const h = parseTs(g.start).getHours();
-        return h >= 0 && h <= 5;
-      });
-      let pick;
-      if (hasGarageOpen) pick = 'garage';
-      else if (lateNight) pick = 'anomaly';
-      else if (hasPackage) pick = 'package';
-      else pick = 'package'; // sensible default for synthetic data
+    // ── SMS / MMS preview ─────────────
+    // Six canned templates that demo the SMS surface inside the chat.
+    // Each Push-test rotation step cycles through them in order, so
+    // designers can preview every variant with successive taps.
+    const _SMS_TEMPLATES = [
+      {
+        key: 'package',
+        sampleMatcher: (g) => /\b(UPS|FedEx|Amazon|package|parcel|deliver)/i.test(g.summary || g.title || ''),
+        defaultCam: 'Front Door',
+        emoji: '📦',
+        line: 'Package waiting for 3h 12m.',
+        replies: [
+          { n: 1, label: 'picked up' },
+          { n: 2, label: 'snooze 1h' },
+          { n: 3, label: 'show me' }
+        ],
+        fallback: '📦'
+      },
+      {
+        key: 'garage',
+        sampleMatcher: (g) => /\bgarage\b/i.test(g.summary || g.title || ''),
+        defaultCam: 'Garage',
+        emoji: '🚪',
+        line: 'Garage door has been open for 47 min — longer than usual.',
+        replies: [
+          { n: 1, label: 'already aware' },
+          { n: 2, label: 'remind me at 30 min' },
+          { n: 3, label: 'show me' }
+        ],
+        fallback: '🚪'
+      },
+      {
+        key: 'anomaly',
+        sampleMatcher: (g) => parseTs(g.start).getHours() <= 5,
+        defaultCam: 'Front Door',
+        emoji: '⚠️',
+        line: 'Person at the door at 2:14 AM — first in 30 days.',
+        replies: [
+          { n: 1, label: 'mark normal' },
+          { n: 2, label: 'alert me again' },
+          { n: 3, label: 'show me' }
+        ],
+        fallback: '⚠️'
+      },
+      {
+        key: 'vehicle',
+        sampleMatcher: (g) => /\b(vehicle|car|sedan|truck|van|tesla)/i.test(g.summary || g.title || ''),
+        defaultCam: 'Driveway',
+        emoji: '🚗',
+        line: 'Tesla in driveway for 12h 30m, 4× your average.',
+        replies: [
+          { n: 1, label: 'expected' },
+          { n: 2, label: 'alert me on the next one' },
+          { n: 3, label: 'show me' }
+        ],
+        fallback: '🚗'
+      },
+      {
+        key: 'offline',
+        sampleMatcher: (g) => false, // no real-data match — always synthetic
+        defaultCam: 'Backyard 2',
+        emoji: '📷',
+        line: 'Camera offline since 1:42 PM. Battery 4%.',
+        replies: [
+          { n: 1, label: 'will swap battery' },
+          { n: 2, label: 'ignore' },
+          { n: 3, label: 'show me' }
+        ],
+        fallback: '📷',
+        forceFallback: true // never attach an image even if a sample is found
+      },
+      {
+        key: 'wildlife',
+        sampleMatcher: (g) => /\b(raccoon|coyote|deer|fox|squirrel|bird|owl|raccoons?)\b/i.test(g.summary || g.title || ''),
+        defaultCam: 'Backyard',
+        emoji: '🐦',
+        line: 'Raccoon detected at 3:12 AM. 3rd time this week.',
+        replies: [
+          { n: 1, label: 'noted' },
+          { n: 2, label: 'alert me each time' },
+          { n: 3, label: 'show me' }
+        ],
+        fallback: '🦝'
+      }
+    ];
 
-      const sample = (groups || []).find(g => {
-        if (pick === 'garage') return /\bgarage\b/i.test(g.summary || g.title || '');
-        if (pick === 'package') return /\b(UPS|FedEx|Amazon|package|parcel|deliver)/i.test(g.summary || g.title || '');
-        if (pick === 'anomaly') return parseTs(g.start).getHours() <= 5;
-        return true;
-      }) || (groups || [])[0];
-
+    // Build one SMS preview record from a template + the loaded data.
+    function _smsRecordFromTemplate(tpl, groups) {
+      const sample = (groups || []).find(tpl.sampleMatcher) || (groups || [])[0];
       const cam = sample
-        ? (_camFriendlyName((sample.cameras||[])[0], window.__camNameMap) || 'Front Door')
-        : 'Front Door';
-      const thumb = sample ? _subjectThumbUrlForGroup(sample) : '';
-
-      const tpl = {
-        package: {
-          emoji: '📦',
-          line: `Package waiting for 3h 12m.`,
-          replies: [
-            { n: 1, label: 'picked up' },
-            { n: 2, label: 'snooze 1h' },
-            { n: 3, label: 'show me' }
-          ],
-          fallback: '📦'
-        },
-        garage: {
-          emoji: '🚪',
-          line: `Garage door has been open for 47 min — longer than usual.`,
-          replies: [
-            { n: 1, label: 'already aware' },
-            { n: 2, label: 'remind me at 30 min' },
-            { n: 3, label: 'show me' }
-          ],
-          fallback: '🚪'
-        },
-        anomaly: {
-          emoji: '⚠️',
-          line: `Person at the door at 2:14 AM — first in 30 days.`,
-          replies: [
-            { n: 1, label: 'mark normal' },
-            { n: 2, label: 'alert me again' },
-            { n: 3, label: 'show me' }
-          ],
-          fallback: '⚠️'
-        }
-      }[pick];
-      return { cam, thumb, ...tpl };
+        ? (_camFriendlyName((sample.cameras||[])[0], window.__camNameMap) || tpl.defaultCam)
+        : tpl.defaultCam;
+      const thumb = (tpl.forceFallback || !sample)
+        ? ''
+        : _subjectThumbUrlForGroup(sample);
+      return {
+        key: tpl.key,
+        cam,
+        thumb,
+        emoji: tpl.emoji,
+        line: tpl.line,
+        replies: tpl.replies,
+        fallback: tpl.fallback
+      };
     }
 
     // Render a preview "SMS bubble" inside the chat history. Visually
@@ -7720,7 +7761,12 @@
         </div>`;
     }
 
-    const _AGENT_GENS = [_agentMsg_A, _agentMsg_B, _agentMsg_C, _agentMsg_D, _agentMsg_E, '__sms__'];
+    // Rotation: 5 agent types, then each of the 6 SMS templates in
+    // order. Each Push-test tap advances by one step and wraps around.
+    const _AGENT_GENS = [
+      _agentMsg_A, _agentMsg_B, _agentMsg_C, _agentMsg_D, _agentMsg_E,
+      ..._SMS_TEMPLATES.map(tpl => ({ __sms__: tpl }))
+    ];
     let _agentTypeCursor = 0;
 
     // Tiny in-memory dataset that lets the Push-test button render a
@@ -7770,10 +7816,12 @@
       window.__chatHistory = window.__chatHistory || [];
       const drawer = document.querySelector('.phone-frame.dark .chat-drawer');
 
-      // Special case: SMS preview is not a generator function but a
-      // marker. Build the SMS template and push it as an `sms` record.
-      if (gen === '__sms__') {
-        const sms = _smsTemplate(groups);
+      // Special case: SMS preview is a marker object, not a generator.
+      // Build the SMS record from the bound template and push it as
+      // an `sms` history entry.
+      if (gen && typeof gen === 'object' && gen.__sms__) {
+        const tpl = gen.__sms__;
+        const sms = _smsRecordFromTemplate(tpl, groups);
         window.__chatHistory.push({ from: 'bot', sms });
         if (drawer) {
           _renderChatDrawer(drawer);
@@ -7782,8 +7830,8 @@
         }
         if (typeof _showToast === 'function') {
           _showToast(usedSynthetic
-            ? 'SMS preview (demo) queued'
-            : 'SMS preview queued');
+            ? `SMS · ${tpl.key} (demo) queued`
+            : `SMS · ${tpl.key} queued`);
         }
         return;
       }
