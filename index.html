@@ -7322,9 +7322,9 @@
         ? `<button class="agent-cta-secondary" data-agent-action="${_esc(secOne)}" data-idx="${idx}">${_esc(secOne)}</button>`
         : '';
       const thumbHtml = a.thumb
-        ? `<div class="agent-thumb"><img src="${_esc(a.thumb)}" alt="" onerror="this.parentNode.classList.add('no-image');this.remove();" />${a.thumbBadge ? `<span class="agent-thumb-badge">${_esc(a.thumbBadge)}</span>` : ''}</div>`
+        ? `<div class="agent-thumb"><img src="${_esc(a.thumb)}" alt="" onerror="this.parentNode.classList.add('no-image');this.remove();" /></div>`
         : (a.thumbFallback
-            ? `<div class="agent-thumb no-image"><span class="agent-thumb-fallback">${_esc(a.thumbFallback)}</span>${a.thumbBadge ? `<span class="agent-thumb-badge">${_esc(a.thumbBadge)}</span>` : ''}</div>`
+            ? `<div class="agent-thumb no-image"><span class="agent-thumb-fallback">${_esc(a.thumbFallback)}</span></div>`
             : '');
       // Trim body to the first sentence so the bubble stays compact.
       const fullBody = String(a.body || '');
