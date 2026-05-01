@@ -2631,6 +2631,41 @@
       padding: 12px 14px 12px 14px;
       position: relative;
     }
+    /* Floating thumbnail — top-right of the card. Title/body wrap around it
+       via padding-right so they don't get hidden behind the image. */
+    .phone-frame.dark .chat-drawer .chat-msg-agent .agent-card.has-thumb {
+      padding-right: 88px;
+      min-height: 88px;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-agent .agent-thumb {
+      position: absolute; top: 12px; right: 12px;
+      width: 64px; height: 64px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #2a2a2a, #161616);
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-agent .agent-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-agent .agent-thumb-fallback {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      filter: grayscale(0.1);
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-agent .agent-thumb-badge {
+      position: absolute; left: 4px; bottom: 4px;
+      padding: 2px 6px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      border-radius: 999px;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.3px;
+      max-width: calc(100% - 8px);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-card-head {
       display: flex; align-items: center; gap: 6px;
       margin-bottom: 8px;
@@ -7285,9 +7320,18 @@
       const secHtml = (a.secondary || []).map(s =>
         `<button class="agent-cta-secondary" data-agent-action="${_esc(s)}" data-idx="${idx}">${_esc(s)}</button>`
       ).join('');
+      // Visual: thumbnail floats top-right of the card. Source can be a
+      // group preview/clip URL (real data), or a fallback emoji-ish icon
+      // when no image is available (e.g. synthetic demo data).
+      const thumbHtml = a.thumb
+        ? `<div class="agent-thumb"><img src="${_esc(a.thumb)}" alt="" onerror="this.parentNode.classList.add('no-image');this.remove();" />${a.thumbBadge ? `<span class="agent-thumb-badge">${_esc(a.thumbBadge)}</span>` : ''}</div>`
+        : (a.thumbFallback
+            ? `<div class="agent-thumb no-image"><span class="agent-thumb-fallback">${_esc(a.thumbFallback)}</span>${a.thumbBadge ? `<span class="agent-thumb-badge">${_esc(a.thumbBadge)}</span>` : ''}</div>`
+            : '');
       return `
         <div class="chat-msg chat-msg-bot chat-msg-agent">
-          <div class="agent-card">
+          <div class="agent-card${thumbHtml ? ' has-thumb' : ''}">
+            ${thumbHtml}
             <div class="agent-card-head">
               <span class="agent-type-pill agent-type-${_esc(a.type)}">${_esc(_AGENT_TYPE_LABEL[a.type] || a.type)}</span>
               <span class="agent-confidence ${_esc(conf)}">${_esc(a.confidence || '')}</span>
@@ -7349,6 +7393,12 @@
       const body = drop > 0
         ? `${s.lastWeek.length} events this week vs ${s.prevWeek.length} last week. Want me to dial back alerts and watch only for anomalies?`
         : `Garage events make up a big share of your traffic — a dedicated agent could group them and surface only what's unusual.`;
+      // Thumb: top camera's most recent group preview (the one that's
+      // typically quietest in vacation context, or busiest in garage-agent context).
+      const camPick = s.topCam ? s.topCam[0] : null;
+      const sample = camPick
+        ? s.lastWeek.find(g => (g.cameras || []).includes(camPick))
+        : s.lastWeek[0];
       return {
         type: 'A',
         title, body,
@@ -7356,25 +7406,32 @@
         confidence: conf,
         primary_cta: drop > 0 ? 'Turn on' : 'Set up',
         secondary: ['Not now', 'Dismiss'],
-        cooldown: '7d', expiry: '14d'
+        cooldown: '7d', expiry: '14d',
+        thumb: sample ? _subjectThumbUrlForGroup(sample) : '',
+        thumbBadge: s.topCamLabel || null,
+        thumbFallback: drop > 0 ? '🌴' : '🚗'
       };
     }
 
     function _agentMsg_B(groups) { // Routine reminder: trash day
       // Heuristic: find the weekday with most morning (5–8 AM) events in last 4 weeks
       const wkCount = new Array(7).fill(0);
+      const wkSamples = new Array(7).fill(null); // first matching group per day
       groups.forEach(g => {
         const t = parseTs(g.start);
         if (isNaN(t)) return;
         const h = t.getHours();
         if (h < 5 || h > 8) return;
-        wkCount[t.getDay()]++;
+        const dow = t.getDay();
+        wkCount[dow]++;
+        if (!wkSamples[dow]) wkSamples[dow] = g;
       });
       const day = wkCount.indexOf(Math.max(...wkCount));
       const dayShort = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][day];
       const dayPlural = ['Sundays','Mondays','Tuesdays','Wednesdays','Thursdays','Fridays','Saturdays'][day];
       const n = wkCount[day];
       const conf = n >= 3 ? 'High' : (n >= 1 ? 'Medium' : 'Low');
+      const sample = wkSamples[day];
       return {
         type: 'B',
         title: `Trash truck ${dayShort} ~6:50 AM`,
@@ -7383,7 +7440,10 @@
         confidence: conf,
         primary_cta: 'Remind me',
         secondary: ['Already do', 'Stop'],
-        cooldown: '7d', expiry: '30d'
+        cooldown: '7d', expiry: '30d',
+        thumb: sample ? _subjectThumbUrlForGroup(sample) : '',
+        thumbBadge: dayShort,
+        thumbFallback: '🗑️'
       };
     }
 
@@ -7400,6 +7460,11 @@
         (g.ai_tags || []).forEach(t => subjSet.add(String(t).toLowerCase()));
         (g.cameras  || []).forEach(c => camSet.add(c));
       });
+      // Thumb: latest group from the most active camera.
+      const camPick = s.topCam ? s.topCam[0] : null;
+      const sample = camPick
+        ? s.lastWeek.find(g => (g.cameras || []).includes(camPick))
+        : s.lastWeek[0];
       return {
         type: 'C',
         title: `Last 7 days · ${s.lastWeek.length} events`,
@@ -7408,20 +7473,27 @@
         confidence: 'High',
         primary_cta: 'See details',
         secondary: ['Share'],
-        cooldown: '7d', expiry: '7d'
+        cooldown: '7d', expiry: '7d',
+        thumb: sample ? _subjectThumbUrlForGroup(sample) : '',
+        thumbBadge: subj || null,
+        thumbFallback: '📊'
       };
     }
 
     function _agentMsg_D(groups) { // Feedback: identify a recurring subject
-      // Pick the most-frequent ai_tag with > 5 sightings
+      // Pick the most-frequent ai_tag with > 3 sightings
       const counts = {};
       const last = {};
+      const lastGroup = {};
       groups.forEach(g => {
         const t = parseTs(g.start);
         (g.ai_tags || []).forEach(tag => {
           const k = String(tag).toLowerCase();
           counts[k] = (counts[k] || 0) + 1;
-          if (!last[k] || t > last[k]) last[k] = t;
+          if (!last[k] || t > last[k]) {
+            last[k] = t;
+            lastGroup[k] = g;
+          }
         });
       });
       const top = Object.entries(counts).filter(([, n]) => n >= 3)
@@ -7435,13 +7507,15 @@
           confidence: 'Low',
           primary_cta: 'Show me',
           secondary: ['Skip'],
-          cooldown: '24h', expiry: '7d'
+          cooldown: '24h', expiry: '7d',
+          thumbFallback: '👤'
         };
       }
       const kind = top[0];
       const n = top[1];
       const lastT = last[kind];
       const when = lastT ? relTimeAgo(lastT) : 'recently';
+      const sample = lastGroup[kind];
       return {
         type: 'D',
         title: `Same ${kind} I've seen ${n}× — name them?`,
@@ -7450,7 +7524,10 @@
         confidence: n >= 6 ? 'High' : 'Medium',
         primary_cta: 'Yes, tag',
         secondary: ['Skip', 'Not the same'],
-        cooldown: '24h', expiry: '7d'
+        cooldown: '24h', expiry: '7d',
+        thumb: sample ? _subjectThumbUrlForGroup(sample) : '',
+        thumbBadge: '×' + n,
+        thumbFallback: '👤'
       };
     }
 
@@ -7484,7 +7561,10 @@
         confidence: 'High',
         primary_cta: 'Review event',
         secondary: ['Mark normal', 'Not interested'],
-        cooldown: '1h', expiry: '24h'
+        cooldown: '1h', expiry: '24h',
+        thumb: _subjectThumbUrlForGroup(offHour),
+        thumbBadge: time,
+        thumbFallback: '⚠️'
       };
     }
 
