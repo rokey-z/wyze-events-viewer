@@ -2751,6 +2751,71 @@
     }
     .phone-frame.dark .chat-drawer .chat-msg-agent .agent-cta-secondary:hover { color: #fff; }
 
+    /* ── SMS / MMS preview bubble ──
+       Visually mimics a phone-style MMS so the design preview reads as
+       an actual text message rather than another in-app card. */
+    .phone-frame.dark .chat-drawer .chat-msg-sms {
+      align-self: stretch;
+      max-width: 100%;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-sms .sms-bubble {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      overflow: hidden;
+      max-width: 280px;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-sms .sms-from {
+      padding: 8px 12px 6px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #6B6B6B;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-sms .sms-image {
+      display: block;
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-sms .sms-image-fallback {
+      width: 100%; height: 120px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #2a2a2a, #161616);
+      font-size: 48px;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-sms .sms-body {
+      padding: 12px 12px 8px;
+      font-size: 13px; font-weight: 500;
+      color: #E8E8E8;
+      line-height: 1.4;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-sms .sms-replies {
+      padding: 4px 8px 12px;
+      display: flex; flex-direction: column;
+      gap: 4px;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-sms .sms-reply {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 8px;
+      font-size: 12px;
+      color: #C8C8C8;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-sms .sms-reply-num {
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-weight: 700; font-size: 11px;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-sms .sms-reply-label {
+      font-weight: 500;
+    }
+
     /* Settings sheet — opens on top of the chat drawer */
     .phone-frame.dark .settings-sheet {
       position: absolute; left: 0; right: 0; bottom: 0;
@@ -7569,7 +7634,93 @@
       };
     }
 
-    const _AGENT_GENS = [_agentMsg_A, _agentMsg_B, _agentMsg_C, _agentMsg_D, _agentMsg_E];
+    // ── SMS / MMS preview (the 6th step) ─────────────
+    // A handful of canned templates that demo the SMS surface inside
+    // the chat as a visual preview. The agent picks one based on the
+    // strongest signal in __rawGroups; with synthetic data it falls
+    // back to the package template.
+    function _smsTemplate(groups) {
+      const hasGarageOpen = (groups || []).some(g => /\bgarage\b.*\bopen/i.test(g.summary || g.title || ''));
+      const hasPackage    = (groups || []).some(g => /\b(UPS|FedEx|Amazon|package|parcel|deliver)/i.test(g.summary || g.title || ''));
+      const lateNight     = (groups || []).some(g => {
+        const h = parseTs(g.start).getHours();
+        return h >= 0 && h <= 5;
+      });
+      let pick;
+      if (hasGarageOpen) pick = 'garage';
+      else if (lateNight) pick = 'anomaly';
+      else if (hasPackage) pick = 'package';
+      else pick = 'package'; // sensible default for synthetic data
+
+      const sample = (groups || []).find(g => {
+        if (pick === 'garage') return /\bgarage\b/i.test(g.summary || g.title || '');
+        if (pick === 'package') return /\b(UPS|FedEx|Amazon|package|parcel|deliver)/i.test(g.summary || g.title || '');
+        if (pick === 'anomaly') return parseTs(g.start).getHours() <= 5;
+        return true;
+      }) || (groups || [])[0];
+
+      const cam = sample
+        ? (_camFriendlyName((sample.cameras||[])[0], window.__camNameMap) || 'Front Door')
+        : 'Front Door';
+      const thumb = sample ? _subjectThumbUrlForGroup(sample) : '';
+
+      const tpl = {
+        package: {
+          emoji: '📦',
+          line: `Package waiting for 3h 12m.`,
+          replies: [
+            { n: 1, label: 'picked up' },
+            { n: 2, label: 'snooze 1h' },
+            { n: 3, label: 'show me' }
+          ],
+          fallback: '📦'
+        },
+        garage: {
+          emoji: '🚪',
+          line: `Garage door has been open for 47 min — longer than usual.`,
+          replies: [
+            { n: 1, label: 'already aware' },
+            { n: 2, label: 'remind me at 30 min' },
+            { n: 3, label: 'show me' }
+          ],
+          fallback: '🚪'
+        },
+        anomaly: {
+          emoji: '⚠️',
+          line: `Person at the door at 2:14 AM — first in 30 days.`,
+          replies: [
+            { n: 1, label: 'mark normal' },
+            { n: 2, label: 'alert me again' },
+            { n: 3, label: 'show me' }
+          ],
+          fallback: '⚠️'
+        }
+      }[pick];
+      return { cam, thumb, ...tpl };
+    }
+
+    // Render a preview "SMS bubble" inside the chat history. Visually
+    // mimics a phone-style MMS so the user can see exactly what would
+    // arrive on their device.
+    function _renderSmsPreview(s, idx) {
+      const replies = (s.replies || []).map(r =>
+        `<div class="sms-reply"><span class="sms-reply-num">${r.n}</span><span class="sms-reply-label">${_esc(r.label)}</span></div>`
+      ).join('');
+      const thumbHtml = s.thumb
+        ? `<img class="sms-image" src="${_esc(s.thumb)}" alt="" onerror="this.classList.add('failed');this.replaceWith(Object.assign(document.createElement('div'),{className:'sms-image-fallback',textContent:'${_esc(s.fallback || '📷')}'}))" />`
+        : `<div class="sms-image-fallback">${_esc(s.fallback || '📷')}</div>`;
+      return `
+        <div class="chat-msg chat-msg-bot chat-msg-sms">
+          <div class="sms-bubble">
+            <div class="sms-from">SMS · Wyze · ${_esc(s.cam || '')}</div>
+            ${thumbHtml}
+            <div class="sms-body">${_esc(s.emoji || '')} ${_esc(s.line || '')}</div>
+            <div class="sms-replies">${replies}</div>
+          </div>
+        </div>`;
+    }
+
+    const _AGENT_GENS = [_agentMsg_A, _agentMsg_B, _agentMsg_C, _agentMsg_D, _agentMsg_E, '__sms__'];
     let _agentTypeCursor = 0;
 
     // Tiny in-memory dataset that lets the Push-test button render a
@@ -7612,18 +7763,38 @@
         groups = _syntheticAgentGroups();
         usedSynthetic = true;
       }
-      // Rotate A → B → C → D → E → A …
+      // Rotate A → B → C → D → E → SMS → A …
       const gen = _AGENT_GENS[_agentTypeCursor % _AGENT_GENS.length];
       _agentTypeCursor++;
+
+      window.__chatHistory = window.__chatHistory || [];
+      const drawer = document.querySelector('.phone-frame.dark .chat-drawer');
+
+      // Special case: SMS preview is not a generator function but a
+      // marker. Build the SMS template and push it as an `sms` record.
+      if (gen === '__sms__') {
+        const sms = _smsTemplate(groups);
+        window.__chatHistory.push({ from: 'bot', sms });
+        if (drawer) {
+          _renderChatDrawer(drawer);
+          const list = drawer.querySelector('.chat-messages');
+          if (list) list.scrollTop = list.scrollHeight;
+        }
+        if (typeof _showToast === 'function') {
+          _showToast(usedSynthetic
+            ? 'SMS preview (demo) queued'
+            : 'SMS preview queued');
+        }
+        return;
+      }
+
       let agent;
       try { agent = gen(groups); }
       catch (e) {
         if (typeof _showToast === 'function') _showToast('Could not generate: ' + e.message);
         return;
       }
-      window.__chatHistory = window.__chatHistory || [];
       window.__chatHistory.push({ from: 'bot', agent });
-      const drawer = document.querySelector('.phone-frame.dark .chat-drawer');
       if (drawer) {
         _renderChatDrawer(drawer);
         const list = drawer.querySelector('.chat-messages');
@@ -7643,6 +7814,7 @@
         if (m.typing) {
           return `<div class="chat-msg chat-msg-bot chat-msg-typing"><div class="chat-bubble"><span class="chat-typing-dot"></span><span class="chat-typing-dot"></span><span class="chat-typing-dot"></span></div></div>`;
         }
+        if (m.sms)   return _renderSmsPreview(m.sms, i);
         if (m.agent) return _renderAgentMessage(m.agent, i);
         return `<div class="chat-msg chat-msg-${m.from}"><div class="chat-bubble">${_esc(m.text)}</div></div>`;
       }).join('');

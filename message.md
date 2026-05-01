@@ -276,4 +276,122 @@ cooldown: 1h
 
 ## 10. Test hook
 
-The chat drawer has a hidden **Test** button that calls `_testProactiveMessage()`. The button rotates through types A → E, generating a message from real loaded data each time, and pushes the result into the chat history with rich formatting (type badge · title · body · evidence chip · primary CTA · secondary actions · confidence dot). This is a UX preview, not a runtime engine.
+The chat drawer has a hidden **Test** button that calls `_testProactiveMessage()`. The button rotates through types A → E (and an SMS preview as a 6th step), generating a message from real loaded data each time and pushing the result into the chat history. This is a UX preview, not a runtime engine.
+
+---
+
+## 11. SMS / MMS Alerts (out-of-app surface)
+
+When something time-sensitive happens and the user isn't in the app, the agent escalates via SMS (or MMS when an image is available). SMS has no buttons, no formatting, no swipe-actions — so the message must be **self-contained, image-led, and answerable with a single digit**.
+
+### Anatomy
+
+Every SMS alert has exactly three parts, in this order:
+
+```
+1. [image]       — one MMS attachment of the relevant moment (or a contact-sheet
+                   of up to 3 images if the alert involves multiple cameras)
+2. message       — one or two short sentences. Must include WHAT happened,
+                   WHERE, and HOW LONG. No marketing tone. No links.
+3. reply menu    — numbered options the user can text back. Always 2–3 choices.
+                   First option is the action the user is most likely to want.
+                   Always include a "Show me" option if a richer view exists.
+```
+
+### Style rules
+
+- Always sign off with the surface so the user knows where this came from: prefix every text with the camera name (e.g. `Wyze · Front Door:`).
+- Keep the body **≤ 110 characters** so it fits on a single SMS without segmentation surcharges.
+- Use a single emoji at the start to convey type at a glance: 📦 package, 🚪 garage, ⚠️ anomaly, 🚗 vehicle, 🐦 wildlife, 🔋 battery, 📷 offline.
+- Do **not** include URLs in the SMS body. The "Show me" reply triggers a deep-link push back to the user.
+- Quiet hours: an SMS only fires during quiet hours if confidence is High AND impact is irreversible (intruder, water leak, smoke). Everything else queues to morning.
+
+### Reply protocol
+
+Replies are single-digit responses (1, 2, 3). The agent service should accept any of:
+- Just the digit (`2`)
+- Digit + text (`2 not now`)
+- Lowercase keyword that matches the action (`snooze`, `show`, `done`)
+
+If the user replies anything else, the agent texts back a short re-prompt:
+> *"Reply 1, 2, or 3. (1 = mark picked up, 2 = snooze 1h, 3 = show me)"*
+
+### Templates (filled from real data)
+
+Each template's three parts map to the bullets above.
+
+#### Package on porch too long
+
+```
+[mms] front_porch_pkg_2026-04-29_14:02.jpg
+Wyze · Front Door: 📦 Package waiting for 3h 12m.
+Reply 1 picked up · 2 snooze 1h · 3 show me
+```
+
+Trigger: a delivery group with no later "picked up / carried in" event from the same camera within `cooldown` (default 90 min).
+Confidence: High. Cadence cap: ≥ 2 h between repeat texts on the same package.
+
+#### Garage door left open
+
+```
+[mms] garage_door_open_2026-04-29_22:47.jpg
+Wyze · Garage: 🚪 Garage door has been open for 47 min — longer than usual.
+Reply 1 already aware · 2 remind me at 30 min · 3 show me
+```
+
+Trigger: a garage open event with no later close event after the user-set threshold (default 30 min). Re-fire after another 30 min if no reply.
+Confidence: High. Quiet-hours: allowed (impact = potentially overnight exposure).
+
+#### First-time visitor at off-hours
+
+```
+[mms] front_door_anom_2026-04-29_02:14.jpg
+Wyze · Front Door: ⚠️ Person at the door at 2:14 AM — first in 30 days.
+Reply 1 mark normal · 2 alert me again · 3 show me
+```
+
+Trigger: a person event during the user's quiet window (00:00–05:00 by default) when baseline = 0 over the last 14 days at that hour.
+Confidence: High. Impact: irreversible. Allowed in quiet hours.
+
+#### Vehicle parked unusually long
+
+```
+[mms] driveway_tesla_2026-04-29_07:30.jpg
+Wyze · Driveway: 🚗 Tesla in driveway for 12h 30m, 4× your average.
+Reply 1 expected · 2 alert me on the next one · 3 show me
+```
+
+Trigger: a vehicle has been parked in the same camera's view ≥ 4× the user's median dwell time. Daytime only.
+Confidence: Medium. Cadence cap: 1 SMS per vehicle dwell event.
+
+#### Camera offline
+
+```
+[no image — offline]
+Wyze · Backyard 2: 📷 Camera offline since 1:42 PM. Battery 4%.
+Reply 1 will swap battery · 2 ignore · 3 show me
+```
+
+Trigger: heartbeat missed > 10 min, OR battery <= 5% (whichever earlier).
+Confidence: High. No image attachment (camera is offline). Allowed in quiet hours.
+
+#### Wildlife: late-night raccoon
+
+```
+[mms] backyard_raccoon_2026-04-29_03:12.jpg
+Wyze · Backyard: 🐦 Raccoon detected at 3:12 AM. 3rd time this week.
+Reply 1 noted · 2 alert me each time · 3 show me
+```
+
+Trigger: same wildlife species detected ≥ 3 times in 7 days.
+Confidence: Medium. Cadence cap: 1 / day.
+
+### Anti-spam ledger
+
+Every SMS the agent sends is recorded under `localStorage["wyze:sms-log"]` with `{ type, ts, replied }`. Rules:
+
+- **Hard cap**: 3 SMS / 24 h.
+- **Per-type cap**: 1 SMS / type / 6 h, regardless of confidence.
+- **No reply → escalate, then back off**: if the user doesn't reply within `cooldown`, send the same alert once more, then go silent on that type for 24 h.
+- **Reply = success**: a reply (any digit) resets the cooldown and counts the message as "delivered intent met".
+
