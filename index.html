@@ -2606,10 +2606,15 @@
       fill: currentColor;
     }
     .phone-frame.dark .chat-drawer .chat-settings:hover { color: #1DF0BB; }
-    .phone-frame.dark .chat-drawer .chat-test svg {
-      width: 14px; height: 14px;
-      stroke: currentColor; fill: none; stroke-width: 1.6;
-      stroke-linecap: round; stroke-linejoin: round;
+    /* Override the round-icon shape for the Push-test button — render
+       it as a text pill instead so the label reads clearly. */
+    .phone-frame.dark .chat-drawer .chat-test {
+      width: auto;
+      padding: 0 10px;
+      border-radius: 999px;
+      font: inherit; font-weight: 600; font-size: 11px;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
     }
     .phone-frame.dark .chat-drawer .chat-test:hover { color: #FFB340; }
 
@@ -7581,10 +7586,7 @@
             <div class="chat-sub">Online</div>
           </div>
           <button class="chat-test" type="button" aria-label="Push test message" title="Push test">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 2a4 4 0 0 0-4 4v3l-1.4 2h10.8L12 9V6a4 4 0 0 0-4-4z"/>
-              <path d="M6.5 13.5a1.6 1.6 0 0 0 3 0"/>
-            </svg>
+            Push test
           </button>
           <button class="chat-settings" type="button" aria-label="Wyze AI settings" title="Settings">
             <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
