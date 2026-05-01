@@ -7310,35 +7310,31 @@
     };
 
     function _renderAgentMessage(a, idx) {
-      const conf = (a.confidence || 'Medium').toLowerCase();
-      const evidenceHtml = a.evidence
-        ? `<div class="agent-evidence" data-agent-evidence="${idx}">${_esc(a.evidence)}</div>`
-        : '';
+      // Simplified notification card: title + one-sentence body + thumb +
+      // up to 2 actions (primary + 1 secondary). Type pill, confidence
+      // badge, and evidence chip are intentionally dropped to keep the
+      // bubble focused on the message itself.
       const primaryHtml = a.primary_cta
         ? `<button class="agent-cta" data-agent-action="primary" data-idx="${idx}">${_esc(a.primary_cta)}</button>`
         : '';
-      const secHtml = (a.secondary || []).map(s =>
-        `<button class="agent-cta-secondary" data-agent-action="${_esc(s)}" data-idx="${idx}">${_esc(s)}</button>`
-      ).join('');
-      // Visual: thumbnail floats top-right of the card. Source can be a
-      // group preview/clip URL (real data), or a fallback emoji-ish icon
-      // when no image is available (e.g. synthetic demo data).
+      const secOne = (a.secondary || [])[0];
+      const secHtml = secOne
+        ? `<button class="agent-cta-secondary" data-agent-action="${_esc(secOne)}" data-idx="${idx}">${_esc(secOne)}</button>`
+        : '';
       const thumbHtml = a.thumb
         ? `<div class="agent-thumb"><img src="${_esc(a.thumb)}" alt="" onerror="this.parentNode.classList.add('no-image');this.remove();" />${a.thumbBadge ? `<span class="agent-thumb-badge">${_esc(a.thumbBadge)}</span>` : ''}</div>`
         : (a.thumbFallback
             ? `<div class="agent-thumb no-image"><span class="agent-thumb-fallback">${_esc(a.thumbFallback)}</span>${a.thumbBadge ? `<span class="agent-thumb-badge">${_esc(a.thumbBadge)}</span>` : ''}</div>`
             : '');
+      // Trim body to the first sentence so the bubble stays compact.
+      const fullBody = String(a.body || '');
+      const firstSentence = fullBody.split(/(?<=[.!?])\s+/)[0];
       return `
         <div class="chat-msg chat-msg-bot chat-msg-agent">
           <div class="agent-card${thumbHtml ? ' has-thumb' : ''}">
             ${thumbHtml}
-            <div class="agent-card-head">
-              <span class="agent-type-pill agent-type-${_esc(a.type)}">${_esc(_AGENT_TYPE_LABEL[a.type] || a.type)}</span>
-              <span class="agent-confidence ${_esc(conf)}">${_esc(a.confidence || '')}</span>
-            </div>
             <div class="agent-title">${_esc(a.title || '')}</div>
-            ${a.body ? `<div class="agent-body">${_esc(a.body)}</div>` : ''}
-            ${evidenceHtml}
+            ${firstSentence ? `<div class="agent-body">${_esc(firstSentence)}</div>` : ''}
             ${(primaryHtml || secHtml)
               ? `<div class="agent-actions">${primaryHtml}${secHtml}</div>`
               : ''}
