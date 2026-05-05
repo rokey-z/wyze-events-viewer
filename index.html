@@ -1965,24 +1965,37 @@
     .phone-frame.dark .home-view .home-agent-thumb {
       flex-shrink: 0;
       width: 64px; height: 64px;
-      border-radius: 10px;
+      border-radius: 50%;
       background: linear-gradient(135deg, #2a2a2a, #161616);
       position: relative; overflow: hidden;
+      box-shadow: 0 0 0 1.5px rgba(255,255,255,0.06);
     }
     .phone-frame.dark .home-view .home-agent-thumb img {
       position: absolute; inset: 0;
       width: 100%; height: 100%; object-fit: cover;
     }
-    .phone-frame.dark .home-view .home-agent-emblem {
-      position: absolute; right: 4px; bottom: 4px;
-      width: 20px; height: 20px;
+    /* When a real photo loaded, the agent icon sits as a small badge in the
+       lower-right corner so the user can identify the agent at a glance. */
+    .phone-frame.dark .home-view .home-agent-thumb.has-image .home-agent-emblem {
+      position: absolute; right: 0; bottom: 0;
+      width: 22px; height: 22px;
       background: rgba(0,0,0,0.85);
+      color: #fff;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 0 1.5px rgba(255,255,255,0.18);
+      box-shadow: 0 0 0 1.5px rgba(0,0,0,0.6);
     }
-    .phone-frame.dark .home-view .home-agent-emblem svg {
+    .phone-frame.dark .home-view .home-agent-thumb.has-image .home-agent-emblem svg {
       width: 12px; height: 12px;
+    }
+    /* No photo yet — fill the circle with the agent emblem centered. */
+    .phone-frame.dark .home-view .home-agent-thumb:not(.has-image) .home-agent-emblem {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #1DF0BB;
+    }
+    .phone-frame.dark .home-view .home-agent-thumb:not(.has-image) .home-agent-emblem svg {
+      width: 30px; height: 30px;
     }
     .phone-frame.dark .home-view .home-agent-info { flex: 1; min-width: 0; }
     .phone-frame.dark .home-view .home-agent-label {
@@ -3748,7 +3761,11 @@
       background: #1DF0BB;
       color: #0d0d0d;
       cursor: pointer;
-      z-index: 41;
+      /* Sit above the live-view (z 200) and agent-live-view so the chat
+         entry is consistent across the whole app — but below full-screen
+         sheets where the user is already in a chat-like context (creator,
+         settings) and below the chat drawer itself. */
+      z-index: 211;
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 0 0 4px rgba(29,240,187,0.15);
       transition: transform .12s, box-shadow .15s;
@@ -3794,10 +3811,13 @@
       .phone-frame.dark .chat-fab svg,
       .phone-frame.dark .chat-fab svg .eyelid { animation: none; }
     }
-    /* Hide the chat-fab when the live view or chat drawer is itself open
-       so it doesn't float above its own modal. */
-    .phone-frame.dark .live-view.open ~ .chat-fab,
-    .phone-frame.dark.chat-open .chat-fab { display: none; }
+    /* The chat-fab is the consistent chat entry across the app — it stays
+       visible on Home, Event, and even on top of the live view. Hide it
+       only when the user is already inside a chat-like context: the chat
+       drawer, agent-creator flow, or agent-settings sheet. */
+    .phone-frame.dark.chat-open .chat-fab,
+    .phone-frame.dark:has(.agent-creator-view.open) .chat-fab,
+    .phone-frame.dark:has(.agent-settings-view.open) .chat-fab { display: none; }
 
     /* Chat drawer — slide-up sheet, ~80% of phone-frame height. */
     .phone-frame.dark .chat-backdrop {
@@ -7936,9 +7956,9 @@
 
     // SVG marks used by widget emblems and sheet headers.
     const _AGENT_ICONS = {
-      garage:  '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-6 9 6v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M6 13h12"/><path d="M6 17h12"/></svg>',
-      package: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7.5l7.5-3 7.5 3v9l-7.5 3-7.5-3z"/><path d="M4.5 7.5L12 10.5l7.5-3"/><path d="M12 10.5v9"/></svg>',
-      birds:   '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l3 3-3 3"/><path d="M5 13c2 4 6 5 10 4 3-1 5-3 5-7"/><path d="M5 13c-1-2 0-4 2-5l4 1"/><circle cx="11" cy="9" r="0.8" fill="#fff"/></svg>'
+      garage:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-6 9 6v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M6 13h12"/><path d="M6 17h12"/></svg>',
+      package: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7.5l7.5-3 7.5 3v9l-7.5 3-7.5-3z"/><path d="M4.5 7.5L12 10.5l7.5-3"/><path d="M12 10.5v9"/></svg>',
+      birds:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l3 3-3 3"/><path d="M5 13c2 4 6 5 10 4 3-1 5-3 5-7"/><path d="M5 13c-1-2 0-4 2-5l4 1"/><circle cx="11" cy="9" r="0.8" fill="currentColor"/></svg>'
     };
 
     // Format a duration in ms into a short "Xh Ym" / "Ym" string.
@@ -8902,17 +8922,28 @@
       _creatorRender();
     }
 
+    // Per-agent default thumbnail — pulled from the user's actual cached
+    // capture frames in wyze-thumbs/. Used when no live event data has been
+    // loaded so the home tiles show real Wyze imagery, not placeholders.
+    const _AGENT_DEFAULT_THUMBS = {
+      garage:  'wyze-thumbs/1777003324066-a09e9669.jpg',
+      package: 'wyze-thumbs/1776799030766-2f5f41ea.jpg',
+      birds:   'wyze-thumbs/1776386847525-52986263.jpg'
+    };
+
     // Render the 2-column widget grid above the device list. The grid
     // ends with a "+ Add agent" tile that opens the AgentCreator flow.
     function _renderAgentsGrid(groups) {
       const cards = _AGENTS.map(a => {
         const s = a.evaluate(groups);
-        const thumbHtml = s.thumb
-          ? `<img src="${_esc(s.thumb)}" alt="" onerror="this.style.display='none';" />`
+        const thumbUrl = s.thumb || _AGENT_DEFAULT_THUMBS[a.id] || '';
+        const hasImage = !!thumbUrl;
+        const thumbHtml = hasImage
+          ? `<img src="${_esc(thumbUrl)}" alt="" onerror="this.parentNode.classList.remove('has-image'); this.remove();" />`
           : '';
         return `
           <div class="home-agent" data-agent="${a.id}">
-            <div class="home-agent-thumb">
+            <div class="home-agent-thumb${hasImage ? ' has-image' : ''}">
               ${thumbHtml}
               <div class="home-agent-emblem">${a.iconHtml}</div>
             </div>
@@ -10127,17 +10158,6 @@
           <button class="live-events-btn" type="button" data-act="events">View recent events &rsaquo;</button>
         </div>`;
 
-      const aiHtml = `
-        <div class="live-ai-dock">
-          <button class="live-ai-input" type="button" data-act="ai">
-            <svg viewBox="0 0 32 28" class="live-ai-mascot" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5502 1.08369C9.64261 0.941508 9.76686 0.822788 9.9131 0.736939C10.0593 0.651091 10.2236 0.60047 10.3928 0.589086L19.1117 0.00244385C19.2809 -0.00894033 19.4504 0.0192249 19.6068 0.0847092C19.7632 0.150194 19.9023 0.251199 20.0129 0.379725L23.2195 4.10524L27.034 3.84858C27.9012 3.79024 28.756 4.07875 29.4104 4.65066C30.0648 5.22257 30.4652 6.03103 30.5236 6.89818L31.5502 22.1562C31.6086 23.0234 31.32 23.8782 30.7481 24.5326C30.1762 25.187 29.3678 25.5875 28.5006 25.6458L4.52365 27.2591C3.6565 27.3174 2.80169 27.0289 2.14727 26.457C1.49285 25.8851 1.09242 25.0766 1.03408 24.2095L0.00745214 8.95142C-0.050893 8.08427 0.237625 7.22946 0.809535 6.57504C1.38145 5.92062 2.1899 5.52019 3.05705 5.46185L6.87157 5.20519L9.5502 1.08369Z"/>
-            </svg>
-            <span class="live-ai-text">Ask Wyze AI about ${_esc(agent.label)}…</span>
-            <svg class="live-ai-arrow" viewBox="0 0 16 16"><path d="M3 13L13 3M13 3v6M13 3H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-          </button>
-        </div>`;
-
       view.innerHTML = `
         <div class="live-header">
           <button class="live-back" type="button" aria-label="Back">
@@ -10161,8 +10181,7 @@
           ${quickHtml}
           ${recentHtml}
           ${camerasHtml}
-        </div>
-        ${aiHtml}`;
+        </div>`;
 
       view.offsetHeight;
       view.classList.add('open');
@@ -10230,15 +10249,6 @@
           _closeLiveView();
         }));
 
-      // AI dock pre-seeds a chat prompt about the agent.
-      view.querySelector('.live-ai-input')?.addEventListener('click', () => {
-        window.__chatHistory = window.__chatHistory || [];
-        window.__chatHistory.push({
-          from: 'user',
-          text: 'What did the ' + agent.label + ' agent see today?'
-        });
-        if (typeof _openChatDrawer === 'function') _openChatDrawer();
-      });
     }
 
     // ════════════════════════════════════════
