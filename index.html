@@ -2000,6 +2000,21 @@
     .phone-frame.dark .home-view .home-agent-since {
       font-size: 11px; color: #787878; margin-top: 2px;
     }
+    /* "+ Add agent" tile — dashed outline, no thumb image, plus glyph */
+    .phone-frame.dark .home-view .home-agent-add {
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed rgba(255,255,255,0.18);
+    }
+    .phone-frame.dark .home-view .home-agent-add-thumb {
+      background: rgba(29,240,187,0.10);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .home-view .home-agent-add-plus {
+      font-size: 32px; font-weight: 300;
+      color: #1DF0BB;
+      line-height: 1;
+    }
+    .phone-frame.dark .home-view .home-agent-add .home-agent-label { color: #1DF0BB; }
 
     /* ── Agent detail sheet (slide-up) ── */
     .phone-frame.dark .agent-sheet {
@@ -2271,7 +2286,8 @@
       z-index: 2;
     }
     .phone-frame.dark .live-view .live-close,
-    .phone-frame.dark .live-view .live-more {
+    .phone-frame.dark .live-view .live-more,
+    .phone-frame.dark .live-view .live-settings {
       flex-shrink: 0;
       width: 36px; height: 36px;
       border: none; border-radius: 50%;
@@ -2282,6 +2298,8 @@
     }
     .phone-frame.dark .live-view .live-close svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2.2; fill: none; stroke-linecap: round; }
     .phone-frame.dark .live-view .live-more svg  { width: 18px; height: 18px; fill: currentColor; }
+    .phone-frame.dark .live-view .live-settings svg { width: 18px; height: 18px; }
+    .phone-frame.dark .live-view .live-settings:hover { background: rgba(255,255,255,0.16); }
     .phone-frame.dark .live-view .live-title {
       flex: 1; min-width: 0;
     }
@@ -2425,6 +2443,1288 @@
       transition: transform .12s;
     }
     .phone-frame.dark .live-view .live-events-btn:active { transform: scale(0.98); }
+
+    /* ── New live-view layout: header back button + scrollable card stack ── */
+    .phone-frame.dark .live-view .live-back {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border: none; border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+      color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    .phone-frame.dark .live-view .live-back svg { width: 16px; height: 16px; }
+
+    .phone-frame.dark .live-view .live-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 14px 96px;       /* space for the AI dock at bottom */
+      display: flex; flex-direction: column; gap: 10px;
+      background: #0a0a0a;
+    }
+
+    .phone-frame.dark .live-view .live-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+    .phone-frame.dark .live-view .live-card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .phone-frame.dark .live-view .live-card-title {
+      font-weight: 700; font-size: 13px; color: #fff;
+      letter-spacing: 0.1px;
+    }
+    .phone-frame.dark .live-view .live-card-link {
+      background: none; border: none;
+      color: #1DF0BB;
+      font: inherit; font-size: 11px; font-weight: 600;
+      cursor: pointer; padding: 0;
+    }
+
+    /* Status hero card */
+    .phone-frame.dark .live-view .live-hero {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px;
+    }
+    .phone-frame.dark .live-view .live-hero-icon {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      background: rgba(255,255,255,0.06);
+    }
+    .phone-frame.dark .live-view .live-hero.accent-amber  .live-hero-icon { background: rgba(255,179,64,0.15); }
+    .phone-frame.dark .live-view .live-hero.accent-green  .live-hero-icon { background: rgba(29,240,187,0.15); }
+    .phone-frame.dark .live-view .live-hero.accent-indigo .live-hero-icon { background: rgba(120,140,255,0.18); }
+    .phone-frame.dark .live-view .live-hero-text { flex: 1; min-width: 0; }
+    .phone-frame.dark .live-view .live-hero-title {
+      font-weight: 700; font-size: 15px; color: #fff;
+      line-height: 1.2;
+    }
+    .phone-frame.dark .live-view .live-hero-sub {
+      font-size: 11px; color: #A0A0A0;
+      margin-top: 3px;
+    }
+    .phone-frame.dark .live-view .live-hero-cta {
+      flex-shrink: 0;
+      padding: 8px 14px;
+      border: none; border-radius: 999px;
+      background: #1DF0BB;
+      color: #0d0d0d;
+      font: inherit; font-size: 12px; font-weight: 700;
+      cursor: pointer;
+    }
+    .phone-frame.dark .live-view .live-hero.accent-amber  .live-hero-cta { background: #FFB340; }
+    .phone-frame.dark .live-view .live-hero.accent-indigo .live-hero-cta { background: #788CFF; color: #0d0d0d; }
+
+    /* Stat grid card (2 or 3 cells) */
+    .phone-frame.dark .live-view .live-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 10px;
+    }
+    .phone-frame.dark .live-view .live-stats[data-cells="3"] {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .phone-frame.dark .live-view .live-stat {
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 10px;
+    }
+    .phone-frame.dark .live-view .live-stat-label {
+      font-size: 10px; color: #6B6B6B;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .phone-frame.dark .live-view .live-stat-value {
+      font-size: 14px; color: #fff; font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* Quick-actions row (replaces .live-actions; lives inside a card).
+       overflow-x:auto forces overflow-y:auto in most browsers, which
+       collapses the card's height in flex contexts — explicitly set a
+       min-height equal to the button height so the row sizes correctly. */
+    .phone-frame.dark .live-view .live-quick {
+      display: flex; gap: 8px;
+      padding: 10px;
+      overflow-x: auto;
+      overflow-y: visible;
+      scrollbar-width: none;
+      align-items: stretch;
+      min-height: 80px;
+    }
+    .phone-frame.dark .live-view .live-quick::-webkit-scrollbar { display: none; }
+    .phone-frame.dark .live-view .live-quick-btn {
+      flex: 1 0 auto;
+      display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: #C8C8C8;
+      font: inherit;
+      cursor: pointer;
+      min-width: 64px;
+      min-height: 60px;
+      transition: background .15s, color .15s, transform .12s;
+    }
+    .phone-frame.dark .live-view .live-quick-btn:active { transform: scale(0.95); }
+    .phone-frame.dark .live-view .live-quick-btn.is-on {
+      background: rgba(29,240,187,0.12);
+      color: #1DF0BB;
+      border-color: rgba(29,240,187,0.3);
+    }
+    .phone-frame.dark .live-view .live-quick-icon svg {
+      width: 18px; height: 18px;
+      stroke: currentColor; fill: none; stroke-width: 1.8;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .phone-frame.dark .live-view .live-quick-label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    /* Recent clips horizontal strip */
+    .phone-frame.dark .live-view .live-recent { padding: 12px 14px; }
+    .phone-frame.dark .live-view .live-recent-strip {
+      display: flex; gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin: 0 -4px; padding: 0 4px;
+    }
+    .phone-frame.dark .live-view .live-recent-strip::-webkit-scrollbar { display: none; }
+    .phone-frame.dark .live-view .live-recent-cell {
+      flex: 0 0 auto;
+      position: relative;
+      width: 100px; height: 64px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #2a2a2a, #161616);
+      cursor: pointer;
+    }
+    .phone-frame.dark .live-view .live-recent-cell img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .phone-frame.dark .live-view .live-recent-cell .live-recent-time {
+      position: absolute; left: 6px; bottom: 5px;
+      font-size: 9px; font-weight: 600;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+    }
+    .phone-frame.dark .live-view .live-recent-empty .live-recent-empty-msg {
+      font-size: 12px; color: #6B6B6B;
+      padding: 4px 0 0;
+    }
+
+    /* Device card — model · firmware · MAC + the existing events CTA */
+    .phone-frame.dark .live-view .live-device { padding: 12px 14px; }
+    .phone-frame.dark .live-view .live-device-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      margin: 6px 0 12px;
+    }
+    .phone-frame.dark .live-view .live-device-grid > div {
+      display: flex; flex-direction: column;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+    }
+    .phone-frame.dark .live-view .live-device-grid > div.full { grid-column: 1 / -1; }
+    .phone-frame.dark .live-view .live-device-grid span {
+      font-size: 10px; color: #6B6B6B;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .phone-frame.dark .live-view .live-device-grid strong {
+      font-size: 12px; font-weight: 600; color: #fff;
+      margin-top: 3px;
+      font-family: ui-monospace, Menlo, monospace;
+      word-break: break-all;
+    }
+    /* Cameras-feeding-this-agent list inside the agent live view */
+    .phone-frame.dark .live-view .live-cameras-list {
+      display: flex; flex-direction: column;
+      gap: 6px;
+      margin: 4px 0 12px;
+    }
+    .phone-frame.dark .live-view .live-cam-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 8px;
+      color: #fff;
+      font: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .phone-frame.dark .live-view .live-cam-row:hover { background: rgba(255,255,255,0.08); }
+    .phone-frame.dark .live-view .live-cam-arrow {
+      color: #6B6B6B; font-weight: 400;
+    }
+
+    /* AI dock — fixed at the bottom of the live view */
+    .phone-frame.dark .live-view .live-ai-dock {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 10px 12px max(12px, env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(10,10,10,1) 60%, rgba(10,10,10,0));
+      z-index: 4;
+    }
+    .phone-frame.dark .live-view .live-ai-input {
+      width: 100%;
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 22px;
+      color: #C8C8C8;
+      font: inherit; font-size: 13px; font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+    }
+    .phone-frame.dark .live-view .live-ai-input .live-ai-mascot {
+      width: 22px; height: 20px;
+      flex-shrink: 0;
+    }
+    .phone-frame.dark .live-view .live-ai-input .live-ai-mascot path { fill: #1DF0BB; }
+    .phone-frame.dark .live-view .live-ai-input .live-ai-text {
+      flex: 1;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      color: #A0A0A0;
+    }
+    .phone-frame.dark .live-view .live-ai-input .live-ai-arrow {
+      width: 14px; height: 14px;
+      color: #C8C8C8;
+      flex-shrink: 0;
+    }
+
+    /* ─────────────────────────────────────────────
+       AgentCreator — full-frame multi-step Wyze Buddy chat
+       Ported from Wyze-cam-agent/src/pages/AgentCreator.jsx,
+       restyled with this project's dark theme.
+       ───────────────────────────────────────────── */
+    .phone-frame.dark .agent-creator-view {
+      position: absolute; inset: 0;
+      z-index: 215;
+      background: #0a0a0a;
+      display: flex; flex-direction: column;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(0.22, 0.65, 0.34, 1);
+      overflow: hidden;
+    }
+    .phone-frame.dark .agent-creator-view.open { transform: translateY(0); }
+
+    /* ───────── Agent Settings full-screen sheet ───────── */
+    .phone-frame.dark .agent-settings-view {
+      position: absolute; inset: 0;
+      z-index: 220;
+      background: #0a0a0a;
+      display: flex; flex-direction: column;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(0.22, 0.65, 0.34, 1);
+      overflow: hidden;
+    }
+    .phone-frame.dark .agent-settings-view.open { transform: translateY(0); }
+
+    .phone-frame.dark .agent-settings-view .as-header {
+      flex-shrink: 0;
+      padding: 14px 14px 12px;
+      padding-top: max(14px, env(safe-area-inset-top));
+      background: #0a0a0a;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .phone-frame.dark .agent-settings-view .as-back {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border: none; border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+      color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .agent-settings-view .as-back svg {
+      width: 16px; height: 16px;
+      stroke: currentColor; fill: none; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .phone-frame.dark .agent-settings-view .as-title { flex: 1; min-width: 0; font-weight: 700; font-size: 15px; color: #fff; }
+
+    .phone-frame.dark .agent-settings-view .as-scroll {
+      flex: 1; overflow-y: auto;
+      padding: 12px 14px 24px;
+    }
+
+    /* Agent identity card */
+    .phone-frame.dark .agent-settings-view .as-identity {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      margin-bottom: 14px;
+    }
+    .phone-frame.dark .agent-settings-view .as-identity-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(29,240,187,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .phone-frame.dark .agent-settings-view .as-identity-text { flex: 1; min-width: 0; }
+    .phone-frame.dark .agent-settings-view .as-identity-name { font-weight: 700; font-size: 14px; color: #fff; }
+    .phone-frame.dark .agent-settings-view .as-identity-desc { font-size: 11px; color: #A0A0A0; line-height: 1.35; margin-top: 2px; }
+    .phone-frame.dark .agent-settings-view .as-status-pill {
+      flex-shrink: 0;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
+      background: rgba(29,240,187,0.14);
+      color: #1DF0BB;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .phone-frame.dark .agent-settings-view .as-status-pill::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: currentColor;
+    }
+    .phone-frame.dark .agent-settings-view .as-status-pill.is-paused { background: rgba(255,179,64,0.14); color: #FFB340; }
+    .phone-frame.dark .agent-settings-view .as-status-pill.is-disabled { background: rgba(255,255,255,0.08); color: #6B6B6B; }
+
+    /* Section group label (small caps) */
+    .phone-frame.dark .agent-settings-view .as-section-label {
+      font-size: 10px; font-weight: 700;
+      color: #6B6B6B;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 14px 4px 6px;
+    }
+
+    .phone-frame.dark .agent-settings-view .as-empty {
+      font-size: 12px; color: #6B6B6B; font-style: italic;
+      padding: 8px 0;
+    }
+
+    /* Cameras list (chips) */
+    .phone-frame.dark .agent-settings-view .as-cam-list {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .phone-frame.dark .agent-settings-view .as-cam-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      font-size: 12px; color: #E5E5E5;
+    }
+
+    /* Recent activity items */
+    .phone-frame.dark .agent-settings-view .as-recent {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .phone-frame.dark .agent-settings-view .as-recent-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+    }
+    .phone-frame.dark .agent-settings-view .as-recent-thumb {
+      width: 36px; height: 36px;
+      border-radius: 6px; overflow: hidden;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #2a2a2a, #161616);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .phone-frame.dark .agent-settings-view .as-recent-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .phone-frame.dark .agent-settings-view .as-recent-text {
+      flex: 1; min-width: 0;
+      font-size: 12px; color: #D5D5D5; line-height: 1.35;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .phone-frame.dark .agent-settings-view .as-recent-meta {
+      flex-shrink: 0;
+      font-size: 10px; color: #6B6B6B;
+    }
+
+    /* Collapsible block */
+    .phone-frame.dark .agent-settings-view .as-block {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .phone-frame.dark .agent-settings-view .as-block-head {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px;
+      cursor: pointer;
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: inherit;
+      text-align: left;
+      font: inherit;
+    }
+    .phone-frame.dark .agent-settings-view .as-block-caret {
+      flex-shrink: 0;
+      width: 12px; height: 12px;
+      transition: transform 0.2s ease;
+    }
+    .phone-frame.dark .agent-settings-view .as-block-caret svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .phone-frame.dark .agent-settings-view .as-block.is-open .as-block-caret { transform: rotate(90deg); }
+    .phone-frame.dark .agent-settings-view .as-block-title { flex: 1; font-size: 13px; font-weight: 600; color: #fff; }
+    .phone-frame.dark .agent-settings-view .as-block-meta { font-size: 11px; color: #6B6B6B; }
+    .phone-frame.dark .agent-settings-view .as-block-body {
+      padding: 0 12px 12px;
+      display: none;
+    }
+    .phone-frame.dark .agent-settings-view .as-block.is-open .as-block-body { display: block; }
+
+    .phone-frame.dark .agent-settings-view .as-field-label {
+      font-size: 11px; color: #A0A0A0;
+      margin-bottom: 4px;
+    }
+    .phone-frame.dark .agent-settings-view .as-field-value {
+      font-size: 13px; color: #E5E5E5;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 10px 12px;
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+    .phone-frame.dark .agent-settings-view .as-field-value pre {
+      font-family: inherit; font-size: 12px;
+      white-space: pre-wrap; margin: 0;
+    }
+
+    /* Trigger card */
+    .phone-frame.dark .agent-settings-view .as-trigger {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .phone-frame.dark .agent-settings-view .as-trigger-head {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 4px;
+    }
+    .phone-frame.dark .agent-settings-view .as-trigger-name { flex: 1; font-size: 13px; font-weight: 700; color: #fff; }
+    .phone-frame.dark .agent-settings-view .as-trigger-sub { font-size: 11px; color: #A0A0A0; margin-bottom: 6px; }
+    .phone-frame.dark .agent-settings-view .as-trigger-desc { font-size: 12px; color: #C5C5C5; line-height: 1.4; margin-bottom: 6px; }
+    .phone-frame.dark .agent-settings-view .as-trigger-meta {
+      font-size: 10px; color: #6B6B6B;
+      letter-spacing: 0.5px; text-transform: uppercase;
+      font-family: ui-monospace, monospace;
+    }
+    .phone-frame.dark .agent-settings-view .as-badge {
+      flex-shrink: 0;
+      padding: 2px 8px; border-radius: 999px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .phone-frame.dark .agent-settings-view .as-badge-active {
+      background: rgba(29,240,187,0.14); color: #1DF0BB;
+    }
+    .phone-frame.dark .agent-settings-view .as-badge-critical {
+      background: rgba(255,75,79,0.14); color: #FF4F4F;
+    }
+
+    /* Skill / tool chips */
+    .phone-frame.dark .agent-settings-view .as-chip-row {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: 12px;
+    }
+    .phone-frame.dark .agent-settings-view .as-skill-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 999px;
+      font-size: 12px; color: #E5E5E5; font-weight: 600;
+    }
+    .phone-frame.dark .agent-settings-view .as-skill-chip-version {
+      font-size: 10px; color: #1DF0BB;
+      background: rgba(29,240,187,0.12);
+      padding: 1px 6px; border-radius: 999px;
+    }
+    .phone-frame.dark .agent-settings-view .as-tool-chip {
+      display: inline-flex;
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 999px;
+      font-size: 11px; color: #C5C5C5;
+      font-family: ui-monospace, monospace;
+    }
+
+    /* Cost-control 2x2 grid */
+    .phone-frame.dark .agent-settings-view .as-cost-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .phone-frame.dark .agent-settings-view .as-cost-cell {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .phone-frame.dark .agent-settings-view .as-cost-label {
+      font-size: 10px; color: #6B6B6B;
+      letter-spacing: 0.4px; text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .phone-frame.dark .agent-settings-view .as-cost-value {
+      font-size: 15px; font-weight: 700; color: #fff;
+    }
+
+    /* Action rule rows */
+    .phone-frame.dark .agent-settings-view .as-action-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      font-size: 12px; color: #C5C5C5;
+    }
+    .phone-frame.dark .agent-settings-view .as-action-arrow { color: #6B6B6B; }
+
+    /* Bottom action button row (sticky) */
+    .phone-frame.dark .agent-settings-view .as-actions {
+      flex-shrink: 0;
+      padding: 10px 12px max(12px, env(safe-area-inset-bottom));
+      background: #0a0a0a;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .phone-frame.dark .agent-settings-view .as-action-btn {
+      flex: 1 1 auto;
+      min-width: 78px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #E5E5E5;
+      font: inherit; font-size: 12px; font-weight: 600;
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .phone-frame.dark .agent-settings-view .as-action-btn.is-primary {
+      background: #1DF0BB; color: #0d0d0d; border-color: transparent;
+      flex: 1 1 100px;
+    }
+    .phone-frame.dark .agent-settings-view .as-action-btn.is-danger { color: #FF4F4F; border-color: rgba(255,75,79,0.45); }
+
+    /* Sticky header with progress bar */
+    .phone-frame.dark .agent-creator-view .ac-header {
+      flex-shrink: 0;
+      background: #0a0a0a;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .phone-frame.dark .agent-creator-view .ac-header-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 14px 8px;
+      padding-top: max(14px, env(safe-area-inset-top));
+    }
+    .phone-frame.dark .agent-creator-view .ac-back {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border: none; border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+      color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .agent-creator-view .ac-back svg {
+      width: 16px; height: 16px;
+      stroke: currentColor; fill: none; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .phone-frame.dark .agent-creator-view .ac-title {
+      flex: 1; min-width: 0;
+      font-weight: 700; font-size: 15px; color: #fff;
+      letter-spacing: -0.05px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-emoji {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(29,240,187,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    /* Progress: thin continuous bar with CREATE / TEST / DONE labels */
+    .phone-frame.dark .agent-creator-view .ac-progress {
+      padding: 0 16px 10px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-progress-labels {
+      display: flex; justify-content: space-between;
+      font-size: 9px;
+      color: #5a5a5a;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .phone-frame.dark .agent-creator-view .ac-progress-label.is-active { color: #1DF0BB; }
+    .phone-frame.dark .agent-creator-view .ac-progress-label.is-done   { color: rgba(29,240,187,0.6); }
+    .phone-frame.dark .agent-creator-view .ac-progress-track {
+      position: relative;
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .phone-frame.dark .agent-creator-view .ac-progress-fill {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: linear-gradient(90deg, #1DF0BB 0%, #5BD9F0 100%);
+      border-radius: 999px;
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 8px rgba(29,240,187,0.5);
+    }
+
+    /* Scrollable conversation area */
+    .phone-frame.dark .agent-creator-view .ac-convo {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px 20px;
+      display: flex; flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Speech bubbles */
+    .phone-frame.dark .agent-creator-view .ac-msg {
+      max-width: 85%;
+      display: flex;
+    }
+    .phone-frame.dark .agent-creator-view .ac-msg-bot { align-self: flex-start; }
+    .phone-frame.dark .agent-creator-view .ac-msg-user { align-self: flex-end; }
+    .phone-frame.dark .agent-creator-view .ac-bubble {
+      padding: 10px 13px;
+      border-radius: 16px;
+      font-size: 13px; line-height: 1.45;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+    .phone-frame.dark .agent-creator-view .ac-msg-bot .ac-bubble {
+      background: rgba(255,255,255,0.06);
+      color: #E8E8E8;
+      border-bottom-left-radius: 4px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-msg-user .ac-bubble {
+      background: #1DF0BB;
+      color: #0d0d0d;
+      border-bottom-right-radius: 4px;
+      font-weight: 500;
+    }
+    .phone-frame.dark .agent-creator-view .ac-msg-voice .ac-bubble::before {
+      content: '🎙 ';
+      opacity: 0.55; font-size: 11px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-tip {
+      align-self: flex-start;
+      max-width: 85%;
+      font-size: 11px; color: #6B6B6B;
+      padding: 0 6px;
+      font-style: italic;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-grid {
+      align-self: stretch;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 4px 0 6px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile {
+      display: flex; flex-direction: column; gap: 6px;
+      padding: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      color: #fff; text-align: left;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile:hover {
+      background: rgba(29,240,187,0.06);
+      border-color: rgba(29,240,187,0.35);
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile:active { transform: scale(0.97); }
+    .phone-frame.dark .agent-creator-view .ac-template-tile.is-locked {
+      opacity: 0.45;
+      cursor: default;
+      pointer-events: none;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile.is-picked {
+      opacity: 1;
+      border-color: rgba(29,240,187,0.55);
+      background: rgba(29,240,187,0.08);
+    }
+    /* The picked tile rendered as a sent chat message (right-aligned). */
+    .phone-frame.dark .agent-creator-view .ac-msg-tile {
+      align-self: flex-end;
+      max-width: 75%;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile.is-sent {
+      cursor: default;
+      pointer-events: none;
+      background: rgba(29,240,187,0.14);
+      border-color: rgba(29,240,187,0.45);
+      padding: 10px 12px;
+      gap: 4px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile.is-sent .ac-template-tile-icon {
+      width: 28px; height: 28px; border-radius: 8px; font-size: 16px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile.is-sent .ac-template-tile-name {
+      color: #1DF0BB;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile.is-sent .ac-template-tile-desc {
+      color: #A7E5D2;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile-custom {
+      border-style: dashed;
+      border-color: rgba(255,255,255,0.18);
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile-icon-custom {
+      background: rgba(29,240,187,0.12);
+      color: #1DF0BB;
+      font-weight: 300;
+      font-size: 26px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      background: rgba(255,255,255,0.06);
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile-name {
+      font-size: 13px; font-weight: 700; color: #fff;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-tile-desc {
+      font-size: 11px; color: #A0A0A0; line-height: 1.35;
+    }
+    .phone-frame.dark .agent-creator-view .ac-bubble-pick {
+      background: rgba(29,240,187,0.18);
+      color: #1DF0BB;
+      border: 1px solid rgba(29,240,187,0.35);
+    }
+
+    /* Quick-replies */
+    .phone-frame.dark .agent-creator-view .ac-quick-replies {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      align-self: flex-start;
+      margin-top: 2px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: #C8C8C8;
+      font: inherit; font-size: 12px; font-weight: 600;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-chip-sub {
+      font-size: 10px; color: #787878; font-weight: 500;
+      margin-left: 4px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-chip:hover { background: rgba(255,255,255,0.08); }
+    .phone-frame.dark .agent-creator-view .ac-chip.is-selected {
+      background: #1DF0BB; color: #0d0d0d; border-color: #1DF0BB;
+    }
+    .phone-frame.dark .agent-creator-view .ac-chip.is-selected .ac-chip-sub { color: rgba(13,13,13,0.65); }
+    .phone-frame.dark .agent-creator-view .ac-chip.is-disabled { opacity: 0.5; cursor: default; }
+
+    /* Inline cards (template, summary, learning, push, live preview) */
+    .phone-frame.dark .agent-creator-view .ac-card {
+      align-self: stretch;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-card {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-head {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      background: rgba(29,240,187,0.12);
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-name {
+      font-weight: 700; font-size: 15px; color: #fff;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-desc {
+      font-size: 11px; color: #A0A0A0;
+      margin-top: 2px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-features {
+      list-style: none; padding: 0; margin: 4px 0 0;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-features li {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: #C8C8C8;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-features li::before {
+      content: '✓';
+      color: #1DF0BB;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .phone-frame.dark .agent-creator-view .ac-template-actions {
+      display: flex; gap: 8px; margin-top: 6px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-btn {
+      padding: 10px 14px;
+      border: none; border-radius: 999px;
+      background: #1DF0BB; color: #0d0d0d;
+      font: inherit; font-weight: 700; font-size: 12px;
+      cursor: pointer;
+      flex: 1;
+    }
+    .phone-frame.dark .agent-creator-view .ac-btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: #C8C8C8;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .phone-frame.dark .agent-creator-view .ac-btn-block {
+      display: block; width: 100%;
+    }
+
+    /* Camera carousel */
+    .phone-frame.dark .agent-creator-view .ac-cam-carousel {
+      display: flex; gap: 8px;
+      overflow-x: auto;
+      overflow-y: visible;
+      scrollbar-width: none;
+      align-self: stretch;
+      align-items: stretch;
+      padding: 2px 0 4px;
+      scroll-snap-type: x mandatory;
+      flex: 0 0 auto;
+      min-height: 220px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-cam-carousel::-webkit-scrollbar { display: none; }
+    .phone-frame.dark .agent-creator-view .ac-cam-card {
+      flex: 0 0 70%;
+      scroll-snap-align: start;
+      background: rgba(255,255,255,0.04);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 10px;
+      display: flex; flex-direction: column; gap: 8px;
+      cursor: pointer;
+      color: #fff; text-align: left;
+      font: inherit;
+      transition: border-color 0.12s ease, background 0.12s ease, transform 0.12s ease;
+    }
+    .phone-frame.dark .agent-creator-view .ac-cam-card:hover {
+      border-color: rgba(29,240,187,0.55);
+      background: rgba(29,240,187,0.06);
+    }
+    .phone-frame.dark .agent-creator-view .ac-cam-card:active { transform: scale(0.98); }
+    .phone-frame.dark .agent-creator-view .ac-cam-cta {
+      margin-top: auto;
+      align-self: flex-start;
+      font-size: 11px; font-weight: 700;
+      color: #1DF0BB;
+      background: rgba(29,240,187,0.12);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-cam-card.is-selected {
+      border-color: #1DF0BB;
+      background: rgba(29,240,187,0.06);
+    }
+    .phone-frame.dark .agent-creator-view .ac-cam-thumb {
+      position: relative;
+      width: 100%;
+      height: 120px;
+      flex: 0 0 120px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #2a2a2a, #161616);
+    }
+    .phone-frame.dark .agent-creator-view .ac-cam-thumb img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .phone-frame.dark .agent-creator-view .ac-cam-thumb-icon {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #5a5a5a; font-size: 24px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-cam-name {
+      font-size: 13px; font-weight: 700; color: #fff;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .phone-frame.dark .agent-creator-view .ac-cam-model {
+      font-size: 11px; color: #A0A0A0;
+    }
+    .phone-frame.dark .agent-creator-view .ac-cam-tag {
+      display: inline-block;
+      margin-top: 2px;
+      font-size: 10px; padding: 2px 6px;
+      background: rgba(255,179,64,0.18);
+      color: #FFB340;
+      border-radius: 999px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-carousel-hint {
+      align-self: center;
+      font-size: 10px; color: #6B6B6B;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-top: -4px;
+    }
+
+    /* Summary card */
+    .phone-frame.dark .agent-creator-view .ac-summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      margin: 6px 0 12px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-summary-cell {
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+      display: flex; flex-direction: column;
+    }
+    .phone-frame.dark .agent-creator-view .ac-summary-cell.full { grid-column: 1 / -1; }
+    .phone-frame.dark .agent-creator-view .ac-summary-cell-label {
+      font-size: 10px; color: #6B6B6B;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-summary-cell-value {
+      font-size: 13px; font-weight: 600; color: #fff;
+      margin-top: 3px;
+    }
+
+    /* Live preview (camera positioning + test) */
+    .phone-frame.dark .agent-creator-view .ac-live-preview {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      border-radius: 12px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-live-preview-emoji {
+      font-size: 48px;
+      filter: grayscale(0.1);
+    }
+    .phone-frame.dark .agent-creator-view .ac-live-preview-status {
+      position: absolute; top: 10px; left: 10px;
+      padding: 4px 10px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.4px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.65);
+      color: #FFB340;
+    }
+    .phone-frame.dark .agent-creator-view .ac-live-preview-status.is-good { color: #1DF0BB; }
+    .phone-frame.dark .agent-creator-view .ac-live-preview-overlay {
+      position: absolute; inset: 14px;
+      border: 2px dashed rgba(255,179,64,0.6);
+      border-radius: 8px;
+      pointer-events: none;
+    }
+    .phone-frame.dark .agent-creator-view .ac-live-preview-overlay.is-good {
+      border-color: rgba(29,240,187,0.7);
+      border-style: solid;
+    }
+    .phone-frame.dark .agent-creator-view .ac-tip-banner {
+      align-self: stretch;
+      padding: 8px 10px;
+      border: 1px solid rgba(255,179,64,0.25);
+      background: rgba(255,179,64,0.08);
+      border-radius: 8px;
+      color: #FFB340;
+      font-size: 11px; font-weight: 500;
+    }
+
+    /* Push notification preview */
+    .phone-frame.dark .agent-creator-view .ac-push {
+      align-self: stretch;
+      background: rgba(28,28,28,0.92);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex; gap: 10px;
+      backdrop-filter: blur(16px);
+    }
+    .phone-frame.dark .agent-creator-view .ac-push-icon {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1DF0BB, #4a8cff);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-push-body {
+      flex: 1; min-width: 0;
+    }
+    .phone-frame.dark .agent-creator-view .ac-push-title-row {
+      display: flex; align-items: baseline; gap: 6px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-push-title {
+      font-size: 12px; font-weight: 700; color: #fff;
+    }
+    .phone-frame.dark .agent-creator-view .ac-push-when {
+      font-size: 10px; color: #6B6B6B;
+      margin-left: auto;
+    }
+    .phone-frame.dark .agent-creator-view .ac-push-message {
+      font-size: 12px; color: #C8C8C8;
+      margin-top: 2px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-push-thumb {
+      flex-shrink: 0;
+      width: 56px; height: 40px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #2a2a2a, #161616);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+
+    /* Learning card */
+    .phone-frame.dark .agent-creator-view .ac-learning-title {
+      font-weight: 700; font-size: 14px; color: #fff;
+      margin-bottom: 8px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-learning-list {
+      list-style: none; padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-learning-list li {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: #C8C8C8;
+    }
+    .phone-frame.dark .agent-creator-view .ac-learning-list li::before {
+      content: '✓';
+      color: #1DF0BB; font-weight: 700;
+    }
+
+    /* Final summary */
+    .phone-frame.dark .agent-creator-view .ac-final {
+      align-self: stretch;
+      border: 1px solid rgba(29,240,187,0.20);
+      background: linear-gradient(135deg, rgba(29,240,187,0.04), rgba(74,140,255,0.04));
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-final-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-final-emoji {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(29,240,187,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-final-name {
+      font-weight: 700; font-size: 15px; color: #fff;
+    }
+    .phone-frame.dark .agent-creator-view .ac-final-sub {
+      font-size: 11px; color: #A0A0A0;
+    }
+    .phone-frame.dark .agent-creator-view .ac-final-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .phone-frame.dark .agent-creator-view .ac-final-grid > div {
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-final-grid span {
+      font-size: 10px; color: #6B6B6B;
+      text-transform: uppercase; letter-spacing: 0.4px;
+      display: block;
+    }
+    .phone-frame.dark .agent-creator-view .ac-final-grid strong {
+      font-size: 12px; color: #fff; font-weight: 600;
+    }
+    .phone-frame.dark .agent-creator-view .ac-final-price {
+      font-size: 11px; color: #A0A0A0;
+      margin: 6px 0 12px;
+      text-align: center;
+    }
+    .phone-frame.dark .agent-creator-view .ac-activate {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1DF0BB, #4a8cff);
+      color: #0d0d0d;
+      font: inherit; font-weight: 700; font-size: 14px;
+      letter-spacing: 0.4px;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-back-edit {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: #A0A0A0;
+      font: inherit; font-size: 12px; font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Sticky footer voice/keyboard input (dual mode) */
+    .phone-frame.dark .agent-creator-view .ac-footer {
+      flex-shrink: 0;
+      padding: 10px 12px max(12px, env(safe-area-inset-bottom));
+      background: #0a0a0a;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-footer-row {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-icon-btn {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      border: none;
+      background: rgba(255,255,255,0.06);
+      color: #A0A0A0;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s ease;
+    }
+    .phone-frame.dark .agent-creator-view .ac-icon-btn:hover:not(:disabled) {
+      background: rgba(255,255,255,0.1);
+    }
+    .phone-frame.dark .agent-creator-view .ac-icon-btn:disabled { opacity: 0.4; cursor: default; }
+    .phone-frame.dark .agent-creator-view .ac-icon-btn svg { width: 20px; height: 20px; }
+    .phone-frame.dark .agent-creator-view .ac-input {
+      flex: 1;
+      height: 44px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 0 14px;
+      color: #fff;
+      font: inherit; font-size: 13px;
+      outline: none;
+    }
+    .phone-frame.dark .agent-creator-view .ac-input::placeholder { color: #6B6B6B; }
+    .phone-frame.dark .agent-creator-view .ac-input:focus {
+      border-color: rgba(29,240,187,0.45);
+    }
+    .phone-frame.dark .agent-creator-view .ac-send-btn {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      border: none;
+      background: #1DF0BB;
+      color: #0d0d0d;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.12s ease;
+    }
+    .phone-frame.dark .agent-creator-view .ac-send-btn:disabled { opacity: 0.4; cursor: default; }
+    .phone-frame.dark .agent-creator-view .ac-send-btn svg { width: 18px; height: 18px; }
+    /* Voice button — fills remaining width */
+    .phone-frame.dark .agent-creator-view .ac-voice-btn {
+      flex: 1;
+      height: 44px;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      color: #A0A0A0;
+      cursor: pointer;
+      font: inherit; font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      -webkit-user-select: none; user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+      transition: background 0.12s ease, color 0.12s ease, transform 0.08s ease;
+    }
+    .phone-frame.dark .agent-creator-view .ac-voice-btn:hover:not(:disabled) {
+      background: rgba(255,255,255,0.14);
+    }
+    .phone-frame.dark .agent-creator-view .ac-voice-btn:active:not(:disabled) { transform: scale(0.98); }
+    .phone-frame.dark .agent-creator-view .ac-voice-btn:disabled { opacity: 0.4; cursor: default; }
+    .phone-frame.dark .agent-creator-view .ac-voice-btn svg { width: 18px; height: 18px; }
+    .phone-frame.dark .agent-creator-view .ac-voice-btn .ac-voice-idle,
+    .phone-frame.dark .agent-creator-view .ac-voice-btn .ac-voice-active {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-voice-btn .ac-voice-active { display: none; }
+    .phone-frame.dark .agent-creator-view .ac-voice-btn.is-recording {
+      background: #ef4444;
+      color: #fff;
+    }
+    .phone-frame.dark .agent-creator-view .ac-voice-btn.is-recording .ac-voice-idle { display: none; }
+    .phone-frame.dark .agent-creator-view .ac-voice-btn.is-recording .ac-voice-active { display: flex; }
+    /* Animated waveform bars while recording */
+    .phone-frame.dark .agent-creator-view .ac-waveform {
+      display: inline-flex; align-items: center; gap: 3px; height: 18px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-waveform > span {
+      display: inline-block;
+      width: 3px;
+      background: #fff;
+      border-radius: 2px;
+      animation: ac-wave 0.9s ease-in-out infinite;
+    }
+    .phone-frame.dark .agent-creator-view .ac-waveform > span:nth-child(1) { height: 6px;  animation-delay: 0s; }
+    .phone-frame.dark .agent-creator-view .ac-waveform > span:nth-child(2) { height: 14px; animation-delay: 0.12s; }
+    .phone-frame.dark .agent-creator-view .ac-waveform > span:nth-child(3) { height: 18px; animation-delay: 0.24s; }
+    .phone-frame.dark .agent-creator-view .ac-waveform > span:nth-child(4) { height: 12px; animation-delay: 0.36s; }
+    .phone-frame.dark .agent-creator-view .ac-waveform > span:nth-child(5) { height: 8px;  animation-delay: 0.48s; }
+    @keyframes ac-wave {
+      0%, 100% { transform: scaleY(0.4); }
+      50%      { transform: scaleY(1.2); }
+    }
+    /* Live transcription bubble — appears above the input row */
+    .phone-frame.dark .agent-creator-view .ac-transcribe {
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 14px;
+      min-height: 40px;
+      color: #E5E5E5;
+      font-size: 13px; line-height: 1.4;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .phone-frame.dark .agent-creator-view .ac-transcribe[hidden] { display: none; }
+    .phone-frame.dark .agent-creator-view .ac-transcribe-text { white-space: pre-wrap; }
+    .phone-frame.dark .agent-creator-view .ac-transcribe-caret {
+      display: inline-block;
+      width: 2px; height: 14px;
+      background: #1DF0BB;
+      animation: ac-caret 0.8s steps(1) infinite;
+    }
+    @keyframes ac-caret {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
 
     /* ───────── Wyze AI chat ───────── */
     /* Floating chat button — bottom-left, persistent across all tabs.
@@ -4372,6 +5672,16 @@
         <!-- populated by _openSettingsSheet() -->
       </div>
 
+      <!-- AgentCreator full-frame view — opened from the "+ Add agent"
+           home tile. Implements the multi-step Wyze Buddy chat flow. -->
+      <div class="agent-creator-view">
+        <!-- populated by _openAgentCreator() -->
+      </div>
+
+      <div class="agent-settings-view">
+        <!-- populated by _openAgentSettings() -->
+      </div>
+
       <!-- Floating Quiet-score cutoff chip (bottom-right) -->
       <div class="chip floating-quiet" title="Quiet score cutoff — tap to toggle" data-filter="score">
         <span>Quiet ≤ 2</span>
@@ -4385,11 +5695,11 @@
 
       <!-- Bottom Nav (icon + label) -->
       <div class="bottom-nav">
-        <div class="nav-item">
+        <div class="nav-item active">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9v10a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1V9"/></svg>
           <span>Home</span>
         </div>
-        <div class="nav-item active">
+        <div class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
           <span>Event</span>
         </div>
@@ -4806,6 +6116,12 @@
         if (typeof switchHomeView === 'function') switchHomeView(view);
       });
     });
+    // Default landing page is Home — mirror the active nav-item by activating
+    // the home view on initial load. Deferred to next tick because
+    // switchHomeView is declared in a later IIFE (not in this scope yet).
+    setTimeout(() => {
+      if (typeof switchHomeView === 'function') switchHomeView('home');
+    }, 0);
     const skillBanner = document.getElementById('skillBanner');
     skillBanner?.querySelector('.close')?.addEventListener('click', () => {
       skillBanner.style.transition = 'opacity .2s, transform .2s';
@@ -5377,6 +6693,13 @@
       if (day < 7) return day + 'd ago';
       return Math.floor(day/7) + 'w ago';
     };
+    // Top-level alias so bare `relTimeAgo(dt)` calls in functions
+    // outside renderTimeline's closure (agent widgets, sheets, live
+    // view, etc.) resolve to the same helper. renderTimeline still
+    // defines its own const that shadows this for the timeline path.
+    function relTimeAgo(dt) {
+      return window._relTimeAgo ? window._relTimeAgo(dt) : '';
+    }
     window.__rawGroups = window.__rawGroups || [];
 
     // Infer camera-location name from group descriptions. For each camera,
@@ -6739,7 +8062,848 @@
       { id: 'birds',   label: 'Birds Watcher',  iconHtml: _AGENT_ICONS.birds,   evaluate: _agentBirds   }
     ];
 
-    // Render the 2-column widget grid above the device list.
+    // ════════════════════════════════════════
+    // Templates used by the AgentCreator. Each describes one preset agent
+    // domain — copy strings, regex for intent matching, test phrasing,
+    // detection label, and the push-notification preview content.
+    // Ported from Wyze-cam-agent's TEMPLATE constants.
+    // ════════════════════════════════════════
+    const _CREATOR_TEMPLATES = [
+      {
+        id: 'stove', emoji: '🔥', name: 'Stove', domain: 'stove',
+        description: 'Monitor your stove to prevent accidents',
+        features: ['Detects if a burner is left on', 'Alerts if unattended', 'Works in any lighting'],
+        triggerWords: /\b(stove|burner|range|kitchen|cook(ing)?)\b/i,
+        clarification: { q: 'Are you primarily worried about a safety hazard (smoke / fire) or just leaving it on?',
+          options: [
+            { value: 'status', label: 'Status check', sub: 'Did I leave it on?' },
+            { value: 'hazard', label: 'Safety hazard', sub: 'Smoke & fire' }
+          ] },
+        durationLabel: 'If the stove is left on, how long should I wait before alerting you?',
+        unattendedLabel: 'How long can the stove be left unattended before I send an extra safety alert?',
+        cameraLabel: 'Great! Now which camera should I use for your Stove agent?',
+        positionLabel: 'Hold the camera and adjust until you can clearly see the stovetop.',
+        positionTip: '💡 Tip: mount the camera above and angled down so all four burners are in frame.',
+        testAction: '🔥 I turned on the front left burner',
+        testActionEcho: 'Okay I turned on the front left burner',
+        detectionLabel: 'front left burner',
+        detectionMessage: "Perfect! I detected the front left burner is on.",
+        offPrompt: 'Great! Now please turn off the burner so I can verify I stop detecting it.',
+        offEcho: "Okay it's off now",
+        learning: ['Detection calibrated', 'Monitoring zone set', 'Alerts configured', 'Agent ready'],
+        pushTitle: 'Stove Agent', pushMessage: 'Front left burner detected', pushThumb: '🔥',
+        successMessage: '🎉 Your Stove Agent is live. I\'ll keep an eye on the kitchen and ping you if a burner is left on too long.',
+        gradient: 'linear-gradient(135deg, #FFB340, #FF4F4F)'
+      },
+      {
+        id: 'garage', emoji: '🚪', name: 'Garage Door', domain: 'garage',
+        description: 'Watch the garage and alert if it\'s left open',
+        features: ['Detects open / closed state', 'Alerts on unexpected opens', 'Auto-close suggestions'],
+        triggerWords: /\b(garage|garage\s*door|driveway\s*door)\b/i,
+        clarification: { q: 'Is your priority knowing when the door is left open, or detecting unexpected opens?',
+          options: [
+            { value: 'left-open', label: 'Left open', sub: 'Forgot to close' },
+            { value: 'unexpected', label: 'Unexpected open', sub: 'Out of routine' }
+          ] },
+        durationLabel: 'If the garage is left open, when should I alert you?',
+        unattendedLabel: 'And how long without anyone in view counts as "unattended"?',
+        cameraLabel: 'Which camera covers the garage best?',
+        positionLabel: 'Find an angle that shows the full garage door from inside or outside.',
+        positionTip: '💡 Tip: aim so the entire door is visible, including the bottom seal.',
+        testAction: '🚪 I just opened the door',
+        testActionEcho: 'I opened the garage door',
+        detectionLabel: 'garage door',
+        detectionMessage: 'Perfect! I detected the door is open.',
+        offPrompt: 'Now close the door so I can verify the closed state.',
+        offEcho: 'Closed it',
+        learning: ['Door open / closed states learned', 'Alert thresholds set', 'Notify rules saved', 'Agent ready'],
+        pushTitle: 'Garage Agent', pushMessage: 'Garage door has been open 12 minutes', pushThumb: '🚪',
+        successMessage: '🚪 Garage Agent is on. I\'ll let you know if the door is left open longer than your threshold.',
+        gradient: 'linear-gradient(135deg, #FFB340, #FF8C42)'
+      },
+      {
+        id: 'bird', emoji: '🐦', name: 'Bird Feeder', domain: 'bird',
+        description: 'Identify visiting birds and build a daily highlight reel',
+        features: ['Species recognition', 'Daily highlights', 'Rare-bird alerts'],
+        triggerWords: /\b(bird|feeder|sparrow|cardinal|finch|hummingbird|robin|jay|owl)\b/i,
+        clarification: { q: 'Are you more interested in identifying species or in catching rare visitors?',
+          options: [
+            { value: 'species', label: 'Identify species', sub: 'Daily catalog' },
+            { value: 'rare', label: 'Rare visitors',     sub: 'Alert only on rares' }
+          ] },
+        durationLabel: 'How long after a bird arrives should I save a clip?',
+        unattendedLabel: 'After a clip is saved, how long should I wait before grouping the next visit?',
+        cameraLabel: 'Which camera looks at the feeder?',
+        positionLabel: 'Frame the feeder so the perch and seed tray are in the center.',
+        positionTip: '💡 Tip: backlight from the sky can wash out small birds — angle slightly downward.',
+        testAction: '🐦 A bird just landed',
+        testActionEcho: 'A bird landed on the feeder',
+        detectionLabel: 'visiting bird',
+        detectionMessage: 'Got it! I logged a visiting bird.',
+        offPrompt: 'When the bird flies away, let me know so I can verify the empty state.',
+        offEcho: 'Bird flew away',
+        learning: ['Feeder zone calibrated', 'Species index loaded', 'Daily summary scheduled', 'Agent ready'],
+        pushTitle: 'Bird Agent', pushMessage: 'Cardinal at the feeder', pushThumb: '🐦',
+        successMessage: '🐦 Bird Agent is on. I\'ll log every visit and put together a daily highlight.',
+        gradient: 'linear-gradient(135deg, #1DF0BB, #4a8cff)'
+      },
+      {
+        id: 'package', emoji: '📦', name: 'Package', domain: 'package',
+        description: 'Track porch deliveries from drop-off to pickup',
+        features: ['Detects deliveries', 'Tracks dwell time', 'Alerts if stolen / removed'],
+        triggerWords: /\b(package|porch|deliver(y|ies)?|UPS|FedEx|Amazon|USPS)\b/i,
+        clarification: { q: 'Do you want to know about deliveries the moment they land, or only after they\'ve sat too long?',
+          options: [
+            { value: 'arrival', label: 'On arrival', sub: 'Every delivery' },
+            { value: 'lingering', label: 'After lingering', sub: 'Only stale ones' }
+          ] },
+        durationLabel: 'If a package is left on the porch, when should I alert you?',
+        unattendedLabel: 'If the package disappears, how long is "too quick" before I flag a possible theft?',
+        cameraLabel: 'Which camera covers the porch?',
+        positionLabel: 'Center the doormat in the frame so the full drop zone is visible.',
+        positionTip: '💡 Tip: the lower third of the frame should be your drop zone.',
+        testAction: '📦 I placed a test box on the porch',
+        testActionEcho: 'I put a box on the porch',
+        detectionLabel: 'package on the porch',
+        detectionMessage: 'Got it! Package detected on the porch.',
+        offPrompt: 'Now grab the box back so I can verify the empty state.',
+        offEcho: 'Picked it up',
+        learning: ['Drop zone calibrated', 'Carrier patterns loaded', 'Theft alert configured', 'Agent ready'],
+        pushTitle: 'Package Agent', pushMessage: 'Package waiting · 3h 12m', pushThumb: '📦',
+        successMessage: '📦 Package Agent is live. I\'ll text you when something lands and again if it sits too long.',
+        gradient: 'linear-gradient(135deg, #FFB340, #1DF0BB)'
+      },
+      {
+        id: 'pet', emoji: '🐾', name: 'Pet', domain: 'pet',
+        description: 'Watch your pets and log their day',
+        features: ['Activity heatmap', 'Bark / meow detection', 'Treat-toss reminders'],
+        triggerWords: /\b(pet|dog|cat|puppy|kitten|max|bella|luna)\b/i,
+        clarification: { q: 'Is this for daily activity logs, or for safety alerts when something unusual happens?',
+          options: [
+            { value: 'log', label: 'Activity log', sub: 'Daily diary' },
+            { value: 'safety', label: 'Safety alerts', sub: 'Vomit / accident' }
+          ] },
+        durationLabel: 'How long should I wait between log entries?',
+        unattendedLabel: 'If your pet hasn\'t moved for a while, when should I check in?',
+        cameraLabel: 'Which camera shows your pet\'s favorite hangout?',
+        positionLabel: 'Frame the room so most of your pet\'s usual zones are visible.',
+        positionTip: '💡 Tip: low-mounted cameras read pet body language better than ceiling angles.',
+        testAction: '🐾 My pet just walked into frame',
+        testActionEcho: 'Pet is in frame',
+        detectionLabel: 'pet',
+        detectionMessage: 'Got it! I see your pet.',
+        offPrompt: 'When your pet leaves the frame, ping me so I can verify.',
+        offEcho: 'Pet left',
+        learning: ['Activity zones learned', 'Audio profile set', 'Daily diary scheduled', 'Agent ready'],
+        pushTitle: 'Pet Agent', pushMessage: 'Max is barking at the door', pushThumb: '🐾',
+        successMessage: '🐾 Pet Agent is on. I\'ll log activity and send anything unusual.',
+        gradient: 'linear-gradient(135deg, #1DF0BB, #FFB340)'
+      }
+    ];
+
+    function _matchTemplate(text) {
+      const s = String(text || '');
+      for (const t of _CREATOR_TEMPLATES) {
+        if (t.triggerWords.test(s)) return t;
+      }
+      return null;
+    }
+
+    const _DURATION_OPTIONS = [
+      { value: '5min',  label: '5 minutes' },
+      { value: '15min', label: '15 minutes' },
+      { value: '30min', label: '30 minutes' },
+      { value: '1hr',   label: '1 hour' },
+      { value: 'manual', label: 'Manual only' }
+    ];
+    const _UNATTENDED_OPTIONS = [
+      { value: '5min',  label: '5 minutes' },
+      { value: '10min', label: '10 minutes' },
+      { value: '15min', label: '15 minutes' },
+      { value: 'never', label: 'Never' }
+    ];
+
+    // AgentCreator state. One instance lives at a time on window.__creator
+    // so step handlers can mutate state outside their own closures.
+    function _newCreatorState() {
+      return {
+        step: 0,                  // numeric step index (0 = welcome)
+        template: null,           // matched template (or null = scratch)
+        intent: '',               // user's free-text intent
+        clarification: null,      // selected clarification value
+        duration: null,
+        unattended: null,
+        camera: null,             // selected camera mac (string) or null
+        positionOk: false,
+        detectionConfirmed: null, // 'yes' | 'no' | null
+        offConfirmed: false,
+        completed: false,
+        fromGrid: false,          // true when user tapped a template tile
+        sideChat: [],             // free-form chat messages user types after step 0
+        // History of bubbles already emitted, used for re-rendering.
+        history: []
+      };
+    }
+
+    function _openAgentCreator() {
+      const view = document.querySelector('.phone-frame.dark .agent-creator-view');
+      if (!view) return;
+      window.__creator = _newCreatorState();
+      window.__creatorFooterMode = 'voice'; // default to voice mode each open
+      _creatorRender();
+      view.offsetHeight;
+      view.classList.add('open');
+    }
+
+    function _closeAgentCreator() {
+      const view = document.querySelector('.phone-frame.dark .agent-creator-view');
+      if (!view) return;
+      view.classList.remove('open');
+      setTimeout(() => {
+        if (!view.classList.contains('open')) view.innerHTML = '';
+      }, 320);
+    }
+
+    // Renders the entire view from window.__creator state. Called after
+    // every state mutation to keep things simple (no incremental DOM
+    // diffing — the conversation is short).
+    function _creatorRender() {
+      const view = document.querySelector('.phone-frame.dark .agent-creator-view');
+      const s = window.__creator;
+      if (!view || !s) return;
+
+      // Stage marker drives the progress bar.
+      // Steps 0–7  → CREATE  (configure)
+      // Steps 8–14 → TEST    (position + detection)
+      // Step 15+ or completed → DONE
+      const stage = s.completed ? 'done'
+                  : (s.step >= 15 ? 'done'
+                  : (s.step >= 8  ? 'test' : 'create'));
+      // Map step → fill percentage so the bar grows smoothly.
+      let pct = 0;
+      if (s.completed || s.step >= 16)   pct = 100;
+      else if (s.step >= 15)             pct = 92;
+      else if (s.step >= 8)              pct = 33 + Math.min(1, (s.step - 8) / 7) * 33;
+      else                                pct = Math.min(1, s.step / 7) * 33;
+
+      const headerHtml = `
+        <div class="ac-header">
+          <div class="ac-header-row">
+            <button class="ac-back" type="button" aria-label="Close">
+              <svg viewBox="0 0 18 18"><path d="M11 4l-5 5 5 5"/></svg>
+            </button>
+            <div class="ac-title">${s.template ? 'Create ' + _esc(s.template.name) + ' Agent' : 'Create Your Camera Agent'}</div>
+            <div class="ac-template-emoji">${s.template ? _esc(s.template.emoji) : '✨'}</div>
+          </div>
+          <div class="ac-progress">
+            <div class="ac-progress-labels">
+              <span class="ac-progress-label ${stage === 'create' ? 'is-active' : 'is-done'}">Create</span>
+              <span class="ac-progress-label ${stage === 'test' ? 'is-active' : (stage === 'done' ? 'is-done' : '')}">Test</span>
+              <span class="ac-progress-label ${stage === 'done' ? 'is-active' : ''}">Done</span>
+            </div>
+            <div class="ac-progress-track">
+              <div class="ac-progress-fill" style="width:${pct.toFixed(1)}%"></div>
+            </div>
+          </div>
+        </div>`;
+
+      // History gets re-emitted from a single render of the current step,
+      // so we walk steps 0..s.step inclusive.
+      const bubbles = [];
+      for (let i = 0; i <= s.step; i++) {
+        bubbles.push(_creatorRenderStep(i, s));
+      }
+      // Append free-form side-chat (typed messages past step 0).
+      for (const m of (s.sideChat || [])) {
+        if (m.from === 'user') {
+          bubbles.push(`<div class="ac-msg ac-msg-user"><div class="ac-bubble">${_esc(m.text)}</div></div>`);
+        } else {
+          bubbles.push(`<div class="ac-msg ac-msg-bot"><div class="ac-bubble">${_esc(m.text)}</div></div>`);
+        }
+      }
+
+      // Bottom input is always available — at step 0 it sets the intent, and
+      // at later steps it's a side-chat for follow-up questions to Wyze Buddy.
+      const mode = window.__creatorFooterMode || 'voice';
+      const placeholder = s.step === 0
+        ? 'Tell me what you want to monitor…'
+        : 'Ask Wyze Buddy anything…';
+      const voiceMode = `
+        <div class="ac-footer-row" data-mode="voice">
+          <button class="ac-icon-btn" id="acKeyboard" aria-label="Switch to keyboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/>
+            </svg>
+          </button>
+          <button class="ac-voice-btn" id="acVoice" aria-label="Hold to ask">
+            <span class="ac-voice-idle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3"/>
+              </svg>
+              <span>${s.step === 0 ? 'Hold to ask' : 'Hold to talk'}</span>
+            </span>
+            <span class="ac-voice-active">
+              <span class="ac-waveform">
+                <span></span><span></span><span></span><span></span><span></span>
+              </span>
+              <span>Release to send</span>
+            </span>
+          </button>
+        </div>`;
+      const textMode = `
+        <div class="ac-footer-row" data-mode="text">
+          <button class="ac-icon-btn" id="acMic" aria-label="Switch to voice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3"/>
+            </svg>
+          </button>
+          <input class="ac-input" id="acInput" type="text" placeholder="${_esc(placeholder)}" />
+          <button class="ac-send-btn" id="acSend" aria-label="Send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>`;
+      const footerHtml = `
+        <div class="ac-footer">
+          <div class="ac-transcribe" id="acTranscribe" hidden><span class="ac-transcribe-text"></span><span class="ac-transcribe-caret"></span></div>
+          ${mode === 'text' ? textMode : voiceMode}
+        </div>`;
+
+      view.innerHTML = `${headerHtml}<div class="ac-convo">${bubbles.join('')}</div>${footerHtml}`;
+      _creatorWire(view);
+      // Auto-scroll to the bottom on each render.
+      const convo = view.querySelector('.ac-convo');
+      if (convo) convo.scrollTop = convo.scrollHeight;
+    }
+
+    // Render one step's HTML. Step indices match the conversational flow.
+    function _creatorRenderStep(i, s) {
+      const t = s.template;
+      switch (i) {
+        case 0: {
+          const locked = s.step > 0;
+          // Once locked (user has picked), collapse the grid down to just the
+          // picked tile rendered on the user-message side — like a sent chat.
+          if (locked && s.fromGrid) {
+            const customPicked = !t;
+            const pickedTpl = customPicked ? null : t;
+            const tile = customPicked
+              ? `<div class="ac-msg ac-msg-user ac-msg-tile">
+                   <div class="ac-template-tile ac-template-tile-custom is-sent">
+                     <div class="ac-template-tile-icon ac-template-tile-icon-custom">＋</div>
+                     <div class="ac-template-tile-name">Customize my own</div>
+                     <div class="ac-template-tile-desc">Build an agent from scratch</div>
+                   </div>
+                 </div>`
+              : `<div class="ac-msg ac-msg-user ac-msg-tile">
+                   <div class="ac-template-tile is-sent">
+                     <div class="ac-template-tile-icon" style="background:${_esc(pickedTpl.gradient || 'rgba(255,255,255,0.06)')};">${_esc(pickedTpl.emoji)}</div>
+                     <div class="ac-template-tile-name">${_esc(pickedTpl.name)}</div>
+                     <div class="ac-template-tile-desc">${_esc(pickedTpl.description)}</div>
+                   </div>
+                 </div>`;
+            return `
+              <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Hi there! 👋 I'm Wyze Buddy, your AI agent creator. I'll help you set up a camera agent to watch over your home.</div></div>
+              ${tile}`;
+          }
+          const tpls = _CREATOR_TEMPLATES.map(tpl => `
+            <button class="ac-template-tile" data-step="0" data-value="tpl:${_esc(tpl.id)}">
+              <div class="ac-template-tile-icon" style="background:${_esc(tpl.gradient || 'rgba(255,255,255,0.06)')};">${_esc(tpl.emoji)}</div>
+              <div class="ac-template-tile-name">${_esc(tpl.name)}</div>
+              <div class="ac-template-tile-desc">${_esc(tpl.description)}</div>
+            </button>`).join('');
+          const customTile = `
+            <button class="ac-template-tile ac-template-tile-custom" data-step="0" data-value="tpl:custom">
+              <div class="ac-template-tile-icon ac-template-tile-icon-custom">＋</div>
+              <div class="ac-template-tile-name">Customize my own</div>
+              <div class="ac-template-tile-desc">Build an agent from scratch</div>
+            </button>`;
+          return `
+            <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Hi there! 👋 I'm Wyze Buddy, your AI agent creator. I'll help you set up a camera agent to watch over your home. Pick a template below — or describe what you want to monitor in your own words.</div></div>
+            <div class="ac-template-grid">${tpls}${customTile}</div>
+            <div class="ac-tip">💡 Tap a template to start, or type a custom request below.</div>`;
+        }
+        case 1: // user intent echo
+          // When picked from the grid, step 0 already renders the picked tile
+          // as the user message — suppress the redundant text echo here.
+          if (s.fromGrid) return '';
+          return `<div class="ac-msg ac-msg-user ac-msg-voice"><div class="ac-bubble">${_esc(s.intent)}</div></div>`;
+        case 2: // template suggestion
+          if (s.fromGrid) return '';
+          if (!t) {
+            return `
+              <div class="ac-msg ac-msg-bot"><div class="ac-bubble">I couldn't find a template that matches that exactly — let's build a custom agent from scratch.</div></div>
+              <div class="ac-quick-replies">
+                <button class="ac-chip" data-step="2" data-value="continue">Continue with custom</button>
+              </div>`;
+          }
+          return `
+            <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Based on what you described, I think the <strong>${_esc(t.name)} Agent</strong> would be a great fit. Want to use this template, or start from scratch?</div></div>
+            <div class="ac-card ac-template-card">
+              <div class="ac-template-head">
+                <div class="ac-template-icon">${_esc(t.emoji)}</div>
+                <div>
+                  <div class="ac-template-name">${_esc(t.name)} Agent</div>
+                  <div class="ac-template-desc">${_esc(t.description)}</div>
+                </div>
+              </div>
+              <ul class="ac-template-features">
+                ${t.features.map(f => `<li>${_esc(f)}</li>`).join('')}
+              </ul>
+              <div class="ac-template-actions">
+                <button class="ac-btn ac-btn-secondary" data-step="2" data-value="scratch">Start from scratch</button>
+                <button class="ac-btn" data-step="2" data-value="use">Use template</button>
+              </div>
+            </div>`;
+        case 3: // clarification
+          if (!t) return ''; // scratch flow skips
+          return `
+            <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Okay. To better customize this — ${_esc(t.clarification.q)}</div></div>
+            <div class="ac-quick-replies">
+              ${t.clarification.options.map(o => `
+                <button class="ac-chip ${s.clarification === o.value ? 'is-selected' : ''}" data-step="3" data-value="${_esc(o.value)}">
+                  <span>${_esc(o.label)}</span>
+                  <span class="ac-chip-sub">${_esc(o.sub)}</span>
+                </button>`).join('')}
+            </div>`;
+        case 4: // duration
+          return `
+            <div class="ac-msg ac-msg-bot"><div class="ac-bubble">${_esc(t ? t.durationLabel : 'How long should I wait before alerting you?')}</div></div>
+            <div class="ac-quick-replies">
+              ${_DURATION_OPTIONS.map(o => `
+                <button class="ac-chip ${s.duration === o.value ? 'is-selected' : ''}" data-step="4" data-value="${_esc(o.value)}">${_esc(o.label)}</button>`).join('')}
+            </div>`;
+        case 5: // unattended
+          return `
+            <div class="ac-msg ac-msg-bot"><div class="ac-bubble">${_esc(t ? t.unattendedLabel : 'How long until I fire a follow-up alert?')}</div></div>
+            <div class="ac-quick-replies">
+              ${_UNATTENDED_OPTIONS.map(o => `
+                <button class="ac-chip ${s.unattended === o.value ? 'is-selected' : ''}" data-step="5" data-value="${_esc(o.value)}">${_esc(o.label)}</button>`).join('')}
+            </div>`;
+        case 6: // camera carousel
+          return _creatorRenderCameraStep(s);
+        case 7: // proposed config + test CTA
+          return _creatorRenderSummary(s);
+        case 8: // camera positioning
+          return `
+            <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Let's find the perfect camera angle 📷\n\n${_esc(t ? t.positionLabel : 'Aim the camera so the area you want to watch is centered.')}</div></div>
+            <div class="ac-card">
+              <div class="ac-live-preview">
+                <span class="ac-live-preview-status">ADJUST</span>
+                <span class="ac-live-preview-emoji">${_esc(t ? t.emoji : '📷')}</span>
+                <div class="ac-live-preview-overlay"></div>
+              </div>
+              <div class="ac-tip-banner" style="margin-top:8px;">${_esc(t ? t.positionTip : 'Center the subject in the dashed area.')}</div>
+              <div class="ac-template-actions" style="margin-top:10px;">
+                <button class="ac-btn ac-btn-block" data-step="8" data-value="ok">✓ Position looks good</button>
+              </div>
+            </div>`;
+        case 9: // test action prompt
+          return `
+            <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Alright! Now let's test the detection. ${_esc(t ? t.testAction.replace(/^[^\w]+\s*/, '').replace(/^./, c => c.toLowerCase()) : 'do the thing you want me to detect') ? 'Trigger a real ' + _esc(t ? t.detectionLabel : 'event') + ' so I can confirm I see it.' : ''}</div></div>
+            <div class="ac-card">
+              <div class="ac-live-preview">
+                <span class="ac-live-preview-status is-good">CAMERA OK</span>
+                <span class="ac-live-preview-emoji">${_esc(t ? t.emoji : '📷')}</span>
+                <div class="ac-live-preview-overlay is-good"></div>
+              </div>
+              <div class="ac-template-actions" style="margin-top:10px;">
+                <button class="ac-btn ac-btn-block" data-step="9" data-value="test">${_esc(t ? t.testAction : '🎯 I triggered the event')}</button>
+              </div>
+            </div>`;
+        case 10: // user echoes test action
+          return `<div class="ac-msg ac-msg-user ac-msg-voice"><div class="ac-bubble">${_esc(t ? t.testActionEcho : 'I triggered the event')}</div></div>`;
+        case 11: // detection result
+          return `
+            <div class="ac-push">
+              <div class="ac-push-icon">${_esc(t ? t.emoji : '📷')}</div>
+              <div class="ac-push-body">
+                <div class="ac-push-title-row">
+                  <span class="ac-push-title">${_esc(t ? t.pushTitle : 'Wyze Agent')}</span>
+                  <span class="ac-push-when">now</span>
+                </div>
+                <div class="ac-push-message">${_esc(t ? t.pushMessage : 'Detected event')}</div>
+              </div>
+              <div class="ac-push-thumb">${_esc(t ? t.pushThumb : '📷')}</div>
+            </div>
+            <div class="ac-msg ac-msg-bot"><div class="ac-bubble">${_esc(t ? t.detectionMessage : 'Got it! Detection looks good.')}</div></div>
+            <div class="ac-quick-replies">
+              <button class="ac-chip ${s.detectionConfirmed === 'yes' ? 'is-selected' : ''}" data-step="11" data-value="yes">👍 Yes, correct!</button>
+              <button class="ac-chip ${s.detectionConfirmed === 'no' ? 'is-selected' : ''}" data-step="11" data-value="no">👎 No, wrong</button>
+            </div>`;
+        case 12: // turn off prompt
+          return `
+            <div class="ac-msg ac-msg-bot"><div class="ac-bubble">${_esc(t ? t.offPrompt : 'Now reset the trigger so I can verify I stop detecting it.')}</div></div>
+            <div class="ac-quick-replies">
+              <button class="ac-chip" data-step="12" data-value="off">✅ Okay it's off now</button>
+            </div>`;
+        case 13: // user echoes off
+          return `<div class="ac-msg ac-msg-user ac-msg-voice"><div class="ac-bubble">${_esc(t ? t.offEcho : "It's off")}</div></div>`;
+        case 14: // learning card
+          return `
+            <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Perfect! My detection is now calibrated. Here's what I learned:</div></div>
+            <div class="ac-card">
+              <div class="ac-learning-title">🧠 What I learned</div>
+              <ul class="ac-learning-list">
+                ${(t ? t.learning : ['Detection calibrated', 'Agent ready']).map(li => `<li>${_esc(li)}</li>`).join('')}
+              </ul>
+              <div class="ac-template-actions" style="margin-top:10px;">
+                <button class="ac-btn ac-btn-block" data-step="14" data-value="complete">✓ Complete setup →</button>
+              </div>
+            </div>`;
+        case 15: // final summary + ACTIVATE
+          return _creatorRenderFinal(s);
+        case 16: // success
+          return `
+            <div class="ac-msg ac-msg-bot"><div class="ac-bubble">${_esc(t ? t.successMessage : '🎉 Your agent is live!')}</div></div>
+            <div class="ac-quick-replies">
+              <button class="ac-chip" data-step="16" data-value="home">Go to Home Screen →</button>
+            </div>`;
+        default:
+          return '';
+      }
+    }
+
+    function _creatorCameras() {
+      const devices = window.__rawDevices || [];
+      return devices.length ? devices : [
+        { device_mac: 'demo-1', device_name: 'Garage Cam',  product_model: 'Cam Pan v3' },
+        { device_mac: 'demo-2', device_name: 'Front Door',  product_model: 'Battery Cam Pro' },
+        { device_mac: 'demo-3', device_name: 'Backyard 2',  product_model: 'Outdoor Cam' }
+      ];
+    }
+    function _creatorCamName(mac) {
+      const dev = _creatorCameras().find(d => d.device_mac === mac);
+      return dev ? (dev.device_name || dev.device_mac) : (mac || '—');
+    }
+
+    function _creatorRenderCameraStep(s) {
+      const t = s.template;
+      const cameras = _creatorCameras();
+      const cards = cameras.map(c => {
+        const sel = s.camera === c.device_mac ? 'is-selected' : '';
+        const thumb = _latestThumbForMac(c.device_mac);
+        return `
+          <div role="button" tabindex="0" class="ac-cam-card ${sel}" data-step="6" data-value="${_esc(c.device_mac)}">
+            <div class="ac-cam-thumb">
+              ${thumb
+                ? `<img src="${_esc(thumb)}" alt="" onerror="this.style.display='none';" />`
+                : `<div class="ac-cam-thumb-icon">📷</div>`}
+            </div>
+            <div class="ac-cam-name">${_esc(c.device_name || c.device_mac)}</div>
+            <div class="ac-cam-model">${_esc(_productLabel(c.product_model) || '')}</div>
+            <div class="ac-cam-cta">Use this camera →</div>
+          </div>`;
+      }).join('');
+      return `
+        <div class="ac-msg ac-msg-bot"><div class="ac-bubble">${_esc(t ? t.cameraLabel : 'Which camera should this agent use?')}</div></div>
+        <div class="ac-cam-carousel">${cards}</div>
+        <div class="ac-carousel-hint">◂ swipe • tap a camera to continue ▸</div>`;
+    }
+
+    function _creatorRenderSummary(s) {
+      const t = s.template;
+      const camName = _creatorCamName(s.camera);
+      const dur = (_DURATION_OPTIONS.find(o => o.value === s.duration) || {}).label || '—';
+      const una = (_UNATTENDED_OPTIONS.find(o => o.value === s.unattended) || {}).label || '—';
+      return `
+        <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Perfect! Here's your ${_esc(t ? t.name : 'agent')} configuration:</div></div>
+        <div class="ac-card">
+          <div class="ac-summary-grid">
+            <div class="ac-summary-cell full">
+              <span class="ac-summary-cell-label">Agent</span>
+              <span class="ac-summary-cell-value">${_esc(t ? t.name : 'Custom')}</span>
+            </div>
+            <div class="ac-summary-cell full">
+              <span class="ac-summary-cell-label">Camera</span>
+              <span class="ac-summary-cell-value">${_esc(camName)}</span>
+            </div>
+            <div class="ac-summary-cell">
+              <span class="ac-summary-cell-label">Alert after</span>
+              <span class="ac-summary-cell-value">${_esc(dur)}</span>
+            </div>
+            <div class="ac-summary-cell">
+              <span class="ac-summary-cell-label">Unattended</span>
+              <span class="ac-summary-cell-value">${_esc(una)}</span>
+            </div>
+          </div>
+          <div class="ac-template-actions">
+            <button class="ac-btn ac-btn-secondary" data-step="7" data-value="edit">✏️ Make changes</button>
+            <button class="ac-btn" data-step="7" data-value="test">Looks good — Test</button>
+          </div>
+        </div>`;
+    }
+
+    function _creatorRenderFinal(s) {
+      const t = s.template;
+      const camName = _creatorCamName(s.camera);
+      const dur = (_DURATION_OPTIONS.find(o => o.value === s.duration) || {}).label || '—';
+      const una = (_UNATTENDED_OPTIONS.find(o => o.value === s.unattended) || {}).label || '—';
+      return `
+        <div class="ac-final">
+          <div class="ac-final-head">
+            <div class="ac-final-emoji">${_esc(t ? t.emoji : '✨')}</div>
+            <div>
+              <div class="ac-final-name">${_esc(t ? t.name + ' Agent' : 'Custom Agent')}</div>
+              <div class="ac-final-sub">${_esc(t ? t.description : 'Your custom monitoring rules')}</div>
+            </div>
+          </div>
+          <div class="ac-final-grid">
+            <div><span>Camera</span><strong>${_esc(camName)}</strong></div>
+            <div><span>Alert after</span><strong>${_esc(dur)}</strong></div>
+            <div><span>Unattended</span><strong>${_esc(una)}</strong></div>
+            <div><span>Notify</span><strong>Push + In-app</strong></div>
+          </div>
+          <div class="ac-final-price">$0.00 / month — included in Cam Plus</div>
+          <button class="ac-activate" data-step="15" data-value="activate">🚀 ACTIVATE AGENT</button>
+          <button class="ac-back-edit" data-step="15" data-value="back">← Go back and edit</button>
+        </div>`;
+    }
+
+    // Demo transcript shown word-by-word during the simulated voice recording.
+    const _CREATOR_VOICE_DEMO = "I want to make sure my stove is always turned off when I leave for work";
+
+    // Free-form chat at any step past 0. Pushes a user msg and a brief AI ack
+    // to s.sideChat, then re-renders. Bubbles render at the bottom of the convo.
+    function _creatorSideChatSend(text) {
+      const s = window.__creator;
+      if (!s) return;
+      s.sideChat.push({ from: 'user', text: text });
+      const ack = _creatorAck(s, text);
+      s.sideChat.push({ from: 'bot', text: ack });
+      _creatorRender();
+    }
+    function _creatorAck(s, text) {
+      const t = s.template;
+      const tname = t ? t.name : 'agent';
+      // Lightweight, contextual one-liners. The structured flow above is the
+      // source of truth — keep these acks brief.
+      const lower = text.toLowerCase();
+      if (/^(hi|hello|hey)/.test(lower))
+        return "Hey! Tap a chip above to keep configuring your " + tname + ".";
+      if (/help|stuck|what/.test(lower))
+        return "Just tap one of the suggested options above to keep moving — I'll guide you the rest of the way.";
+      if (/skip|done|next/.test(lower))
+        return "Tap the highlighted button above and we'll move to the next step.";
+      if (/thanks|thank you|cool|nice/.test(lower))
+        return "👍 Keep going — we're almost there.";
+      return "Got it. Finish the steps above and I'll factor that in for your " + tname + ".";
+    }
+
+    // Click + input wiring. Re-bound after every _creatorRender.
+    function _creatorWire(view) {
+      view.querySelector('.ac-back')?.addEventListener('click', () => {
+        if (confirm('Discard this agent setup?')) _closeAgentCreator();
+      });
+
+      // ── Text mode: input + send ──────────────────────────────────────
+      const input = view.querySelector('#acInput');
+      const send  = view.querySelector('#acSend');
+      const submit = () => {
+        if (!input) return;
+        const v = (input.value || '').trim();
+        if (!v) return;
+        if ((window.__creator?.step || 0) === 0) {
+          _creatorAdvance(0, v);
+        } else {
+          _creatorSideChatSend(v);
+          input.value = '';
+          input.focus();
+        }
+      };
+      send?.addEventListener('click', submit);
+      input?.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') { ev.preventDefault(); submit(); }
+      });
+      if (input) setTimeout(() => input.focus(), 50);
+
+      // ── Mode toggle (voice ⇄ text) ───────────────────────────────────
+      view.querySelector('#acKeyboard')?.addEventListener('click', () => {
+        if (window.__creatorKeyboardLock) return;
+        window.__creatorFooterMode = 'text';
+        _creatorRender();
+      });
+      view.querySelector('#acMic')?.addEventListener('click', () => {
+        window.__creatorFooterMode = 'voice';
+        _creatorRender();
+      });
+
+      // ── Voice mode: hold-to-record with simulated transcription ──────
+      const voiceBtn   = view.querySelector('#acVoice');
+      const transcribe = view.querySelector('#acTranscribe');
+      const transText  = transcribe?.querySelector('.ac-transcribe-text');
+      let recording = false;
+      let recTimer = null;
+      let typeTimer = null;
+      let typed = '';
+      const startRec = (ev) => {
+        if (!voiceBtn || voiceBtn.disabled || recording) return;
+        ev?.preventDefault();
+        recording = true;
+        voiceBtn.classList.add('is-recording');
+        typed = '';
+        if (transText) transText.textContent = '';
+        // Begin typing the demo transcript ~400ms after press starts.
+        recTimer = setTimeout(() => {
+          if (transcribe) transcribe.hidden = false;
+          const words = _CREATOR_VOICE_DEMO.split(' ');
+          let i = 0;
+          typeTimer = setInterval(() => {
+            if (i >= words.length) { clearInterval(typeTimer); typeTimer = null; return; }
+            typed = typed ? typed + ' ' + words[i] : words[i];
+            if (transText) transText.textContent = typed;
+            i++;
+          }, 180);
+        }, 400);
+      };
+      const stopRec = (ev) => {
+        if (!recording) return;
+        ev?.preventDefault();
+        recording = false;
+        voiceBtn?.classList.remove('is-recording');
+        if (recTimer) { clearTimeout(recTimer); recTimer = null; }
+        if (typeTimer) { clearInterval(typeTimer); typeTimer = null; }
+        const final = (typed || '').trim();
+        if (transcribe) {
+          // Brief moment to show "complete" state before submitting.
+          setTimeout(() => { transcribe.hidden = true; if (transText) transText.textContent = ''; }, 200);
+        }
+        if (final) {
+          if ((window.__creator?.step || 0) === 0) _creatorAdvance(0, final);
+          else _creatorSideChatSend(final);
+        }
+      };
+      if (voiceBtn) {
+        voiceBtn.addEventListener('mousedown',  startRec);
+        voiceBtn.addEventListener('touchstart', startRec, { passive: false });
+        voiceBtn.addEventListener('mouseup',    stopRec);
+        voiceBtn.addEventListener('mouseleave', stopRec);
+        voiceBtn.addEventListener('touchend',   stopRec);
+        voiceBtn.addEventListener('touchcancel',stopRec);
+        voiceBtn.addEventListener('contextmenu',(e)=>e.preventDefault());
+      }
+
+      // ── Step-specific buttons (chips, CTAs) ──────────────────────────
+      view.querySelectorAll('[data-step]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const step  = parseInt(btn.dataset.step, 10);
+          const value = btn.dataset.value;
+          _creatorAdvance(step, value);
+        });
+      });
+    }
+
+    // State machine: advance based on (sourceStep, payload).
+    function _creatorAdvance(sourceStep, value) {
+      const s = window.__creator;
+      if (!s) return;
+      switch (sourceStep) {
+        case 0: // welcome → user typed intent OR tapped a template tile
+          if (typeof value === 'string' && value.indexOf('tpl:') === 0) {
+            const id = value.slice(4);
+            if (id === 'custom') {
+              s.template = null;
+              s.intent = 'Customize my own';
+              s.fromGrid = true;
+              s.step = 4; // skip suggestion + clarification, go to duration
+              break;
+            }
+            const tpl = _CREATOR_TEMPLATES.find(x => x.id === id);
+            if (tpl) {
+              s.template = tpl;
+              s.intent = 'Use ' + tpl.name + ' template';
+              s.fromGrid = true;
+              s.step = 3; // jump straight to clarification, skip suggestion
+              break;
+            }
+          }
+          s.intent = value;
+          s.template = _matchTemplate(value);
+          s.fromGrid = false;
+          s.step = 2;
+          break;
+        case 2: // template card response
+          if (value === 'use')      s.step = 3;            // template flow
+          else if (value === 'scratch' || value === 'continue') {
+            s.template = null;
+            s.step = 4;                                    // skip clarification, go to duration
+          }
+          break;
+        case 3: // clarification chosen
+          s.clarification = value;
+          s.step = 4;
+          break;
+        case 4: // duration chosen
+          s.duration = value;
+          s.step = 5;
+          break;
+        case 5: // unattended chosen
+          s.unattended = value;
+          s.step = 6;
+          break;
+        case 6: // camera selected
+          s.camera = value;
+          s.step = 7;
+          break;
+        case 7: // summary action
+          if (value === 'test') s.step = 8;
+          else if (value === 'edit') s.step = 4; // jump back to duration to re-edit
+          break;
+        case 8: // position confirmed
+          s.positionOk = true;
+          s.step = 9;
+          break;
+        case 9: // user triggered the test
+          s.step = 10;
+          break;
+        case 11: // detection confirm yes/no
+          s.detectionConfirmed = value;
+          s.step = 12;
+          break;
+        case 12: // ack off
+          s.step = 13;
+          break;
+        case 14: // complete setup
+          s.step = 15;
+          break;
+        case 15: // activate or back
+          if (value === 'activate') {
+            s.completed = true;
+            s.step = 16;
+            if (typeof _showToast === 'function') {
+              _showToast('Agent activated · ' + (s.template ? s.template.name : 'Custom'));
+            }
+          } else if (value === 'back') {
+            s.step = 7;
+          }
+          break;
+        case 16: // go home
+          _closeAgentCreator();
+          // Re-render home so the new agent shows in the widgets row.
+          if (typeof renderHomeView === 'function') renderHomeView();
+          return;
+        default:
+          break;
+      }
+      // Auto-advance the user-echo bubbles where they exist.
+      // The renderer walks 0..s.step inclusive, so step 1 (user echo) gets
+      // emitted automatically when s.step >= 1. Same for step 10 and 13.
+      // For test step 9 → user echo at 10:
+      if (sourceStep === 9) {
+        // After the user clicks the test button, we need to render their
+        // echo at step 10, then auto-advance to step 11 (detection).
+        s.step = 11;
+      }
+      // After offPrompt at 12, render user echo at 13 then advance to 14:
+      if (sourceStep === 12) {
+        s.step = 14;
+      }
+      _creatorRender();
+    }
+
+    // Render the 2-column widget grid above the device list. The grid
+    // ends with a "+ Add agent" tile that opens the AgentCreator flow.
     function _renderAgentsGrid(groups) {
       const cards = _AGENTS.map(a => {
         const s = a.evaluate(groups);
@@ -6759,7 +8923,17 @@
             </div>
           </div>`;
       }).join('');
-      return `<section class="home-agents">${cards}</section>`;
+      const addTile = `
+        <div class="home-agent home-agent-add" data-agent-add>
+          <div class="home-agent-thumb home-agent-add-thumb">
+            <span class="home-agent-add-plus">+</span>
+          </div>
+          <div class="home-agent-info">
+            <div class="home-agent-label">Add agent</div>
+            <div class="home-agent-state is-quiet">Custom or template</div>
+          </div>
+        </div>`;
+      return `<section class="home-agents">${cards}${addTile}</section>`;
     }
 
     // Open / close the agent detail sheet.
@@ -7067,7 +9241,7 @@
         const g = groups[i];
         if ((g.cameras || []).some(c => _macsMatch(c, mac))) {
           const dt = parseTs(g.start);
-          if (!isNaN(dt)) return relTimeAgo(dt);
+          if (!isNaN(dt) && typeof window._relTimeAgo === 'function') return window._relTimeAgo(dt);
         }
       }
       return '';
@@ -7103,8 +9277,9 @@
           ?.addEventListener('click', () => _openHelpModal());
         host.querySelectorAll('.home-agent').forEach(el => {
           el.addEventListener('click', () => {
+            if (el.dataset.agentAdd !== undefined) { _openAgentCreator(); return; }
             const id = el.dataset.agent;
-            if (id) _openAgentSheet(id);
+            if (id) _openAgentLiveView(id);
           });
         });
         return;
@@ -7149,10 +9324,12 @@
         });
       });
       // Tap an agent widget → open its domain-specific detail sheet.
+      // The "+ Add agent" tile opens the AgentCreator flow instead.
       host.querySelectorAll('.home-agent').forEach(el => {
         el.addEventListener('click', () => {
+          if (el.dataset.agentAdd !== undefined) { _openAgentCreator(); return; }
           const id = el.dataset.agent;
-          if (id) _openAgentSheet(id);
+          if (id) _openAgentLiveView(id);
         });
       });
     }
@@ -7167,23 +9344,174 @@
     // filters the Event tab to this camera.
     // ════════════════════════════════════════
 
+    // Pick a domain from the device name. Used to swap the status hero,
+    // stat grid, and quick-action set inside the live view.
+    function _detectDomain(name) {
+      const s = String(name || '').toLowerCase();
+      if (/\bgarage\b/.test(s)) return 'garage';
+      if (/\b(porch|front\s*door|delivery|doorbell)\b/.test(s)) return 'package';
+      if (/\b(bird|feeder)\b/.test(s)) return 'bird';
+      if (/\b(pet|dog|cat|max|bella|luna)\b/.test(s)) return 'pet';
+      if (/\b(baby|crib|nursery)\b/.test(s)) return 'baby';
+      if (/\b(stove|kitchen|range)\b/.test(s)) return 'stove';
+      return 'generic';
+    }
+
+    // Filter loaded event-groups to the ones from this camera (newest
+    // first). Used for the recent-clips strip + activity counters.
+    function _eventsForCamera(mac) {
+      const target = _normalizeMac(mac);
+      return (window.__rawGroups || [])
+        .filter(g => (g.cameras || []).some(c => _macsMatch(c, target)))
+        .sort((a, b) => parseTs(b.start) - parseTs(a.start));
+    }
+
+    // Domain config: status-hero copy, primary CTA, stats, quick actions.
+    // All values are prototype placeholders — designers can swap freely.
+    function _liveDomainCfg(domain, dev, events) {
+      const todayMidnight = new Date(); todayMidnight.setHours(0,0,0,0);
+      const todayCount = events.filter(g => parseTs(g.start) >= todayMidnight).length;
+      const lastAgo = events[0] && typeof window._relTimeAgo === 'function'
+        ? window._relTimeAgo(parseTs(events[0].start))
+        : 'no recent events';
+      const generic = {
+        heroIcon: '📷', heroTitle: 'Online', heroSub: 'Active ' + lastAgo,
+        heroPrimary: 'Snapshot',
+        heroAccent: 'green',
+        stats: [
+          { label: 'Today', value: todayCount + ' event' + (todayCount === 1 ? '' : 's') },
+          { label: 'Last alert', value: lastAgo }
+        ],
+        quick: [
+          { id: 'mic', label: 'Sound', icon: 'sound', on: true },
+          { id: 'talk', label: 'Talk', icon: 'talk' },
+          { id: 'snap', label: 'Snapshot', icon: 'snap' },
+          { id: 'full', label: 'Full', icon: 'full' }
+        ]
+      };
+      const cfgs = {
+        garage: {
+          heroIcon: '🚪', heroTitle: 'Door Open', heroSub: 'Open for 47 min',
+          heroPrimary: 'Close',
+          heroAccent: 'amber',
+          stats: [
+            { label: 'Temp', value: '68°' },
+            { label: 'Last close', value: '9:14 PM' }
+          ],
+          quick: [
+            { id: 'mic', label: 'Sound', icon: 'sound', on: true },
+            { id: 'talk', label: 'Talk', icon: 'talk' },
+            { id: 'snap', label: 'Snapshot', icon: 'snap' },
+            { id: 'full', label: 'Full', icon: 'full' }
+          ]
+        },
+        package: {
+          heroIcon: '📦', heroTitle: '2 Packages', heroSub: 'Oldest: 4h 26m',
+          heroPrimary: '✓ Got it',
+          heroAccent: 'amber',
+          stats: [
+            { label: 'Today', value: '3 deliveries' },
+            { label: 'Avg dwell', value: '2.1 h' }
+          ],
+          quick: [
+            { id: 'mic', label: 'Sound', icon: 'sound', on: true },
+            { id: 'deter', label: 'Verbal warn', icon: 'talk' },
+            { id: 'snap', label: 'Snapshot', icon: 'snap' },
+            { id: 'full', label: 'Full', icon: 'full' }
+          ]
+        },
+        bird: {
+          heroIcon: '🐦', heroTitle: '12 species today', heroSub: '38 visits',
+          heroPrimary: 'View all',
+          heroAccent: 'green',
+          stats: [
+            { label: 'Rarest', value: 'Oriole' },
+            { label: 'Peak', value: '8 AM' }
+          ],
+          quick: [
+            { id: 'mic', label: 'Audio', icon: 'sound', on: true },
+            { id: 'deter', label: 'Deter', icon: 'talk' },
+            { id: 'snap', label: 'Snapshot', icon: 'snap' },
+            { id: 'full', label: 'Full', icon: 'full' }
+          ]
+        },
+        pet: {
+          heroIcon: '🐾', heroTitle: 'Max — playing', heroSub: 'Active 12 min',
+          heroPrimary: 'Toss treat',
+          heroAccent: 'green',
+          stats: [
+            { label: 'Active today', value: '1.4 h' },
+            { label: 'Treats', value: '2 today' }
+          ],
+          quick: [
+            { id: 'mic', label: 'Sound', icon: 'sound', on: true },
+            { id: 'talk', label: 'Talk to Max', icon: 'talk' },
+            { id: 'snap', label: 'Snapshot', icon: 'snap' },
+            { id: 'full', label: 'Full', icon: 'full' }
+          ]
+        },
+        baby: {
+          heroIcon: '🌙', heroTitle: 'Sleeping', heroSub: 'Asleep 45 min',
+          heroPrimary: 'Lullaby',
+          heroAccent: 'indigo',
+          stats: [
+            { label: 'Temp', value: '71°' },
+            { label: 'Humidity', value: '48%' }
+          ],
+          quick: [
+            { id: 'mic', label: 'Sound', icon: 'sound', on: true },
+            { id: 'talk', label: 'Talk', icon: 'talk' },
+            { id: 'snap', label: 'Snapshot', icon: 'snap' },
+            { id: 'full', label: 'Full', icon: 'full' }
+          ]
+        },
+        stove: {
+          heroIcon: '🔥', heroTitle: 'Stove ON', heroSub: 'Cooking 8 min',
+          heroPrimary: 'Stop timer',
+          heroAccent: 'amber',
+          stats: [
+            { label: 'Burner', value: 'Large' },
+            { label: 'Mode', value: 'Cooking' }
+          ],
+          quick: [
+            { id: 'mic', label: 'Sound', icon: 'sound', on: true },
+            { id: 'talk', label: 'Alert', icon: 'talk' },
+            { id: 'snap', label: 'Snapshot', icon: 'snap' },
+            { id: 'full', label: 'Full', icon: 'full' }
+          ]
+        }
+      };
+      return cfgs[domain] || generic;
+    }
+
+    // Inline SVG for the quick-action icons. Keeps markup readable and
+    // lets us reuse the same set across all domains.
+    const _LIVE_QA_SVG = {
+      sound: '<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>',
+      talk:  '<svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h7l5 4v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 4v4h4"/></svg>',
+      snap:  '<svg viewBox="0 0 24 24"><path d="M4 8h3l2-2h6l2 2h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+      full:  '<svg viewBox="0 0 24 24"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg>'
+    };
+
     function _openLiveView(mac) {
       const dev = (window.__rawDevices || []).find(d => d.device_mac === mac);
       if (!dev) return;
       const view = document.querySelector('.phone-frame.dark .live-view');
       if (!view) return;
 
-      const thumb   = _latestThumbForMac(mac);
-      const ago     = _latestEventAgoForMac(mac);
       const product = _productLabel(dev.product_model);
       const fw      = dev.firmware_ver ? String(dev.firmware_ver) : '—';
+      const events  = _eventsForCamera(mac);
+      const thumb   = _latestThumbForMac(mac) ||
+                      (events[0] && _subjectThumbUrlForGroup(events[0]));
+      const domain  = _detectDomain(dev.device_name);
+      const cfg     = _liveDomainCfg(domain, dev, events);
 
       // Local clock used as a stand-in for stream timecode.
       const now = new Date();
       const stamp = now.toISOString().replace('T',' ').slice(0,19);
 
-      // Video stage — real thumb if we have it, otherwise a "no signal"
-      // placeholder. The shimmer overlay adds a hint of motion.
+      // Video stage (16:9 in-app stream placeholder).
       const stage = thumb
         ? `<div class="live-video">
              <img src="${_esc(thumb)}" alt="" />
@@ -7197,55 +9525,124 @@
              <div class="live-badge" style="background:rgba(40,40,40,0.7);"><span class="live-dot" style="background:#6B6B6B;animation:none;box-shadow:none;"></span> OFFLINE</div>
            </div>`;
 
+      // Status hero card.
+      const heroHtml = `
+        <div class="live-card live-hero accent-${_esc(cfg.heroAccent)}">
+          <div class="live-hero-icon">${_esc(cfg.heroIcon)}</div>
+          <div class="live-hero-text">
+            <div class="live-hero-title">${_esc(cfg.heroTitle)}</div>
+            <div class="live-hero-sub">${_esc(cfg.heroSub)}</div>
+          </div>
+          <button class="live-hero-cta" type="button" data-act="hero">${_esc(cfg.heroPrimary)}</button>
+        </div>`;
+
+      // 2/3-cell stat grid card.
+      const statsHtml = `
+        <div class="live-card live-stats" data-cells="${cfg.stats.length}">
+          ${cfg.stats.map(s => `
+            <div class="live-stat">
+              <div class="live-stat-label">${_esc(s.label)}</div>
+              <div class="live-stat-value">${_esc(s.value)}</div>
+            </div>`).join('')}
+        </div>`;
+
+      // Horizontal quick-action row.
+      const quickHtml = `
+        <div class="live-card live-quick">
+          ${cfg.quick.map(q => `
+            <button class="live-quick-btn ${q.on ? 'is-on' : ''}" data-act="${_esc(q.id)}" type="button">
+              <span class="live-quick-icon">${_LIVE_QA_SVG[q.icon] || _LIVE_QA_SVG.snap}</span>
+              <span class="live-quick-label">${_esc(q.label)}</span>
+            </button>`).join('')}
+        </div>`;
+
+      // Recent clips strip — last 8 group thumbs, scroll-x.
+      const recent = events.slice(0, 8);
+      const recentHtml = recent.length
+        ? `<div class="live-card live-recent">
+             <div class="live-card-head">
+               <span class="live-card-title">Recent</span>
+               <button class="live-card-link" data-act="events" type="button">View all &rsaquo;</button>
+             </div>
+             <div class="live-recent-strip">
+               ${recent.map(g => {
+                 const url = _subjectThumbUrlForGroup(g);
+                 return `<div class="live-recent-cell" data-group="${_esc(g.id)}">
+                   ${url ? `<img src="${_esc(url)}" alt="" onerror="this.style.visibility='hidden'" />` : '<div class="live-recent-empty"></div>'}
+                   <span class="live-recent-time">${_esc(typeof window._relTimeAgo === 'function' ? window._relTimeAgo(parseTs(g.start)) : '')}</span>
+                 </div>`;
+               }).join('')}
+             </div>
+           </div>`
+        : `<div class="live-card live-recent live-recent-empty">
+             <div class="live-card-title">Recent</div>
+             <div class="live-recent-empty-msg">No events from this camera in the loaded window.</div>
+           </div>`;
+
+      // Device info card (replaces the old flat info strip).
+      const deviceHtml = `
+        <div class="live-card live-device">
+          <div class="live-card-head"><span class="live-card-title">Device</span></div>
+          <div class="live-device-grid">
+            <div><span>Model</span><strong>${_esc(dev.product_model || '—')}</strong></div>
+            <div><span>Firmware</span><strong>${_esc(fw)}</strong></div>
+            <div class="full"><span>MAC</span><strong>${_esc(_normalizeMac(mac))}</strong></div>
+          </div>
+          <button class="live-events-btn" type="button" data-act="events">View recent events &rsaquo;</button>
+        </div>`;
+
+      // Bottom-fixed AI dock.
+      const aiHtml = `
+        <div class="live-ai-dock">
+          <button class="live-ai-input" type="button" data-act="ai">
+            <svg viewBox="0 0 32 28" class="live-ai-mascot" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5502 1.08369C9.64261 0.941508 9.76686 0.822788 9.9131 0.736939C10.0593 0.651091 10.2236 0.60047 10.3928 0.589086L19.1117 0.00244385C19.2809 -0.00894033 19.4504 0.0192249 19.6068 0.0847092C19.7632 0.150194 19.9023 0.251199 20.0129 0.379725L23.2195 4.10524L27.034 3.84858C27.9012 3.79024 28.756 4.07875 29.4104 4.65066C30.0648 5.22257 30.4652 6.03103 30.5236 6.89818L31.5502 22.1562C31.6086 23.0234 31.32 23.8782 30.7481 24.5326C30.1762 25.187 29.3678 25.5875 28.5006 25.6458L4.52365 27.2591C3.6565 27.3174 2.80169 27.0289 2.14727 26.457C1.49285 25.8851 1.09242 25.0766 1.03408 24.2095L0.00745214 8.95142C-0.050893 8.08427 0.237625 7.22946 0.809535 6.57504C1.38145 5.92062 2.1899 5.52019 3.05705 5.46185L6.87157 5.20519L9.5502 1.08369ZM10.7278 13.7041C10.9425 13.6897 11.1522 13.6331 11.345 13.5376C11.5378 13.4421 11.71 13.3095 11.8515 13.1475C11.9931 12.9855 12.1014 12.7972 12.1702 12.5933C12.2391 12.3894 12.267 12.174 12.2526 11.9593C12.2381 11.7446 12.1816 11.5349 12.0861 11.3421C11.9906 11.1493 11.858 10.9771 11.696 10.8356C11.534 10.694 11.3457 10.5857 11.1418 10.5169C10.9379 10.448 10.7225 10.4201 10.5078 10.4345C10.0742 10.4637 9.67 10.6639 9.38405 10.9911C9.09809 11.3183 8.95383 11.7457 8.983 12.1793C9.01218 12.6129 9.21239 13.0171 9.5396 13.3031C9.86681 13.589 10.2942 13.7333 10.7278 13.7041ZM22.0634 11.297C22.0926 11.7306 21.9483 12.158 21.6623 12.4852C21.3764 12.8124 20.9722 13.0126 20.5386 13.0418C20.105 13.071 19.6776 12.9267 19.3504 12.6408C19.0232 12.3548 18.823 11.9506 18.7938 11.517C18.7646 11.0834 18.9089 10.656 19.1948 10.3288C19.4808 10.0016 19.885 9.80138 20.3186 9.77221C20.7522 9.74304 21.1796 9.8873 21.5068 10.1733C21.834 10.4592 22.0342 10.8634 22.0634 11.297Z"/>
+            </svg>
+            <span class="live-ai-text">Ask Wyze AI about ${_esc(dev.device_name || 'this camera')}…</span>
+            <svg class="live-ai-arrow" viewBox="0 0 16 16"><path d="M3 13L13 3M13 3v6M13 3H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          </button>
+        </div>`;
+
       view.innerHTML = `
         <div class="live-header">
-          <button class="live-close" type="button" aria-label="Close">
-            <svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg>
+          <button class="live-back" type="button" aria-label="Back">
+            <svg viewBox="0 0 18 18"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
           </button>
           <div class="live-title">
             <div class="live-name">${_esc(dev.device_name || mac)}</div>
             <div class="live-sub">${_esc(product)}</div>
           </div>
-          <button class="live-more" type="button" aria-label="More">
-            <svg viewBox="0 0 20 20"><circle cx="4" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="16" cy="10" r="1.6"/></svg>
+          <button class="live-close" type="button" aria-label="Close">
+            <svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
           </button>
         </div>
         ${stage}
-        <div class="live-actions">
-          <button class="live-action is-on" data-act="mic" type="button">
-            <span class="live-action-icon"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg></span>
-            <span class="live-action-label">Sound</span>
-          </button>
-          <button class="live-action" data-act="talk" type="button">
-            <span class="live-action-icon"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h7l5 4v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 4v4h4"/></svg></span>
-            <span class="live-action-label">Talk</span>
-          </button>
-          <button class="live-action" data-act="snap" type="button">
-            <span class="live-action-icon"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-2h6l2 2h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
-            <span class="live-action-label">Snapshot</span>
-          </button>
-          <button class="live-action" data-act="full" type="button">
-            <span class="live-action-icon"><svg viewBox="0 0 24 24"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg></span>
-            <span class="live-action-label">Full</span>
-          </button>
+        <div class="live-content">
+          ${heroHtml}
+          ${statsHtml}
+          ${quickHtml}
+          ${recentHtml}
+          ${deviceHtml}
         </div>
-        <div class="live-info">
-          <div class="live-info-row"><span class="live-info-key">Model</span><span class="live-info-val">${_esc(dev.product_model || '—')}</span></div>
-          <div class="live-info-row"><span class="live-info-key">Firmware</span><span class="live-info-val">${_esc(fw)}</span></div>
-          <div class="live-info-row"><span class="live-info-key">MAC</span><span class="live-info-val">${_esc(_normalizeMac(mac))}</span></div>
-          <div class="live-info-row"><span class="live-info-key">Last activity</span><span class="live-info-val">${_esc(ago || 'No recent events')}</span></div>
-          <button class="live-events-btn" type="button" data-act="events">View recent events &rsaquo;</button>
-        </div>`;
+        ${aiHtml}`;
 
       // Force reflow so the slide-up transition actually animates.
       view.offsetHeight;
       view.classList.add('open');
 
       const close = () => _closeLiveView();
-      view.querySelector('.live-close').addEventListener('click', close);
+      view.querySelector('.live-close')?.addEventListener('click', close);
+      view.querySelector('.live-back')?.addEventListener('click', close);
 
-      // Action button toggles (visual-only for the prototype).
-      view.querySelectorAll('.live-action').forEach(btn => {
+      // Status-hero primary CTA — toast for now.
+      view.querySelector('.live-hero-cta')?.addEventListener('click', () => {
+        if (typeof _showToast === 'function') {
+          _showToast(cfg.heroPrimary + ' · ' + (dev.device_name || mac));
+        }
+      });
+
+      // Quick-action buttons (mic / talk are toggles; snap / full toast).
+      view.querySelectorAll('.live-quick-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const act = btn.dataset.act;
           if (act === 'snap') {
@@ -7256,19 +9653,24 @@
             if (typeof _showToast === 'function') _showToast('Fullscreen not available in prototype');
             return;
           }
-          // mic / talk are toggleable
           btn.classList.toggle('is-on');
           if (typeof _showToast === 'function') {
             const on = btn.classList.contains('is-on');
-            const label = act === 'mic' ? 'Sound' : 'Talk-back';
-            _showToast(label + (on ? ' on' : ' off'));
+            _showToast(btn.querySelector('.live-quick-label').textContent + (on ? ' on' : ' off'));
           }
         });
       });
 
-      // "View recent events" → filter the Event view to this camera and
-      // close the live sheet.
-      view.querySelector('.live-events-btn').addEventListener('click', () => {
+      // Recent strip cell tap — for now just toast (a full event detail
+      // view would be a separate flow).
+      view.querySelectorAll('.live-recent-cell').forEach(cell => {
+        cell.addEventListener('click', () => {
+          if (typeof _showToast === 'function') _showToast('Opening clip…');
+        });
+      });
+
+      // "View recent events" links → filter Event view to this camera.
+      const filterToCamera = () => {
         const rawMac = _normalizeMac(mac);
         const match = (window.__rawGroups || [])
           .flatMap(g => g.cameras || [])
@@ -7282,6 +9684,19 @@
         nav[1]?.classList.add('active');
         switchHomeView('event');
         _closeLiveView();
+      };
+      view.querySelectorAll('[data-act="events"]').forEach(b =>
+        b.addEventListener('click', filterToCamera));
+
+      // AI dock → open the chat drawer with a pre-seeded user prompt.
+      view.querySelector('.live-ai-input')?.addEventListener('click', () => {
+        const camName = dev.device_name || 'this camera';
+        window.__chatHistory = window.__chatHistory || [];
+        window.__chatHistory.push({
+          from: 'user',
+          text: 'What did ' + camName + ' see today?'
+        });
+        if (typeof _openChatDrawer === 'function') _openChatDrawer();
       });
     }
 
@@ -7294,6 +9709,536 @@
       setTimeout(() => {
         if (!view.classList.contains('open')) view.innerHTML = '';
       }, 320);
+    }
+
+    // ════════════════════════════════════════
+    // Agent settings sheet — modeled after lumen.wyzecam.com/agents/settings.
+    // Renders an editable-looking detail page for an agent: identity, cameras,
+    // recent activity, soul/personality, operating rules, triggers, skills,
+    // tools, cost controls, actions, metadata; plus action buttons at the bottom.
+    // ════════════════════════════════════════
+    const _AGENT_SETTINGS_DATA = {
+      garage: {
+        emoji: '🚪',
+        name: 'Garage Door Watcher',
+        description: 'Visually monitors a garage door and alerts when it is left open.',
+        status: 'enabled',
+        purpose: 'Detect open garage doors visually and alert before it becomes a security or weather risk.',
+        personality: 'Vigilant but not noisy. Only alerts on confirmed open states and avoids false positives from shadows or partial views.',
+        operatingRules: 'You are a garage door monitoring agent that uses camera vision to detect whether a garage door is open or closed. ## Camera Validation\nOn EVERY run, first confirm the garage door is visible in the camera frame. Look for a recognizable garage door structure: a large rectangular panel set into a wall or garage facade, typically with horizontal panel lines or window sections at the top.',
+        triggers: [
+          { icon: '⏰', name: 'Every 10 minutes', sub: 'Periodic garage door check', desc: 'Take a snapshot of the garage camera and determine if the garage door is open or closed. If open, check memory for how long it has been open. Alert if the open duration exceeds the configured threshold or if it is after hours.', meta: 'SCHEDULE  America/Los_Angeles' },
+          { icon: '⚡', name: 'Event-driven', sub: '', desc: 'Motion or a person was detected near the garage. Check if the garage door state has changed and update tracking accordingly.', meta: 'EVENT' }
+        ],
+        skills: [{ name: 'Visual Analysis', version: 'v3' }, { name: 'Memory Management', version: 'v3' }],
+        tools: ['get_snapshot (read, execute)', 'video_search (read, execute)', 'analyze_event_video (read, execute)', 'get_latest_event (read, execute)', 'save_memory (write)'],
+        cost: { daily: '$0.25', tokens: '4,000', toolCalls: '10', steps: '20' },
+        actions: [{ severity: 'CRITICAL', target: 'Feeds page' }],
+        metadata: { id: 'agent_5ece32ceb8cd', tier: 'T1' }
+      },
+      package: {
+        emoji: '📦',
+        name: 'Package Reminder',
+        description: 'Watches for package deliveries and nudges you if they are still outside later.',
+        status: 'preview',
+        purpose: 'Detect package deliveries and remind you to bring them in before they linger long enough to risk theft or weather damage.',
+        personality: 'Helpful and timely. Nudges quietly when a package has been outside too long, never spams routine porch activity.',
+        operatingRules: 'You are a package monitoring agent. On EVERY run, check if a delivery has occurred since the last run and identify packages that remain in view. Track each package by approximate position and elapsed time. Alert if a package has been outside longer than the configured dwell threshold or after dark.',
+        triggers: [
+          { icon: '⚡', name: 'Event-driven', sub: 'Motion at the porch', desc: 'A delivery person, vehicle, or motion-at-front-door event was observed. Check for new packages and update tracking.', meta: 'EVENT' },
+          { icon: '⏰', name: 'Every 30 minutes', sub: 'Dwell-time check', desc: 'Re-check tracked packages and alert if any have exceeded the dwell threshold.', meta: 'SCHEDULE  America/Los_Angeles' }
+        ],
+        skills: [{ name: 'Visual Analysis', version: 'v3' }, { name: 'Memory Management', version: 'v3' }],
+        tools: ['get_snapshot (read, execute)', 'analyze_event_video (read, execute)', 'get_latest_event (read, execute)', 'save_memory (write)'],
+        cost: { daily: '$0.18', tokens: '4,000', toolCalls: '8', steps: '15' },
+        actions: [{ severity: 'WARN', target: 'Push notification' }],
+        metadata: { id: 'agent_pkg7a91b22d', tier: 'T1' }
+      },
+      birds: {
+        emoji: '🐦',
+        name: 'Birds Watcher',
+        description: 'Identifies visiting birds at the feeder and builds a daily highlight reel.',
+        status: 'enabled',
+        purpose: 'Catalog every bird species visiting your feeder and surface a daily summary with the rarest and most-frequent visitors.',
+        personality: 'Curious and gentle. Logs every visit but only surfaces highlights — you should never feel pelted by sparrow notifications.',
+        operatingRules: 'You are a backyard wildlife agent specializing in bird identification. On EVERY visit event, identify the species using visual analysis. Keep a per-day tally and produce a daily summary. Flag any species not seen in the past 30 days as "rare".',
+        triggers: [
+          { icon: '⚡', name: 'Event-driven', sub: 'Bird seen at feeder', desc: 'Identify the species, log the visit, update the daily tally.', meta: 'EVENT' },
+          { icon: '🌅', name: 'Daily 8:00 PM', sub: 'Highlight reel', desc: 'Compile the day\'s most-photogenic visits and surface the rarest species.', meta: 'SCHEDULE  America/Los_Angeles' }
+        ],
+        skills: [{ name: 'Visual Analysis', version: 'v3' }, { name: 'Memory Management', version: 'v3' }, { name: 'Species Index', version: 'v1' }],
+        tools: ['get_snapshot (read, execute)', 'analyze_event_video (read, execute)', 'identify_species (read)', 'save_memory (write)'],
+        cost: { daily: '$0.12', tokens: '3,000', toolCalls: '6', steps: '12' },
+        actions: [{ severity: 'INFO', target: 'Feeds page' }],
+        metadata: { id: 'agent_bird41c9e0a', tier: 'T1' }
+      }
+    };
+
+    function _openAgentSettings(agentId) {
+      const view = document.querySelector('.phone-frame.dark .agent-settings-view');
+      if (!view) return;
+      const data = _AGENT_SETTINGS_DATA[agentId];
+      if (!data) return;
+      // Cameras feeding this agent — derive from existing agent state.
+      const agent = (typeof _AGENTS !== 'undefined') ? _AGENTS.find(a => a.id === agentId) : null;
+      const groups = window.__rawGroups || [];
+      const evalState = (agent && typeof agent.evaluate === 'function') ? agent.evaluate(groups) : null;
+      const cams = (evalState && Array.isArray(evalState.cameras)) ? evalState.cameras
+                 : Array.from(new Set((evalState && Array.isArray(evalState.history)) ? evalState.history.map(h => h.cameraName).filter(Boolean) : []));
+      // Latest 3 activity items from this agent.
+      const recent = (evalState && Array.isArray(evalState.history)) ? evalState.history.slice(0, 3) : [];
+
+      const statusCls = data.status === 'paused' ? 'is-paused'
+                      : data.status === 'disabled' ? 'is-disabled' : '';
+      const camsHtml = cams.length
+        ? `<div class="as-cam-list">${cams.map(c => `<span class="as-cam-chip">📷 ${_esc(c)}</span>`).join('')}</div>`
+        : `<div class="as-empty">No cameras assigned</div>`;
+      const recentHtml = recent.length
+        ? `<div class="as-recent">${recent.map(r => `
+            <div class="as-recent-item">
+              <div class="as-recent-thumb">${r.thumb ? `<img src="${_esc(r.thumb)}" alt="" onerror="this.parentNode.textContent='📷';" />` : '📷'}</div>
+              <div class="as-recent-text">${_esc(r.summary || r.text || 'Recent observation')}</div>
+              <div class="as-recent-meta">${_esc(r.ago || '')}</div>
+            </div>`).join('')}</div>`
+        : `<div class="as-empty">No recent activity</div>`;
+
+      const blocks = [
+        { id: 'soul', title: 'Soul & Personality', meta: 'Purpose · Personality', body: `
+            <div class="as-field-label">Purpose</div>
+            <div class="as-field-value">${_esc(data.purpose)}</div>
+            <div class="as-field-label">Personality</div>
+            <div class="as-field-value">${_esc(data.personality)}</div>` },
+        { id: 'rules', title: 'Operating Rules', meta: 'How this agent decides', body: `
+            <div class="as-field-value"><pre>${_esc(data.operatingRules)}</pre></div>` },
+        { id: 'triggers', title: 'Triggers', meta: data.triggers.length + ' configured', body:
+            data.triggers.map(t => `
+              <div class="as-trigger">
+                <div class="as-trigger-head">
+                  <span>${_esc(t.icon)}</span>
+                  <span class="as-trigger-name">${_esc(t.name)}</span>
+                  <span class="as-badge as-badge-active">Active</span>
+                </div>
+                ${t.sub ? `<div class="as-trigger-sub">${_esc(t.sub)}</div>` : ''}
+                <div class="as-trigger-desc">${_esc(t.desc)}</div>
+                <div class="as-trigger-meta">${_esc(t.meta)}</div>
+              </div>`).join('') },
+        { id: 'skills', title: 'Skills & Tools', meta: data.skills.length + ' skills · ' + data.tools.length + ' tools', body: `
+            <div class="as-field-label">Skills</div>
+            <div class="as-chip-row">
+              ${data.skills.map(sk => `<span class="as-skill-chip">${_esc(sk.name)} <span class="as-skill-chip-version">${_esc(sk.version)}</span></span>`).join('')}
+            </div>
+            <div class="as-field-label">Tools</div>
+            <div class="as-chip-row">
+              ${data.tools.map(tl => `<span class="as-tool-chip">${_esc(tl)}</span>`).join('')}
+            </div>` },
+        { id: 'cost', title: 'Cost Controls', meta: data.cost.daily + '/day · ' + data.metadata.tier, body: `
+            <div class="as-cost-grid">
+              <div class="as-cost-cell"><div class="as-cost-label">Daily Budget</div><div class="as-cost-value">${_esc(data.cost.daily)}</div></div>
+              <div class="as-cost-cell"><div class="as-cost-label">Max Tokens</div><div class="as-cost-value">${_esc(data.cost.tokens)}</div></div>
+              <div class="as-cost-cell"><div class="as-cost-label">Tool Calls</div><div class="as-cost-value">${_esc(data.cost.toolCalls)}</div></div>
+              <div class="as-cost-cell"><div class="as-cost-label">Steps</div><div class="as-cost-value">${_esc(data.cost.steps)}</div></div>
+            </div>` },
+        { id: 'actions', title: 'Actions', meta: data.actions.length + ' rule' + (data.actions.length === 1 ? '' : 's'), body:
+            data.actions.map(a => `
+              <div class="as-action-row">
+                <span class="as-badge ${a.severity === 'CRITICAL' ? 'as-badge-critical' : 'as-badge-active'}">${_esc(a.severity)}</span>
+                <span class="as-action-arrow">→</span>
+                <span>${_esc(a.target)}</span>
+              </div>`).join('') },
+        { id: 'meta', title: 'Metadata', meta: data.metadata.id, body: `
+            <div class="as-field-label">Agent ID</div>
+            <div class="as-field-value"><pre>${_esc(data.metadata.id)}</pre></div>
+            <div class="as-field-label">Tier</div>
+            <div class="as-field-value"><pre>${_esc(data.metadata.tier)}</pre></div>` }
+      ];
+
+      view.innerHTML = `
+        <div class="as-header">
+          <button class="as-back" type="button" aria-label="Back">
+            <svg viewBox="0 0 18 18"><path d="M11 4l-5 5 5 5"/></svg>
+          </button>
+          <div class="as-title">Agent settings</div>
+        </div>
+        <div class="as-scroll">
+          <div class="as-identity">
+            <div class="as-identity-icon">${_esc(data.emoji)}</div>
+            <div class="as-identity-text">
+              <div class="as-identity-name">${_esc(data.name)}</div>
+              <div class="as-identity-desc">${_esc(data.description)}</div>
+            </div>
+            <span class="as-status-pill ${statusCls}">${_esc(data.status)}</span>
+          </div>
+
+          <div class="as-section-label">Cameras</div>
+          ${camsHtml}
+
+          <div class="as-section-label">Recent activity</div>
+          ${recentHtml}
+
+          <div class="as-section-label">Configuration</div>
+          ${blocks.map(b => `
+            <div class="as-block" data-block-id="${b.id}">
+              <button class="as-block-head" type="button">
+                <span class="as-block-caret"><svg viewBox="0 0 12 12"><path d="M4 2l4 4-4 4"/></svg></span>
+                <span class="as-block-title">${_esc(b.title)}</span>
+                <span class="as-block-meta">${_esc(b.meta)}</span>
+              </button>
+              <div class="as-block-body">${b.body}</div>
+            </div>`).join('')}
+        </div>
+        <div class="as-actions">
+          <button class="as-action-btn is-primary" data-act="run">▶ Run Now</button>
+          <button class="as-action-btn" data-act="improve">✨ Improve</button>
+          <button class="as-action-btn" data-act="pause">Pause</button>
+          <button class="as-action-btn" data-act="disable">Disable</button>
+          <button class="as-action-btn is-danger" data-act="delete">Delete</button>
+        </div>`;
+
+      view.offsetHeight;
+      view.classList.add('open');
+
+      view.querySelector('.as-back')?.addEventListener('click', _closeAgentSettings);
+      view.querySelectorAll('.as-block-head').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.parentElement?.classList.toggle('is-open');
+        });
+      });
+      view.querySelectorAll('.as-action-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const act = btn.dataset.act;
+          if (typeof _showToast === 'function') {
+            _showToast(({
+              run: '▶ Running ' + data.name + ' now…',
+              improve: '✨ Improving prompts for ' + data.name,
+              pause: 'Paused ' + data.name,
+              disable: 'Disabled ' + data.name,
+              delete: 'Deleted ' + data.name
+            })[act] || act);
+          }
+        });
+      });
+    }
+
+    function _closeAgentSettings() {
+      const view = document.querySelector('.phone-frame.dark .agent-settings-view');
+      if (!view) return;
+      view.classList.remove('open');
+      setTimeout(() => {
+        if (!view.classList.contains('open')) view.innerHTML = '';
+      }, 320);
+    }
+
+    // ════════════════════════════════════════
+    // Agent live view — same layout as _openLiveView but populated from
+    // an agent's cross-camera evaluation, not a single device. Tapping a
+    // home-tab agent widget opens this; the device card is replaced with
+    // a "Cameras feeding this agent" list.
+    // ════════════════════════════════════════
+    function _agentLiveCfg(id, state, groups) {
+      const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+      const inToday = (g) => parseTs(g.start) >= todayStart;
+      if (id === 'garage') {
+        const todayCount = (state.history || []).filter(m => inToday(m.g)).length;
+        const lastClose = (state.history || []).find(m => m.st === 'closed');
+        const lastCloseStr = lastClose ? window._fmtHM(lastClose.t) : '—';
+        return {
+          heroIcon: '🚪',
+          heroTitle: state.state || 'No data yet',
+          heroSub:   state.since || '',
+          heroPrimary: state.state === 'Open' ? 'Close' : null,
+          heroAccent:  state.state === 'Open' ? 'amber' : 'green',
+          stats: [
+            { label: 'Today',      value: todayCount + ' event' + (todayCount === 1 ? '' : 's') },
+            { label: 'Last close', value: lastCloseStr }
+          ],
+          quick: [
+            { id: 'mute',   label: 'Mute',   icon: 'sound', on: true },
+            { id: 'notify', label: 'Notify', icon: 'talk' },
+            { id: 'snap',   label: 'Snapshot', icon: 'snap' },
+            { id: 'full',   label: 'Full',   icon: 'full' }
+          ]
+        };
+      }
+      if (id === 'package') {
+        const todayCount = (state.recent || []).filter(m => inToday(m.g)).length;
+        const carriers = { Amazon: 0, UPS: 0, FedEx: 0, USPS: 0 };
+        (state.recent || []).forEach(({ g }) => {
+          const s = (g.summary || g.title || '');
+          if (/Amazon/i.test(s)) carriers.Amazon++;
+          else if (/UPS/i.test(s)) carriers.UPS++;
+          else if (/FedEx/i.test(s)) carriers.FedEx++;
+          else if (/USPS/i.test(s)) carriers.USPS++;
+        });
+        const topCarrier = Object.entries(carriers).sort((a, b) => b[1] - a[1])[0];
+        return {
+          heroIcon: '📦',
+          heroTitle: state.state || 'No packages',
+          heroSub:   state.since || '',
+          heroPrimary: /waiting/i.test(state.state || '') ? '✓ Got all' : null,
+          heroAccent: /waiting/i.test(state.state || '') ? 'amber' : 'green',
+          stats: [
+            { label: 'Today',      value: todayCount + ' deliv.' },
+            { label: 'Top carrier',value: (topCarrier && topCarrier[1] ? topCarrier[0] : '—') }
+          ],
+          quick: [
+            { id: 'mute',   label: 'Mute',     icon: 'sound', on: true },
+            { id: 'deter',  label: 'Verbal warn', icon: 'talk' },
+            { id: 'snap',   label: 'Snapshot', icon: 'snap' },
+            { id: 'full',   label: 'Full',     icon: 'full' }
+          ]
+        };
+      }
+      if (id === 'birds') {
+        // count distinct ai_tags or words across today's events
+        const speciesSet = new Set();
+        (state.today || []).forEach(({ g }) => {
+          const tagged = (g.ai_tags || []).filter(t => _BIRD_RE.test(t));
+          tagged.forEach(t => speciesSet.add(String(t).toLowerCase()));
+        });
+        const peakHour = (() => {
+          const buckets = new Array(24).fill(0);
+          (state.all || []).forEach(({ t }) => { const h = t.getHours(); if (!isNaN(h)) buckets[h]++; });
+          const m = Math.max(...buckets);
+          return m ? buckets.indexOf(m).toString().padStart(2,'0') + ':00' : '—';
+        })();
+        return {
+          heroIcon: '🐦',
+          heroTitle: state.state || 'None today',
+          heroSub:   state.since || '',
+          heroPrimary: (state.today && state.today.length) ? 'View all' : null,
+          heroAccent:  (state.today && state.today.length) ? 'green' : 'amber',
+          stats: [
+            { label: 'Species today', value: (speciesSet.size || 0).toString() },
+            { label: 'Peak hour',     value: peakHour }
+          ],
+          quick: [
+            { id: 'mute',   label: 'Audio',     icon: 'sound', on: true },
+            { id: 'deter',  label: 'Identify',  icon: 'talk' },
+            { id: 'snap',   label: 'Snapshot',  icon: 'snap' },
+            { id: 'full',   label: 'Full',      icon: 'full' }
+          ]
+        };
+      }
+      return null;
+    }
+
+    function _openAgentLiveView(agentId) {
+      const agent = (typeof _AGENTS !== 'undefined') && _AGENTS.find(a => a.id === agentId);
+      if (!agent) return;
+      const view = document.querySelector('.phone-frame.dark .live-view');
+      if (!view) return;
+      const groups = window.__rawGroups || [];
+      const state  = agent.evaluate(groups);
+      const cfg    = _agentLiveCfg(agentId, state, groups);
+      if (!cfg) return;
+
+      // Pull recent events out of whichever bucket the evaluator filled.
+      const recentRaw = state.history || state.recent || state.today || state.all || [];
+      const recent = recentRaw.slice(0, 8).map(x => x.g || x).filter(Boolean);
+
+      // Camera list: unique devices that contributed to this agent's events.
+      const camMacs = new Set();
+      recentRaw.forEach(x => ((x.g || x).cameras || []).forEach(m => camMacs.add(m)));
+      const cams = Array.from(camMacs).map(mac => {
+        const dev = (window.__rawDevices || []).find(d => _macsMatch(d.device_mac, mac));
+        return dev || { device_mac: mac, device_name: _camFriendlyName(mac, window.__camNameMap) || ('Cam ' + String(mac).slice(-4)) };
+      });
+
+      // Video stage uses the latest matching event's thumb.
+      const thumb = state.primary ? _subjectThumbUrlForGroup(state.primary)
+                  : (recent[0] ? _subjectThumbUrlForGroup(recent[0]) : '');
+      const now = new Date();
+      const stamp = now.toISOString().replace('T',' ').slice(0,19);
+      const stage = thumb
+        ? `<div class="live-video">
+             <img src="${_esc(thumb)}" alt="" />
+             <div class="live-shimmer"></div>
+             <div class="live-badge"><span class="live-dot"></span> LIVE</div>
+             <div class="live-time">${_esc(stamp)}</div>
+           </div>`
+        : `<div class="live-video no-feed">
+             <svg viewBox="0 0 24 24"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M17 10l4-2v8l-4-2"/></svg>
+             <div>No recent feed for this agent</div>
+           </div>`;
+
+      const heroHtml = `
+        <div class="live-card live-hero accent-${_esc(cfg.heroAccent)}">
+          <div class="live-hero-icon">${_esc(cfg.heroIcon)}</div>
+          <div class="live-hero-text">
+            <div class="live-hero-title">${_esc(cfg.heroTitle)}</div>
+            <div class="live-hero-sub">${_esc(cfg.heroSub)}</div>
+          </div>
+          ${cfg.heroPrimary ? `<button class="live-hero-cta" type="button" data-act="hero">${_esc(cfg.heroPrimary)}</button>` : ''}
+        </div>`;
+
+      const statsHtml = `
+        <div class="live-card live-stats" data-cells="${cfg.stats.length}">
+          ${cfg.stats.map(s => `
+            <div class="live-stat">
+              <div class="live-stat-label">${_esc(s.label)}</div>
+              <div class="live-stat-value">${_esc(s.value)}</div>
+            </div>`).join('')}
+        </div>`;
+
+      const quickHtml = `
+        <div class="live-card live-quick">
+          ${cfg.quick.map(q => `
+            <button class="live-quick-btn ${q.on ? 'is-on' : ''}" data-act="${_esc(q.id)}" type="button">
+              <span class="live-quick-icon">${_LIVE_QA_SVG[q.icon] || _LIVE_QA_SVG.snap}</span>
+              <span class="live-quick-label">${_esc(q.label)}</span>
+            </button>`).join('')}
+        </div>`;
+
+      const recentHtml = recent.length
+        ? `<div class="live-card live-recent">
+             <div class="live-card-head">
+               <span class="live-card-title">Recent across cameras</span>
+               <button class="live-card-link" data-act="events" type="button">View all &rsaquo;</button>
+             </div>
+             <div class="live-recent-strip">
+               ${recent.map(g => {
+                 const url = _subjectThumbUrlForGroup(g);
+                 const camLabel = _camFriendlyName((g.cameras||[])[0], window.__camNameMap) || '';
+                 const ago = typeof window._relTimeAgo === 'function' ? window._relTimeAgo(parseTs(g.start)) : '';
+                 return `<div class="live-recent-cell" data-group="${_esc(g.id || '')}">
+                   ${url ? `<img src="${_esc(url)}" alt="" onerror="this.style.visibility='hidden'" />` : '<div class="live-recent-empty"></div>'}
+                   <span class="live-recent-time">${_esc(ago + (camLabel ? ' · ' + camLabel : ''))}</span>
+                 </div>`;
+               }).join('')}
+             </div>
+           </div>`
+        : `<div class="live-card live-recent live-recent-empty">
+             <div class="live-card-title">Recent across cameras</div>
+             <div class="live-recent-empty-msg">No events for this agent in the loaded window.</div>
+           </div>`;
+
+      const camerasHtml = `
+        <div class="live-card live-device">
+          <div class="live-card-head"><span class="live-card-title">Cameras feeding this agent</span></div>
+          ${cams.length
+            ? `<div class="live-cameras-list">
+                ${cams.map(c => `
+                  <button class="live-cam-row" type="button" data-mac="${_esc(c.device_mac)}">
+                    <span class="live-cam-name">${_esc(c.device_name)}</span>
+                    <span class="live-cam-arrow">&rsaquo;</span>
+                  </button>`).join('')}
+              </div>`
+            : `<div class="live-recent-empty-msg">No matching cameras detected.</div>`}
+          <button class="live-events-btn" type="button" data-act="events">View recent events &rsaquo;</button>
+        </div>`;
+
+      const aiHtml = `
+        <div class="live-ai-dock">
+          <button class="live-ai-input" type="button" data-act="ai">
+            <svg viewBox="0 0 32 28" class="live-ai-mascot" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5502 1.08369C9.64261 0.941508 9.76686 0.822788 9.9131 0.736939C10.0593 0.651091 10.2236 0.60047 10.3928 0.589086L19.1117 0.00244385C19.2809 -0.00894033 19.4504 0.0192249 19.6068 0.0847092C19.7632 0.150194 19.9023 0.251199 20.0129 0.379725L23.2195 4.10524L27.034 3.84858C27.9012 3.79024 28.756 4.07875 29.4104 4.65066C30.0648 5.22257 30.4652 6.03103 30.5236 6.89818L31.5502 22.1562C31.6086 23.0234 31.32 23.8782 30.7481 24.5326C30.1762 25.187 29.3678 25.5875 28.5006 25.6458L4.52365 27.2591C3.6565 27.3174 2.80169 27.0289 2.14727 26.457C1.49285 25.8851 1.09242 25.0766 1.03408 24.2095L0.00745214 8.95142C-0.050893 8.08427 0.237625 7.22946 0.809535 6.57504C1.38145 5.92062 2.1899 5.52019 3.05705 5.46185L6.87157 5.20519L9.5502 1.08369Z"/>
+            </svg>
+            <span class="live-ai-text">Ask Wyze AI about ${_esc(agent.label)}…</span>
+            <svg class="live-ai-arrow" viewBox="0 0 16 16"><path d="M3 13L13 3M13 3v6M13 3H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          </button>
+        </div>`;
+
+      view.innerHTML = `
+        <div class="live-header">
+          <button class="live-back" type="button" aria-label="Back">
+            <svg viewBox="0 0 18 18"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          </button>
+          <div class="live-title">
+            <div class="live-name">${_esc(agent.label)}</div>
+            <div class="live-sub">Wyze AI agent · across ${cams.length} camera${cams.length === 1 ? '' : 's'}</div>
+          </div>
+          <button class="live-settings" type="button" aria-label="Agent settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+        </div>
+        ${stage}
+        <div class="live-content">
+          ${heroHtml}
+          ${statsHtml}
+          ${quickHtml}
+          ${recentHtml}
+          ${camerasHtml}
+        </div>
+        ${aiHtml}`;
+
+      view.offsetHeight;
+      view.classList.add('open');
+
+      const close = () => _closeLiveView();
+      view.querySelector('.live-back')?.addEventListener('click', close);
+      view.querySelector('.live-settings')?.addEventListener('click', () => _openAgentSettings(agentId));
+
+      // Hero CTA — toast for now.
+      view.querySelector('.live-hero-cta')?.addEventListener('click', () => {
+        if (typeof _showToast === 'function') {
+          _showToast((cfg.heroPrimary || 'Action') + ' · ' + agent.label);
+        }
+      });
+
+      // Quick-action toggles.
+      view.querySelectorAll('.live-quick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const act = btn.dataset.act;
+          if (act === 'snap') {
+            if (typeof _showToast === 'function') _showToast('Snapshot saved');
+            return;
+          }
+          if (act === 'full') {
+            if (typeof _showToast === 'function') _showToast('Fullscreen not available in prototype');
+            return;
+          }
+          btn.classList.toggle('is-on');
+          if (typeof _showToast === 'function') {
+            const on = btn.classList.contains('is-on');
+            _showToast(btn.querySelector('.live-quick-label').textContent + (on ? ' on' : ' off'));
+          }
+        });
+      });
+
+      // Tapping a contributing camera opens its individual live view.
+      view.querySelectorAll('.live-cam-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const mac = row.dataset.mac;
+          if (!mac) return;
+          // Slide the agent view down, then open the camera live view.
+          _closeLiveView();
+          setTimeout(() => _openLiveView(mac), 300);
+        });
+      });
+
+      // Recent strip cells — toast for now.
+      view.querySelectorAll('.live-recent-cell').forEach(cell => {
+        cell.addEventListener('click', () => {
+          if (typeof _showToast === 'function') _showToast('Opening clip…');
+        });
+      });
+
+      // "View all events" → switch to the Event tab.
+      view.querySelectorAll('[data-act="events"]').forEach(b =>
+        b.addEventListener('click', () => {
+          // For an agent (cross-camera), don't filter — just switch tabs.
+          if (typeof setCameraChip === 'function') setCameraChip(null);
+          if (window.__filterState) window.__filterState.cameraRaw = null;
+          if (typeof applyFiltersAndRender === 'function') applyFiltersAndRender();
+          const nav = document.querySelectorAll('.bottom-nav .nav-item');
+          nav.forEach(n => n.classList.remove('active'));
+          nav[1]?.classList.add('active');
+          switchHomeView('event');
+          _closeLiveView();
+        }));
+
+      // AI dock pre-seeds a chat prompt about the agent.
+      view.querySelector('.live-ai-input')?.addEventListener('click', () => {
+        window.__chatHistory = window.__chatHistory || [];
+        window.__chatHistory.push({
+          from: 'user',
+          text: 'What did the ' + agent.label + ' agent see today?'
+        });
+        if (typeof _openChatDrawer === 'function') _openChatDrawer();
+      });
     }
 
     // ════════════════════════════════════════
@@ -7644,10 +10589,10 @@
         sampleMatcher: (g) => /\b(UPS|FedEx|Amazon|package|parcel|deliver)/i.test(g.summary || g.title || ''),
         defaultCam: 'Front Door',
         emoji: '📦',
-        line: 'Hey — UPS dropped a package on the front porch around 11:48 AM. It\'s been sitting there for 3 hours now. Want me to ping you again later?',
+        line: 'FedEx dropped something at the front door around 11:48 — medium box. It\'s been sitting there about 3 hours. Want me to nudge you again later?',
         replies: [
-          { n: 1, label: 'got it, grabbing now' },
-          { n: 2, label: 'remind me at 5 PM' },
+          { n: 1, label: 'grabbing it now' },
+          { n: 2, label: 'nudge me at 5' },
           { n: 3, label: 'show me' }
         ],
         fallback: '📦'
@@ -7657,10 +10602,10 @@
         sampleMatcher: (g) => /\bgarage\b/i.test(g.summary || g.title || ''),
         defaultCam: 'Garage',
         emoji: '🚪',
-        line: 'Heads up — your garage door has been open since 10:14 PM, almost 50 minutes now. Just flagging in case you forgot.',
+        line: 'Your garage is still open — has been since 10:14. Almost an hour now. No rush, just wanted to make sure you knew.',
         replies: [
-          { n: 1, label: 'on it, closing now' },
-          { n: 2, label: 'ping me again in 30' },
+          { n: 1, label: 'closing it now' },
+          { n: 2, label: 'check again in 30' },
           { n: 3, label: 'show me' }
         ],
         fallback: '🚪'
@@ -7670,10 +10615,10 @@
         sampleMatcher: (g) => parseTs(g.start).getHours() <= 5,
         defaultCam: 'Front Door',
         emoji: '⚠️',
-        line: 'Someone just walked up to your front door at 2:14 AM. First time I\'ve seen anyone there that late in the past 30 days — thought you\'d want to see.',
+        line: 'Just saw someone walk up to the front door at 2:14 AM. Haven\'t seen anyone there that late in the past month — figured you\'d want to take a look.',
         replies: [
-          { n: 1, label: 'all good, ignore' },
-          { n: 2, label: 'tell me if it happens again' },
+          { n: 1, label: 'all good' },
+          { n: 2, label: 'ping me if it happens again' },
           { n: 3, label: 'show me' }
         ],
         fallback: '⚠️'
@@ -7683,7 +10628,7 @@
         sampleMatcher: (g) => /\b(vehicle|car|sedan|truck|van|tesla)/i.test(g.summary || g.title || ''),
         defaultCam: 'Driveway',
         emoji: '🚗',
-        line: 'Your Tesla\'s been in the driveway since 7:30 PM yesterday — 12.5 hours, about 4× longer than usual. Wanted to flag in case you forgot to plug it in.',
+        line: 'Your Tesla\'s still out front — has been since 7:30 last night. That\'s 12 hours, way longer than usual. Just so you know.',
         replies: [
           { n: 1, label: 'all good, plugged in' },
           { n: 2, label: 'flag me next time' },
@@ -7693,26 +10638,26 @@
       },
       {
         key: 'offline',
-        sampleMatcher: (g) => false, // no real-data match — always synthetic
+        sampleMatcher: (g) => false,
         defaultCam: 'Backyard 2',
         emoji: '📷',
-        line: 'Quick heads-up — your Backyard 2 cam dropped off at 1:42 PM. Battery was at 4%. Worth a swap while it\'s still light out.',
+        line: 'Lost the Backyard 2 cam at 1:42 — battery was down to 4%. Probably worth swapping it before it gets dark.',
         replies: [
-          { n: 1, label: 'on it, swapping battery' },
+          { n: 1, label: 'on it, swapping' },
           { n: 2, label: 'ignore for now' },
           { n: 3, label: 'show me' }
         ],
         fallback: '📷',
-        forceFallback: true // never attach an image even if a sample is found
+        forceFallback: true
       },
       {
         key: 'wildlife',
         sampleMatcher: (g) => /\b(raccoon|coyote|deer|fox|squirrel|bird|owl|raccoons?)\b/i.test(g.summary || g.title || ''),
         defaultCam: 'Backyard',
         emoji: '🦝',
-        line: 'Saw a raccoon out back at 3:12 AM, near the trash bins again. Third time this week — looks like the same one.',
+        line: 'That raccoon\'s back — out by the trash bins at 3:12. Third time this week, almost certainly the same one.',
         replies: [
-          { n: 1, label: 'noted, thanks' },
+          { n: 1, label: 'noted' },
           { n: 2, label: 'tell me each time' },
           { n: 3, label: 'show me' }
         ],
