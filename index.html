@@ -13958,7 +13958,7 @@
     // bookmarklet link.
     // ════════════════════════════════════════
     const _PRODUCER_SNIPPET = `(async () => {
-  const SNIPPET_VERSION = '2026-05-08d';
+  const SNIPPET_VERSION = '2026-05-08e';
   const trace = [];
   const log = (...args) => { try { console.log('[wyze]', ...args); } catch {} trace.push(args.map(a => typeof a === 'string' ? a : JSON.stringify(a)).join(' ')); };
   log('snippet', SNIPPET_VERSION, '· host', location.host, '· path', location.pathname);
@@ -14145,25 +14145,52 @@
   };
   const _stripTrailingMeta = (s) => String(s).replace(/\\s+\\d+[smhdwy]\\b.*$/,'').replace(/\\s+\\d+\\s*$/,'').trim();
   let domHydrated = 0;
+  // Pre-compute the set of all agent display names so we can detect when
+  // a candidate "card" is actually a shared ancestor that also contains
+  // other agents' headings (in which case it's not agent-specific).
+  const _allAgentNames = new Set(agents.map(x => {
+    const n = (x.identity && (x.identity.name || x.identity.display_name)) || x.name || x.label || x.title;
+    return n ? String(n).trim() : '';
+  }).filter(Boolean));
   for (const a of agents) {
     // Skip if the agent already shipped real recent activity.
     if (Array.isArray(a.recent_messages) && a.recent_messages.length) continue;
     const name = (a.identity && (a.identity.name || a.identity.display_name)) || a.name || a.label || a.title;
     if (!name) continue;
-    // Find a heading that matches this agent name verbatim.
+    const trimmedName = String(name).trim();
+    // Find a heading whose text equals this agent's name.
     const headings = document.querySelectorAll('h1,h2,h3,h4,[class*="title" i],[class*="name" i]');
     let card = null;
     for (const h of headings) {
-      if ((h.textContent || '').trim() === String(name).trim()) {
-        // Walk up until we reach an element that ALSO contains relative-time text
-        // (a heading alone doesn't tell us where the messages are).
-        let n = h;
-        for (let depth = 0; n && depth < 8; depth++, n = n.parentElement) {
-          const txt = (n.textContent || '');
-          if (/\\b\\d+[smhdwy]\\b/.test(txt) && txt.length > name.length + 20) { card = n; break; }
+      if ((h.textContent || '').trim() !== trimmedName) continue;
+      // Walk up looking for the SMALLEST container that:
+      //  (a) contains a relative-time pattern (an actual message row),
+      //  (b) is BIG enough to plausibly contain a message rather than
+      //      just the heading,
+      //  (c) does NOT also contain any OTHER agent's heading — that
+      //      would make it a shared section, not this agent's card.
+      let n = h;
+      for (let depth = 0; n && depth < 12; depth++, n = n.parentElement) {
+        const txt = (n.textContent || '');
+        if (!/\\b\\d+[smhdwy]\\b/.test(txt)) continue;
+        if (txt.length < trimmedName.length + 12) continue;
+        // Check for foreign agent headings inside this candidate.
+        let foreign = false;
+        const inner = n.querySelectorAll('h1,h2,h3,h4,[class*="title" i],[class*="name" i]');
+        for (const ih of inner) {
+          if (ih === h) continue;
+          const t = (ih.textContent || '').trim();
+          if (!t || t === trimmedName) continue;
+          if (_allAgentNames.has(t)) { foreign = true; break; }
         }
-        if (card) break;
+        if (foreign) {
+          // We've walked past the agent's own card — abandon this
+          // heading entirely (further ancestors would all be shared too).
+          break;
+        }
+        card = n; break;
       }
+      if (card) break;
     }
     if (!card) continue;
     // Find rows: smallest container elements whose textContent has BOTH
@@ -14596,7 +14623,7 @@ those keys and I'll teach the loader to read them.</pre>
     // version of the prototype is live. If the stamp in the corner is
     // older than the time you expect, the browser cached the page —
     // hard-reload (Cmd+Shift+R) or close the tab and reopen.
-    const _BUILD_STAMP = '2026-05-08 i — snippet DOM-hydrates recent_messages from agent cards (real activity timestamps)';
+    const _BUILD_STAMP = '2026-05-08 j — DOM-hydrate scope guard: every agent gets its OWN card, never a shared ancestor';
 
     function _renderBuildStamp() {
       // Tiny grey footer pinned to the bottom of the phone frame so it
