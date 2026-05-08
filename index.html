@@ -2042,6 +2042,16 @@
       position: absolute; inset: 0;
       width: 100%; height: 100%; object-fit: cover;
     }
+    /* When the agent has no cached frame yet, fill the round thumb with
+       a friendly smile-face placeholder so the tile still reads. */
+    .phone-frame.dark .home-view .home-agent-thumb:not(.has-image)::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a5a5a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><circle cx='9' cy='10' r='0.6' fill='%235a5a5a' stroke='none'/><circle cx='15' cy='10' r='0.6' fill='%235a5a5a' stroke='none'/><path d='M8.5 14.5c1 1.4 2.2 2 3.5 2s2.5-.6 3.5-2'/></svg>");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 36px 36px;
+    }
     /* Agent emblem badge — top-left of the tile, OUTSIDE the round mask so
        the icon is never clipped. It's a sibling of the thumb so the
        thumb's overflow:hidden doesn't reach it. */
@@ -8670,6 +8680,45 @@
         pushTitle: 'Pet Agent', pushMessage: 'Max is barking at the door', pushThumb: '🐾',
         successMessage: '🐾 Pet Agent is on. I\'ll log activity and send anything unusual.',
         gradient: 'linear-gradient(135deg, #1DF0BB, #FFB340)'
+      },
+      {
+        id: 'automation', emoji: '⚡', name: 'Automation', domain: 'automation',
+        description: 'IFTTT-style rules — when X happens, do Y across your devices',
+        features: ['No camera required', 'Triggers from time, location, or sensors', 'Acts across all your Wyze devices'],
+        triggerWords: /\b(automation|automate|when.*then|if.*then|routine|trigger.*action|leave\s+(home|house)|arrive\s+home|sunset|sunrise)\b/i,
+        clarification: { q: 'When should this rule run?',
+          options: [
+            { value: 'leave-home',  label: 'When I leave home',  sub: 'Geofence' },
+            { value: 'arrive-home', label: 'When I arrive home', sub: 'Geofence' },
+            { value: 'sunset',      label: 'At sunset',          sub: 'Time-based' },
+            { value: 'sunrise',     label: 'At sunrise',         sub: 'Time-based' },
+            { value: 'motion',      label: 'On motion detected', sub: 'Sensor' },
+            { value: 'door-open',   label: 'When door opens',    sub: 'Sensor' }
+          ]
+        },
+        // The duration step is repurposed for "what should happen" — the
+        // action the automation runs when the trigger fires.
+        durationLabel: 'What should happen?',
+        durationOptions: [
+          { value: 'lights-off',  label: 'Turn off all lights' },
+          { value: 'lights-on',   label: 'Turn on all lights' },
+          { value: 'lock-doors',  label: 'Lock all doors' },
+          { value: 'cameras-on',  label: 'Arm all cameras' },
+          { value: 'cameras-off', label: 'Disarm all cameras' },
+          { value: 'notify',      label: 'Send a notification' }
+        ],
+        // Skipped for automation — kept here as fallbacks so the
+        // creator helpers don't crash.
+        unattendedLabel: '', cameraLabel: '',
+        positionLabel: '', positionTip: '',
+        testAction: '', testActionEcho: '',
+        detectionLabel: 'rule', detectionMessage: '',
+        offPrompt: '', offEcho: '',
+        learning: ['Trigger registered', 'Action linked', 'Devices wired in', 'Automation ready'],
+        pushTitle: 'Automation', pushMessage: 'Rule fired', pushThumb: '⚡',
+        successMessage: '⚡ Your automation is live! It\'ll run whenever the trigger fires.',
+        gradient: 'linear-gradient(135deg, #1DF0BB, #4a8cff)',
+        isAutomation: true
       }
     ];
 
@@ -8919,25 +8968,32 @@
                   <span class="ac-chip-sub">${_esc(o.sub)}</span>
                 </button>`).join('')}
             </div>`;
-        case 4: // duration
+        case 4: { // duration / action (templates can override the options)
+          const opts = (t && Array.isArray(t.durationOptions) && t.durationOptions.length)
+            ? t.durationOptions
+            : _DURATION_OPTIONS;
           return `
             <div class="ac-msg ac-msg-bot"><div class="ac-bubble">${_esc(t ? t.durationLabel : 'How long should I wait before alerting you?')}</div></div>
             <div class="ac-quick-replies">
-              ${_DURATION_OPTIONS.map(o => `
+              ${opts.map(o => `
                 <button class="ac-chip ${s.duration === o.value ? 'is-selected' : ''}" data-step="4" data-value="${_esc(o.value)}">${_esc(o.label)}</button>`).join('')}
             </div>`;
-        case 5: // unattended
+        }
+        case 5: // unattended (skipped entirely for automation)
+          if (t && t.isAutomation) return '';
           return `
             <div class="ac-msg ac-msg-bot"><div class="ac-bubble">${_esc(t ? t.unattendedLabel : 'How long until I fire a follow-up alert?')}</div></div>
             <div class="ac-quick-replies">
               ${_UNATTENDED_OPTIONS.map(o => `
                 <button class="ac-chip ${s.unattended === o.value ? 'is-selected' : ''}" data-step="5" data-value="${_esc(o.value)}">${_esc(o.label)}</button>`).join('')}
             </div>`;
-        case 6: // camera carousel
+        case 6: // camera carousel (no camera needed for automation)
+          if (t && t.isAutomation) return '';
           return _creatorRenderCameraStep(s);
         case 7: // proposed config + test CTA
           return _creatorRenderSummary(s);
-        case 8: // camera positioning
+        case 8: // camera positioning (skipped for automation)
+          if (t && t.isAutomation) return '';
           return `
             <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Let's find the perfect camera angle 📷\n\n${_esc(t ? t.positionLabel : 'Aim the camera so the area you want to watch is centered.')}</div></div>
             <div class="ac-card">
@@ -8952,6 +9008,7 @@
               </div>
             </div>`;
         case 9: // test action prompt
+          if (t && t.isAutomation) return '';
           return `
             <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Alright! Now let's test the detection. ${_esc(t ? t.testAction.replace(/^[^\w]+\s*/, '').replace(/^./, c => c.toLowerCase()) : 'do the thing you want me to detect') ? 'Trigger a real ' + _esc(t ? t.detectionLabel : 'event') + ' so I can confirm I see it.' : ''}</div></div>
             <div class="ac-card">
@@ -8965,8 +9022,10 @@
               </div>
             </div>`;
         case 10: // user echoes test action
+          if (t && t.isAutomation) return '';
           return `<div class="ac-msg ac-msg-user ac-msg-voice"><div class="ac-bubble">${_esc(t ? t.testActionEcho : 'I triggered the event')}</div></div>`;
         case 11: // detection result
+          if (t && t.isAutomation) return '';
           return `
             <div class="ac-push">
               <div class="ac-push-icon">${_esc(t ? t.emoji : '📷')}</div>
@@ -8985,14 +9044,17 @@
               <button class="ac-chip ${s.detectionConfirmed === 'no' ? 'is-selected' : ''}" data-step="11" data-value="no">👎 No, wrong</button>
             </div>`;
         case 12: // turn off prompt
+          if (t && t.isAutomation) return '';
           return `
             <div class="ac-msg ac-msg-bot"><div class="ac-bubble">${_esc(t ? t.offPrompt : 'Now reset the trigger so I can verify I stop detecting it.')}</div></div>
             <div class="ac-quick-replies">
               <button class="ac-chip" data-step="12" data-value="off">✅ Okay it's off now</button>
             </div>`;
         case 13: // user echoes off
+          if (t && t.isAutomation) return '';
           return `<div class="ac-msg ac-msg-user ac-msg-voice"><div class="ac-bubble">${_esc(t ? t.offEcho : "It's off")}</div></div>`;
         case 14: // learning card
+          if (t && t.isAutomation) return '';
           return `
             <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Perfect! My detection is now calibrated. Here's what I learned:</div></div>
             <div class="ac-card">
@@ -9054,10 +9116,54 @@
         <div class="ac-carousel-hint">◂ swipe • tap a camera to continue ▸</div>`;
     }
 
+    // Look up the human label for a value across whichever option set the
+    // template uses for that step (template.durationOptions for automation,
+    // _DURATION_OPTIONS for the standard flow).
+    function _creatorOptLabel(t, value, fallback) {
+      const list = (t && Array.isArray(t.durationOptions) && t.durationOptions.length)
+        ? t.durationOptions : _DURATION_OPTIONS;
+      const hit = list.find(o => o.value === value);
+      return hit ? hit.label : (fallback || '—');
+    }
+    function _creatorTriggerLabel(t, value, fallback) {
+      const opts = (t && t.clarification && Array.isArray(t.clarification.options))
+        ? t.clarification.options : [];
+      const hit = opts.find(o => o.value === value);
+      return hit ? hit.label : (fallback || '—');
+    }
+
     function _creatorRenderSummary(s) {
       const t = s.template;
+      // Automation: special "When X → do Y" summary, no camera, no
+      // unattended; primary CTA jumps straight to Activate.
+      if (t && t.isAutomation) {
+        const trig = _creatorTriggerLabel(t, s.clarification, 'a trigger');
+        const act  = _creatorOptLabel(t, s.duration, 'an action');
+        return `
+          <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Here's your automation:</div></div>
+          <div class="ac-card">
+            <div class="ac-summary-grid">
+              <div class="ac-summary-cell full">
+                <span class="ac-summary-cell-label">When</span>
+                <span class="ac-summary-cell-value">${_esc(trig)}</span>
+              </div>
+              <div class="ac-summary-cell full">
+                <span class="ac-summary-cell-label">Then</span>
+                <span class="ac-summary-cell-value">${_esc(act)}</span>
+              </div>
+              <div class="ac-summary-cell full">
+                <span class="ac-summary-cell-label">Devices</span>
+                <span class="ac-summary-cell-value">All matching devices in your home</span>
+              </div>
+            </div>
+            <div class="ac-template-actions">
+              <button class="ac-btn ac-btn-secondary" data-step="7" data-value="edit">✏️ Make changes</button>
+              <button class="ac-btn" data-step="7" data-value="test">Looks good — Activate</button>
+            </div>
+          </div>`;
+      }
       const camName = _creatorCamName(s.camera);
-      const dur = (_DURATION_OPTIONS.find(o => o.value === s.duration) || {}).label || '—';
+      const dur = _creatorOptLabel(t, s.duration);
       const una = (_UNATTENDED_OPTIONS.find(o => o.value === s.unattended) || {}).label || '—';
       return `
         <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Perfect! Here's your ${_esc(t ? t.name : 'agent')} configuration:</div></div>
@@ -9089,8 +9195,30 @@
 
     function _creatorRenderFinal(s) {
       const t = s.template;
+      if (t && t.isAutomation) {
+        const trig = _creatorTriggerLabel(t, s.clarification, 'trigger');
+        const act  = _creatorOptLabel(t, s.duration, 'action');
+        return `
+          <div class="ac-final">
+            <div class="ac-final-head">
+              <div class="ac-final-emoji">${_esc(t.emoji)}</div>
+              <div>
+                <div class="ac-final-name">${_esc(t.name)}</div>
+                <div class="ac-final-sub">${_esc(t.description)}</div>
+              </div>
+            </div>
+            <div class="ac-final-grid">
+              <div><span>When</span><strong>${_esc(trig)}</strong></div>
+              <div><span>Then</span><strong>${_esc(act)}</strong></div>
+              <div class="full"><span>Devices</span><strong>All matching</strong></div>
+            </div>
+            <div class="ac-final-price">$0.00 / month — included with Wyze</div>
+            <button class="ac-activate" data-step="15" data-value="activate">⚡ ACTIVATE AUTOMATION</button>
+            <button class="ac-back-edit" data-step="15" data-value="back">← Go back and edit</button>
+          </div>`;
+      }
       const camName = _creatorCamName(s.camera);
-      const dur = (_DURATION_OPTIONS.find(o => o.value === s.duration) || {}).label || '—';
+      const dur = _creatorOptLabel(t, s.duration);
       const una = (_UNATTENDED_OPTIONS.find(o => o.value === s.unattended) || {}).label || '—';
       return `
         <div class="ac-final">
@@ -9343,9 +9471,11 @@
           s.clarification = value;
           s.step = 4;
           break;
-        case 4: // duration chosen
+        case 4: // duration / action chosen
           s.duration = value;
-          s.step = 5;
+          // Automation has no unattended / camera / positioning / testing —
+          // skip straight to summary (step 7).
+          s.step = (s.template && s.template.isAutomation) ? 7 : 5;
           break;
         case 5: // unattended chosen
           s.unattended = value;
@@ -9356,8 +9486,13 @@
           s.step = 7;
           break;
         case 7: // summary action
-          if (value === 'test') s.step = 8;
-          else if (value === 'edit') s.step = 4; // jump back to duration to re-edit
+          if (value === 'test') {
+            // Automation has no test / position step → jump to the final
+            // summary (Activate) directly.
+            s.step = (s.template && s.template.isAutomation) ? 15 : 8;
+          } else if (value === 'edit') {
+            s.step = 4; // re-edit the action / duration
+          }
           break;
         case 8: // position confirmed
           s.positionOk = true;
@@ -9411,30 +9546,13 @@
       _creatorRender();
     }
 
-    // Pool of cached frames the camera grid uses when a camera has no live
-    // event thumb yet — distributed deterministically by index so each
-    // tile shows a different scene instead of a blank silhouette.
-    const _CAMERA_DEFAULT_THUMB_POOL = [
-      'wyze-thumbs/1777011017021-070b99c0.jpg',
-      'wyze-thumbs/1776663664140-430f69a0.jpg',
-      'wyze-thumbs/1776538579791-ebc6f564.jpg',
-      'wyze-thumbs/1776918217155-2fe73a1e.jpg'
-    ];
-    function _cameraDefaultThumb(idx) {
-      return _CAMERA_DEFAULT_THUMB_POOL[idx % _CAMERA_DEFAULT_THUMB_POOL.length];
-    }
-
-    // Per-agent default thumbnail — sourced from cached frames that are
-    // visually distinct from each other AND from the camera pool. Each
-    // agent shows a scene that matches its mission:
-    //   garage → closed-door interior shot
-    //   package → open garage with vehicle in driveway
-    //   birds   → open garage looking out to garden / tree
-    const _AGENT_DEFAULT_THUMBS = {
-      garage:  'wyze-thumbs/1776490691493-3739a3cf.jpg',
-      package: 'wyze-thumbs/1776561464442-d5bdd6b5.jpg',
-      birds:   'wyze-thumbs/1776538579791-ebc6f564.jpg'
-    };
+    // No bundled default thumbnails — tiles fall back to an empty
+    // placeholder until the user loads their own cached event data.
+    // Mirroring real frames from a different account would feel like
+    // showing someone else's house.
+    const _CAMERA_DEFAULT_THUMB_POOL = [];
+    function _cameraDefaultThumb() { return ''; }
+    const _AGENT_DEFAULT_THUMBS = {};
 
     // Render the 2-column widget grid above the device list. The grid
     // ends with a "+ Add agent" tile that opens the AgentCreator flow.
