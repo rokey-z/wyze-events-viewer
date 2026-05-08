@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <!-- This is a design prototype, not production. Disable browser caching
+       so every reload picks up the latest edits — otherwise Chrome/Safari
+       keep serving the stale HTML from disk cache and changes appear
+       broken until the user does a hard reload (Cmd+Shift+R). -->
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Event Page – Wyze</title>
   <!-- Figma capture script removed in single-page extract -->
   <!-- <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script> -->
@@ -84,6 +91,24 @@
         0 0 0 2px #222, 0 0 0 3.5px #555,
         0 40px 100px rgba(0,0,0,0.9);
     }
+    /* Build stamp — tiny date string at the TOP-right of the phone
+       frame so it never gets clipped by the bottom nav. Click to copy. */
+    .phone-frame.dark .build-stamp {
+      position: absolute;
+      right: 6px;
+      top: 4px;
+      z-index: 9999;
+      font-size: 9px;
+      color: rgba(255,255,255,0.28);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      cursor: pointer;
+      user-select: none;
+      pointer-events: auto;
+      padding: 2px 4px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 4px;
+    }
+    .phone-frame.dark .build-stamp:hover { color: rgba(255,255,255,0.6); }
 
     /* ── Status Bar ── */
     .status-bar {
@@ -1771,6 +1796,27 @@
     }
     .phone-frame.dark .help-modal.closing .help-backdrop { animation: fade-out .16s ease-out both; }
     .phone-frame.dark .help-modal.closing .help-sheet    { animation: sheet-collapse .16s ease-in both; }
+    /* Diagnose-modal sections: tighter and code-styled. */
+    .phone-frame.dark .diag-modal .diag-section { margin: 10px 0; }
+    .phone-frame.dark .diag-modal .diag-title {
+      font-size: 11px; font-weight: 700;
+      color: #1DF0BB;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .phone-frame.dark .diag-modal .diag-code {
+      margin: 0;
+      padding: 8px 10px;
+      background: #141414;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      font: 10px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: #d8d8d8;
+      max-height: 180px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
     .phone-frame.dark .help-sheet h3 {
       margin: 0 0 4px; font-weight: 700; font-size: 17px;
     }
@@ -2021,7 +2067,9 @@
       position: relative;
       flex: 0 0 auto;
       width: 100px;
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      /* Larger gap so the bottom-anchored emblem (sitting on the thumb's
+         lower edge) clears the "since" tagline below. */
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
       padding: 4px 4px 8px;
       background: transparent;
       border: none;
@@ -2058,13 +2106,17 @@
     .phone-frame.dark .home-view .home-agent {
       overflow: visible;
     }
-    /* State pill — anchored to the TOP-LEFT of the tile (above the thumb's
-       circular mask) so it never gets clipped by the agent row's scroll
-       container. Always solid green. Icon-only when agent has no data. */
+    /* State pill — straddles the BOTTOM EDGE of the round thumb,
+       horizontally centered with it. Sits OUTSIDE the thumb's circular
+       mask (it's a sibling), so the badge is never clipped. Always solid
+       green. Icon-only when the agent has no data. */
     .phone-frame.dark .home-view .home-agent-emblem {
       position: absolute;
-      top: 4px;
-      left: 4px;
+      /* Thumb is 76px tall starting at top:4px (the tile's top padding),
+         so its bottom edge sits at y=80px. Center the ~20px badge there. */
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
       max-width: calc(100% - 8px);
       padding: 4px 10px 4px 6px;
       background: #1DF0BB;
@@ -2083,12 +2135,17 @@
       width: 14px; height: 14px;
       flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
+      font-size: 13px; line-height: 1;
     }
     .phone-frame.dark .home-view .home-agent-emblem-icon svg {
       width: 14px; height: 14px;
       stroke: currentColor; fill: none;
       stroke-width: 2.2;
       stroke-linecap: round; stroke-linejoin: round;
+    }
+    /* Emoji-rendered agent icon (when the producer ships emoji directly). */
+    .phone-frame.dark .home-view .home-agent-emblem-icon .agent-emoji {
+      font-size: 13px; line-height: 1;
     }
     .phone-frame.dark .home-view .home-agent-emblem-text {
       max-width: 100px;
@@ -2107,24 +2164,23 @@
       min-width: 0;
     }
     /* Below the thumb is now ONLY the tagline (e.g., "for 3 mins").
-       Color/weight scales with the agent's state — bright when there's
-       something happening, dimmed when it's quiet. */
+       Always rendered in a neutral grey — the state colour lives in the
+       badge above; the timestamp stays calm so the row reads cleanly.
+       Wraps freely — taglines are always minimal text so they fit in
+       1–2 lines naturally; nothing is ever clipped or hidden. */
     .phone-frame.dark .home-view .home-agent-since {
       font-size: 11px;
-      color: #6B6B6B;        /* default = dimmed (quiet) */
+      color: #8A8A8A;
       font-weight: 500;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1.25;
+      white-space: normal;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
-    .phone-frame.dark .home-view .home-agent.is-warn .home-agent-since {
-      color: #FFB340;
-      font-weight: 700;
-    }
-    .phone-frame.dark .home-view .home-agent.is-active .home-agent-since {
-      color: #1DF0BB;
-      font-weight: 700;
-    }
-    .phone-frame.dark .home-view .home-agent.is-quiet .home-agent-since {
-      color: #6B6B6B;
+    .phone-frame.dark .home-view .home-agent.is-warn   .home-agent-since,
+    .phone-frame.dark .home-view .home-agent.is-active .home-agent-since,
+    .phone-frame.dark .home-view .home-agent.is-quiet  .home-agent-since {
+      color: #8A8A8A;
       font-weight: 500;
     }
     /* "+ Add agent" tile — dashed-outline thumb to differentiate it. */
@@ -2141,6 +2197,110 @@
     .phone-frame.dark .home-view .home-agent-add .home-agent-emblem {
       background: rgba(29,240,187,0.14);
       color: #1DF0BB;
+    }
+
+    /* Toast-style load-status pill. Renders at the top of the home
+       view, then auto-fades after a few seconds — same affordance as
+       any other transient toast. Click to restore (handled in JS). */
+    .phone-frame.dark .home-view .home-load-status {
+      margin: 4px 16px 8px;
+      padding: 8px 10px;
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      font-size: 11px;
+      color: #b8b8b8;
+      font-weight: 500;
+      transition: opacity .35s ease, transform .35s ease, margin .35s ease, padding .35s ease, height .35s ease;
+      transform-origin: top center;
+    }
+    .phone-frame.dark .home-view .home-load-status.is-dismissed {
+      opacity: 0;
+      transform: scaleY(0);
+      margin: 0 16px;
+      padding: 0 10px;
+      height: 0;
+      pointer-events: none;
+      border-color: transparent;
+    }
+    .phone-frame.dark .home-view .home-load-status.is-live {
+      background: rgba(29,240,187,0.08);
+      border-color: rgba(29,240,187,0.30);
+      color: #1DF0BB;
+    }
+    .phone-frame.dark .home-view .home-load-status.is-demo {
+      background: rgba(255,179,64,0.08);
+      border-color: rgba(255,179,64,0.30);
+      color: #FFD18A;
+    }
+    .phone-frame.dark .home-view .home-load-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: currentColor;
+      box-shadow: 0 0 6px currentColor;
+    }
+    .phone-frame.dark .home-view .home-load-text {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .phone-frame.dark .home-view .home-load-text strong {
+      color: inherit;
+      font-weight: 700;
+    }
+    .phone-frame.dark .home-view .home-load-action {
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.08);
+      color: inherit;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font: inherit; font-size: 10px; font-weight: 600;
+      cursor: pointer;
+    }
+    .phone-frame.dark .home-view .home-load-action:hover {
+      background: rgba(255,255,255,0.16);
+    }
+
+    /* Diagnostic banner — only shown on the home view when the user's
+       loaded payload includes cameras but no agents. Amber tone, clearly
+       not part of the row, with an inline "How to use" deep-link. */
+    .phone-frame.dark .home-view .home-agent-diag {
+      margin: 4px 16px 12px;
+      padding: 10px 12px;
+      display: flex; align-items: flex-start; gap: 10px;
+      background: rgba(255,179,64,0.10);
+      border: 1px solid rgba(255,179,64,0.35);
+      border-radius: 10px;
+      font-size: 12px;
+      color: #FFD18A;
+      line-height: 1.45;
+    }
+    .phone-frame.dark .home-view .home-agent-diag-icon {
+      flex-shrink: 0;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #FFB340;
+      color: #2a1c00;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+      line-height: 1;
+      margin-top: 1px;
+    }
+    .phone-frame.dark .home-view .home-agent-diag-text strong {
+      color: #FFD18A;
+      font-weight: 700;
+      margin-right: 4px;
+    }
+    .phone-frame.dark .home-view .home-agent-diag-link {
+      color: #1DF0BB;
+      cursor: pointer;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
     }
 
     /* ── Agent detail sheet (slide-up) ── */
@@ -3339,11 +3499,11 @@
       margin: 4px 0 6px;
     }
     .phone-frame.dark .chat-drawer.is-creator .ac-template-tile {
-      display: flex; flex-direction: column; gap: 6px;
+      display: flex; flex-direction: row; align-items: center; gap: 10px;
       padding: 12px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
+      border-radius: 12px;
       color: #fff; text-align: left;
       cursor: pointer;
       transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
@@ -3396,16 +3556,42 @@
       font-size: 26px;
     }
     .phone-frame.dark .chat-drawer.is-creator .ac-template-tile-icon {
-      width: 36px; height: 36px; border-radius: 10px;
+      flex-shrink: 0;
+      width: 44px; height: 44px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
+      font-size: 26px;
       background: rgba(255,255,255,0.06);
     }
     .phone-frame.dark .chat-drawer.is-creator .ac-template-tile-name {
-      font-size: 13px; font-weight: 700; color: #fff;
+      flex: 1; min-width: 0;
+      font-size: 14px; font-weight: 700; color: #fff;
+      line-height: 1.25;
     }
-    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile-desc {
-      font-size: 11px; color: #A0A0A0; line-height: 1.35;
+    /* Tagline hidden in the compact grid — surfaces only when the tile
+       is "sent" as a chat message. */
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile .ac-template-tile-desc {
+      display: none;
+    }
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile.is-sent .ac-template-tile-desc {
+      display: block;
+      font-size: 11px; color: #A7E5D2; line-height: 1.35;
+    }
+    /* Show-more / show-less expander under the template grid. */
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-more {
+      align-self: stretch;
+      margin: 4px 0 8px;
+      padding: 10px;
+      background: transparent;
+      border: 1px dashed rgba(255,255,255,0.15);
+      border-radius: 12px;
+      color: #1DF0BB;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-more:hover {
+      background: rgba(29,240,187,0.06);
+      border-color: rgba(29,240,187,0.35);
     }
     .phone-frame.dark .chat-drawer.is-creator .ac-bubble-pick {
       background: rgba(29,240,187,0.18);
@@ -5202,6 +5388,44 @@
     }
     .phone-frame.dark .load-btn:hover { background: #3a3a3a; }
     .phone-frame.dark .empty-err { color: #FF4F4F; font-size: 12px; min-height: 16px; }
+    /* Manual JSON paste — collapsed by default, expands when the user
+       can't get clipboard / bookmarklet to work. Always-available escape
+       hatch so the prototype shell can ingest any payload. */
+    .phone-frame.dark .empty-paste {
+      width: 100%;
+      max-width: 320px;
+      margin-top: 6px;
+      text-align: left;
+    }
+    .phone-frame.dark .empty-paste > summary {
+      list-style: none;
+      cursor: pointer;
+      color: #1DF0BB;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 0;
+      text-align: center;
+      user-select: none;
+    }
+    .phone-frame.dark .empty-paste > summary::-webkit-details-marker { display: none; }
+    .phone-frame.dark .empty-paste-area {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 8px;
+      padding: 10px;
+      background: #1a1a1a;
+      color: #d8d8d8;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+      resize: vertical;
+    }
+    .phone-frame.dark .empty-paste-area:focus { outline: none; border-color: #1DF0BB; }
+    .phone-frame.dark .empty-paste .load-btn.tiny {
+      margin-top: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+    }
 
     /* Clip strip — overlays the BOTTOM of the card-thumbnail, like the mockup. */
     .phone-frame.dark .card-thumbnail .clip-strip {
@@ -6999,14 +7223,22 @@
     //
     // Producer snippet (run in a signed-in Wyze tab, e.g. lumen.wyzecam.com):
     //   (async () => {
-    //     const j = await (await fetch('/api/eventgroups?limit=20&include_thumbnails=true',{credentials:'include'})).json();
-    //     for (const g of j.groups) {
+    //     const fetchJson = (u) => fetch(u, { credentials: 'include' }).then(r => r.json()).catch(() => null);
+    //     const j = await fetchJson('/api/eventgroups?limit=20&include_thumbnails=true');
+    //     for (const g of (j?.groups || [])) {
     //       try {
-    //         const d = await (await fetch('/api/eventgroups/' + g.group_id,{credentials:'include'})).json();
-    //         g.clip_urls = (d.events||[]).map(e => e.file_list?.[0]?.url).filter(Boolean);
+    //         const d = await fetchJson('/api/eventgroups/' + g.group_id);
+    //         g.clip_urls = (d?.events || []).map(e => e.file_list?.[0]?.url).filter(Boolean);
     //       } catch {}
     //     }
-    //     await navigator.clipboard.writeText(JSON.stringify({groups: j.groups}));
+    //     // Optional but recommended — pulls Home agents + creator templates
+    //     // so the prototype mirrors the user's actual lumen account.
+    //     const devices   = (await fetchJson('/api/devices'))?.devices  || [];
+    //     const agents    = (await fetchJson('/api/agents'))?.agents    || [];
+    //     const templates = (await fetchJson('/api/agent_templates'))?.templates || [];
+    //     await navigator.clipboard.writeText(JSON.stringify({
+    //       groups: j?.groups || [], devices, agents, templates
+    //     }));
     //   })();
     // ════════════════════════════════════════
 
@@ -7792,6 +8024,77 @@
       scroll._compactWired = true;
     }
 
+    // Pull an array out of a payload field even when wrapped — handles
+    //   data.agents (array)
+    //   data.agents.{results,items,agents,list,data,entries,records,nodes}
+    //   data.agents (object map keyed by id)
+    // Returns [] when nothing usable is present so the caller can fall back.
+    function _coerceArrayField(field) {
+      if (Array.isArray(field)) return field;
+      if (field && typeof field === 'object') {
+        const KEYS = ['results','items','agents','templates','list','data','entries','records','nodes'];
+        for (const k of KEYS) if (Array.isArray(field[k])) return field[k];
+        // Object map { id: agent, ... } — promote the values.
+        const vals = Object.values(field);
+        if (vals.length && vals.every(v => v && typeof v === 'object')) return vals;
+      }
+      return [];
+    }
+    // Walk the entire parsed payload and return the largest array whose
+    // elements LOOK LIKE agent records (have id+name-ish fields). Used as
+    // a last-resort recovery when the user's snippet shipped agents under
+    // an unexpected key.
+    function _deepFindAgents(root, looksLike, maxDepth) {
+      // 16 is enough to reach Apollo / React-Query dehydrated state
+      // (typical paths: data → _nextData → props → pageProps →
+      //  dehydratedState → queries → [n] → state → data → user → agents
+      //  → record).
+      const md = (typeof maxDepth === 'number') ? maxDepth : 16;
+      const seen = new WeakSet();
+      const found = [];
+      const walk = (node, d) => {
+        if (!node || typeof node !== 'object' || d > md) return;
+        if (seen.has(node)) return; seen.add(node);
+        if (Array.isArray(node)) {
+          if (node.length && node.every(looksLike)) { found.push(node); return; }
+          for (const v of node) walk(v, d + 1);
+          return;
+        }
+        for (const v of Object.values(node)) walk(v, d + 1);
+      };
+      walk(root, 0);
+      if (!found.length) return [];
+      // Prefer the largest array — that's almost always the canonical list.
+      found.sort((a, b) => b.length - a.length);
+      return found[0];
+    }
+    const _LOOKS_LIKE_AGENT = (v) => {
+      if (!v || typeof v !== 'object') return false;
+      const hasId = v.id !== undefined || v.agent_id !== undefined || v._id !== undefined ||
+                    (v.identity && (v.identity.id !== undefined || v.identity.agent_id !== undefined));
+      if (!hasId) return false;
+      // Name can live at top level OR nested under identity / metadata / profile.
+      const hasName =
+        v.name !== undefined || v.label !== undefined || v.title !== undefined || v.display_name !== undefined ||
+        (v.identity && (v.identity.name || v.identity.label || v.identity.title || v.identity.display_name)) ||
+        (v.metadata && (v.metadata.name || v.metadata.label || v.metadata.title)) ||
+        (v.profile  && (v.profile.name  || v.profile.label  || v.profile.title));
+      // Or it's clearly an agent record by virtue of having agent-only fields.
+      return hasName || v.agent_type !== undefined || v.lifecycle_state !== undefined || Array.isArray(v.tools);
+    };
+    const _LOOKS_LIKE_TEMPLATE = (v) =>
+      v && typeof v === 'object'
+      && (v.id !== undefined || v.template_id !== undefined || v.slug !== undefined)
+      && (v.name !== undefined || v.title !== undefined || v.label !== undefined)
+      // Exclude agent records: agents have activity-typed fields, templates don't.
+      && v.tools === undefined
+      && v.agent_id === undefined
+      && v.latest_message === undefined
+      && v.latest_at === undefined
+      && v.recent_messages === undefined
+      && v.recent_activity === undefined
+      && v.last_active_at === undefined
+      && v.feed === undefined;
     async function _loadGroupsFromText(text) {
       if (!text || !text.trim()) throw new Error('empty');
       let data;
@@ -7800,14 +8103,101 @@
       const groups = Array.isArray(data) ? data : (data && data.groups);
       if (!Array.isArray(groups) || !groups.length) throw new Error('no groups[] in JSON');
       window.__rawGroups = groups;
-      // Devices arrive alongside groups in newer payloads. Older snippets
-      // omit them — fall back to an empty list and the Home tab will
-      // render an empty state.
-      window.__rawDevices = (data && Array.isArray(data.devices)) ? data.devices : [];
+      // Devices, agents, and templates arrive alongside groups in newer
+      // payloads. Older snippets omit any subset — empty arrays just mean
+      // the prototype falls back to its hardcoded defaults. Use the
+      // tolerant coercer so a wrapped {results:[]} / object-map payload
+      // still lands in the runtime list.
+      window.__rawDevices   = _coerceArrayField(data && (data.devices || data.device_list));
+      window.__rawAgents    = _coerceArrayField(data && (data.agents || data.agent_list));
+      window.__rawTemplates = _coerceArrayField(data && (data.templates || data.template_list || data.agent_templates));
+      // Deep-walk recovery: if agents/templates came in empty but the
+      // payload contains agent-shaped arrays SOMEWHERE, pull them out.
+      // We walk:  data → data._nextData → data._domDump.  Whichever
+      // tier yields a non-empty match wins, and we record the source.
+      let agentsRecovered = false, templatesRecovered = false;
+      let agentSource = 'data.agents';
+      let templateSource = 'data.templates';
+      const tryRecover = (root, label, predicate, isAgent) => {
+        if (!root) return false;
+        const found = _deepFindAgents(root, predicate);
+        if (!found.length) return false;
+        if (isAgent) { window.__rawAgents = found; agentsRecovered = true; agentSource = label; }
+        else         { window.__rawTemplates = found; templatesRecovered = true; templateSource = label; }
+        return true;
+      };
+      if (!window.__rawAgents.length) {
+        tryRecover(data, 'data deep-walk', _LOOKS_LIKE_AGENT, true)
+          || tryRecover(data && data._nextData, '_nextData', _LOOKS_LIKE_AGENT, true);
+        // DOM-dump is text-only — promote it into agent records.
+        if (!window.__rawAgents.length && Array.isArray(data && data._domDump) && data._domDump.length) {
+          const seen = new Set();
+          const fromDom = data._domDump.map((d, i) => ({
+            id: d.id || ('dom-' + i),
+            name: (d.text || '').split(/\s{2,}|\n/)[0].trim().slice(0, 40),
+            description: d.text || '',
+            status_text: d.text || ''
+          })).filter(a => {
+            if (!a.name) return false;
+            const k = a.name.toLowerCase();
+            if (seen.has(k)) return false;
+            seen.add(k); return true;
+          });
+          if (fromDom.length) { window.__rawAgents = fromDom; agentsRecovered = true; agentSource = '_domDump'; }
+        }
+      }
+      if (!window.__rawTemplates.length) {
+        tryRecover(data, 'data deep-walk', _LOOKS_LIKE_TEMPLATE, false)
+          || tryRecover(data && data._nextData, '_nextData', _LOOKS_LIKE_TEMPLATE, false);
+      }
+      // Stash a diagnostic record so the home banner / Diagnose button
+      // can show the user EXACTLY what landed without re-parsing.
+      window.__lastLoadDiag = {
+        ts: Date.now(),
+        snippet_version: data?._diag?.snippet_version || '(none — bookmarklet may be stale)',
+        snippet_host: data?._diag?.host || '(unknown)',
+        snippet_trace_len: Array.isArray(data?._diag?.trace) ? data._diag.trace.length : 0,
+        topKeys: data && typeof data === 'object' ? Object.keys(data) : [],
+        agentsType:
+          Array.isArray(data?.agents) ? 'array(' + data.agents.length + ')' :
+          (data?.agents && typeof data.agents === 'object') ? 'object{' + Object.keys(data.agents).join(',') + '}' :
+          (data?.agents === undefined) ? 'missing' : typeof data.agents,
+        templatesType:
+          Array.isArray(data?.templates) ? 'array(' + data.templates.length + ')' :
+          (data?.templates && typeof data.templates === 'object') ? 'object{' + Object.keys(data.templates).join(',') + '}' :
+          (data?.templates === undefined) ? 'missing' : typeof data.templates,
+        firstAgentKeys: window.__rawAgents[0] ? Object.keys(window.__rawAgents[0]) : [],
+        agentsRecovered, templatesRecovered,
+        agentSource, templateSource,
+        has_next_data: !!data?._nextData,
+        dom_dump_count: Array.isArray(data?._domDump) ? data._domDump.length : 0,
+        counts: {
+          groups: groups.length,
+          devices: (window.__rawDevices||[]).length,
+          agents: (window.__rawAgents||[]).length,
+          templates: (window.__rawTemplates||[]).length
+        }
+      };
+      try { console.log('[wyze] loaded',
+        groups.length, 'groups ·',
+        (window.__rawDevices||[]).length, 'devices ·',
+        (window.__rawAgents||[]).length, 'agents ·',
+        (window.__rawTemplates||[]).length, 'templates'); } catch {}
+      try { console.log('[wyze] load diag', window.__lastLoadDiag); } catch {}
+      try {
+        if (!(window.__rawAgents||[]).length && data && data.agents !== undefined) {
+          console.warn('[wyze] payload has `agents` but it is not an array/known wrapper:', data.agents);
+        }
+        if (!(window.__rawTemplates||[]).length && data && data.templates !== undefined) {
+          console.warn('[wyze] payload has `templates` but it is not an array/known wrapper:', data.templates);
+        }
+      } catch {}
       populateCamDropdown(groups);
       applyFiltersAndRender();
-      // Refresh Home view if it's currently visible.
-      if (document.querySelector('.home-view.is-active')) renderHomeView();
+      // Always re-render the Home view (whether active or not) so the
+      // agent row + camera grid pick up the new data; that way switching
+      // tabs after Load shows the live state without a manual reload.
+      if (typeof renderHomeView === 'function') renderHomeView();
       return groups.length;
     }
 
@@ -7834,6 +8224,21 @@
         // Cache the successful payload so reloads survive without needing a
         // fresh clipboard copy each time.
         try { localStorage.setItem('wyze:lastData', text); } catch {}
+        // Surface a clear summary so the user can spot a stale bookmarklet.
+        if (!silent && typeof _showToast === 'function') {
+          const counts =
+            (window.__rawGroups||[]).length    + ' groups · ' +
+            (window.__rawDevices||[]).length   + ' devices · ' +
+            (window.__rawAgents||[]).length    + ' agents · ' +
+            (window.__rawTemplates||[]).length + ' templates';
+          _showToast('Loaded ' + counts);
+          if (!(window.__rawAgents||[]).length || !(window.__rawTemplates||[]).length) {
+            // The pasted data is missing one of the lumen-only fields.
+            // Tell the user where to grab the updated bookmarklet so the
+            // home agent row + creator templates pull from their account.
+            console.warn('[wyze] Loaded data has no `agents` or `templates` array. Re-copy the bookmarklet from the "How to use" modal — the older snippet only included groups + devices.');
+          }
+        }
       } catch (e) {
         if (!silent) {
           if (!document.querySelector('.empty-state')) renderEmptyState();
@@ -8371,9 +8776,30 @@
 
     // SVG marks used by widget emblems and sheet headers.
     const _AGENT_ICONS = {
-      garage:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-6 9 6v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M6 13h12"/><path d="M6 17h12"/></svg>',
-      package: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7.5l7.5-3 7.5 3v9l-7.5 3-7.5-3z"/><path d="M4.5 7.5L12 10.5l7.5-3"/><path d="M12 10.5v9"/></svg>',
-      birds:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h.01"/><path d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20"/><path d="m20 7 2 .5-2 .5"/><path d="M10 18v3"/><path d="M14 17.75V21"/><path d="M7 18a6 6 0 0 0 3.84-10.61"/></svg>'
+      askhome:        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+      storyteller:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+      houseprofile:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9"/><circle cx="12" cy="14" r="2"/></svg>',
+      trashbin:       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
+      package:        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7.5l7.5-3 7.5 3v9l-7.5 3-7.5-3z"/><path d="M4.5 7.5L12 10.5l7.5-3"/><path d="M12 10.5v9"/></svg>',
+      garage:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-6 9 6v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M6 13h12"/><path d="M6 17h12"/></svg>',
+      troubleshooter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M9 7V4h6v3"/><circle cx="9" cy="13" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="13" r="1.2" fill="currentColor" stroke="none"/><path d="M9 16h6"/></svg>',
+      // Extra domain icons used by lumen-shipped agents that don't match
+      // the hardcoded fallbacks. _iconForAgent picks one by keyword.
+      door:           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/><path d="M3 21h18"/><circle cx="15" cy="13" r="0.8" fill="currentColor" stroke="none"/></svg>',
+      pet:            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="9" r="2"/><circle cx="10" cy="5" r="2"/><circle cx="14" cy="5" r="2"/><circle cx="18" cy="9" r="2"/><path d="M9 14c0-2 1.5-3 3-3s3 1 3 3c0 1.5 1 2 1 3.5 0 1.5-1.5 2.5-3 2-1-.3-1-.3-2 0-1.5.5-3-.5-3-2 0-1.5 1-2 1-3.5z"/></svg>',
+      bird:           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7a3 3 0 1 0-6 0c0 4-7 6-7 6s4 5 9 5 9-5 9-9c0-1.5-.5-2.5-1.5-3.5"/><path d="M21 6l-3 1"/><circle cx="15" cy="7" r="0.8" fill="currentColor" stroke="none"/></svg>',
+      baby:           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M9 8.5h.01"/><path d="M15 8.5h.01"/><path d="M10 11c.5.7 1.2 1 2 1s1.5-.3 2-1"/><path d="M5 21c.5-3 3.5-5 7-5s6.5 2 7 5"/></svg>',
+      stove:          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="14" rx="2"/><circle cx="9"  cy="11" r="1.6"/><circle cx="15" cy="11" r="1.6"/><path d="M7 16h10"/></svg>',
+      light:          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c1 1 1.5 2 1.5 3.5h5c0-1.5.5-2.5 1.5-3.5A6 6 0 0 0 12 3z"/></svg>',
+      lock:           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+      sensor:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16 8a5 5 0 0 1 0 8"/><path d="M8 8a5 5 0 0 0 0 8"/><path d="M19 5a9 9 0 0 1 0 14"/><path d="M5 5a9 9 0 0 0 0 14"/></svg>',
+      kid:            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6" r="3"/><path d="M9 22v-4l-2-3 3-4h4l3 4-2 3v4"/></svg>',
+      car:            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16h14"/><path d="M5 16v-3l2-5h10l2 5v3"/><circle cx="8" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/></svg>',
+      person:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="3.5"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/></svg>',
+      moon:           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 13a8 8 0 1 1-9-10 6 6 0 0 0 9 10z"/></svg>',
+      flame:          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c4 0 6-2.5 6-6 0-3-2-4-3-6-1 1-2 2-2 4 0-2-1-4-3-5-1 2-3 4-3 7 0 3.5 1.5 6 5 6z"/></svg>',
+      bell:           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16l-1 2h14l-1-2V11a6 6 0 0 0-12 0z"/><path d="M10 21h4"/></svg>',
+      shield:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>'
     };
 
     // Format a duration in ms into a short "Xh Ym" / "Ym" string.
@@ -8451,12 +8877,12 @@
         return !later;
       });
       if (!recent7.length) {
-        return { state: 'No packages', since: 'past 7 days', thumb: '', accent: 'is-quiet', primary: null, recent: [] };
+        return { state: 'No packages', since: '7 days', thumb: '', accent: 'is-quiet', primary: null, recent: [] };
       }
       const latest = recent7[0];
       return {
         state:   waiting.length ? (waiting.length + ' waiting') : 'No packages',
-        since:   waiting.length ? ('latest ' + relTimeAgo(latest.t)) : ('last ' + relTimeAgo(latest.t)),
+        since:   relTimeAgo(latest.t),
         thumb:   _subjectThumbUrlForGroup(latest.g),
         accent:  waiting.length ? 'is-warn' : 'is-quiet',
         primary: latest.g,
@@ -8482,7 +8908,7 @@
       const n = todayList.length;
       return {
         state:   n ? (n + ' today') : 'None today',
-        since:   'latest ' + relTimeAgo(latest.t),
+        since:   relTimeAgo(latest.t),
         thumb:   _subjectThumbUrlForGroup(latest.g),
         accent:  n ? 'is-active' : 'is-quiet',
         primary: latest.g,
@@ -8491,15 +8917,379 @@
       };
     }
 
-    const _AGENTS = [
-      { id: 'garage',  label: 'Garage Door',    iconHtml: _AGENT_ICONS.garage,  evaluate: _agentGarage  },
-      { id: 'package', label: 'Packages',       iconHtml: _AGENT_ICONS.package, evaluate: _agentPackage },
-      { id: 'birds',   label: 'Birds Watcher',  iconHtml: _AGENT_ICONS.birds,   evaluate: _agentBirds   }
+    // Mirror the user's actual agents from lumen.wyzecam.com/agents/settings.
+    // Each evaluator returns the lightweight state the home tile shows
+    // (state + tagline). Where the prototype already has a real evaluator
+    // (garage / package), we keep it; the rest are mock stubs returning
+    // realistic standby copy so the row reads like the real account.
+    function _agentAskhome() {
+      return { state: 'Online', since: '37 tools', accent: 'is-active', thumb: '', primary: null };
+    }
+    function _agentStoryteller(groups) {
+      const n = (groups || []).length;
+      return n
+        ? { state: n + ' new', since: 'last 24h', accent: 'is-active', thumb: '', primary: null }
+        : { state: 'Standing by', since: 'no new', accent: 'is-quiet', thumb: '', primary: null };
+    }
+    function _agentHouseProfile() {
+      return { state: 'All normal', since: 'all cams', accent: 'is-quiet', thumb: '', primary: null };
+    }
+    function _agentTrashBin() {
+      return { state: 'Wed', since: 'next ~6:50 AM', accent: 'is-quiet', thumb: '', primary: null };
+    }
+    function _agentTroubleshooter() {
+      return { state: 'OK', since: '8 tools', accent: 'is-quiet', thumb: '', primary: null };
+    }
+
+    // Hardcoded fallback list — used when window.__rawAgents is empty
+    // (i.e., the producer snippet didn't ship an `agents` field). This
+    // mirrors the lumen.wyzecam.com starter set so the prototype still
+    // looks populated on a fresh load.
+    const _AGENTS_FALLBACK = [
+      { id: 'askhome',        label: 'AskHome',             iconHtml: _AGENT_ICONS.askhome,        evaluate: _agentAskhome         },
+      { id: 'storyteller',    label: 'StoryTeller',         iconHtml: _AGENT_ICONS.storyteller,    evaluate: _agentStoryteller     },
+      { id: 'houseprofile',   label: 'House Profile Agent', iconHtml: _AGENT_ICONS.houseprofile,   evaluate: _agentHouseProfile    },
+      { id: 'trashbin',       label: 'Trash Bin Checker',   iconHtml: _AGENT_ICONS.trashbin,       evaluate: _agentTrashBin        },
+      { id: 'package',        label: 'Package Reminder',    iconHtml: _AGENT_ICONS.package,        evaluate: _agentPackage         },
+      { id: 'garage',         label: 'Garage Door Watcher', iconHtml: _AGENT_ICONS.garage,         evaluate: _agentGarage          },
+      { id: 'troubleshooter', label: 'Camera Troubleshooter', iconHtml: _AGENT_ICONS.troubleshooter, evaluate: _agentTroubleshooter }
     ];
+
+    // Extract display fields from an agent record regardless of shape.
+    // Lumen agents nest the human-readable bits under `identity`, while
+    // older payloads have them at the top level — read both.
+    function _agentFields(a) {
+      const idy = (a && (a.identity || a.profile || a.metadata || a.info)) || {};
+      const id   = a.id || a.agent_id || a._id || idy.id || idy.agent_id ||
+                   ((a.name || idy.name || 'agent') + '').toLowerCase().replace(/\s+/g, '-');
+      const name = a.name || a.label || a.title || a.display_name ||
+                   idy.name || idy.label || idy.title || idy.display_name ||
+                   'Agent';
+      const description = a.description || a.summary || a.tagline ||
+                          idy.description || idy.summary || idy.tagline || '';
+      const category = a.category || a.kind || a.agent_type || a.type ||
+                       idy.category || idy.kind || idy.agent_type || '';
+      const emoji = a.emoji || a.icon_emoji || a.icon || a.symbol ||
+                    idy.emoji || idy.icon_emoji || idy.icon || idy.symbol || '';
+      const state = a.lifecycle_state || a.state || a.status || a.runtime_state ||
+                    idy.lifecycle_state || idy.state || idy.status || '';
+      const tagsArr = a.tags || idy.tags;
+      const tags = Array.isArray(tagsArr) ? tagsArr.join(' ') : '';
+      return { id, name, description, category, emoji, state, tags };
+    }
+    // Pick a stroked SVG for an agent based on its id / name / description /
+    // category. We deliberately ignore any emoji shipped by the producer
+    // snippet — the home row uses outline icons for visual consistency
+    // with the rest of the dark Wyze theme.
+    function _iconForAgent(a) {
+      const f = _agentFields(a);
+      const k = (
+        String(f.id) + ' ' +
+        String(f.name) + ' ' +
+        String(f.description) + ' ' +
+        String(f.category) + ' ' +
+        String(f.tags)
+      ).toLowerCase();
+      // Order matters — most specific keywords first so a "garage door"
+      // agent picks the garage icon, not the generic door one.
+      if (/(garage)/.test(k))                                return _AGENT_ICONS.garage;
+      if (/(package|delivery|parcel|shipment)/.test(k))      return _AGENT_ICONS.package;
+      if (/(trash|bin|garbage|recycl)/.test(k))              return _AGENT_ICONS.trashbin;
+      if (/(stove|kitchen|range|burner|oven|cook)/.test(k))  return _AGENT_ICONS.stove;
+      if (/(baby|crib|nursery|infant)/.test(k))              return _AGENT_ICONS.baby;
+      if (/(bird|feeder|species|wildlife)/.test(k))          return _AGENT_ICONS.bird;
+      if (/(pet|dog|cat|paw|leash)/.test(k))                 return _AGENT_ICONS.pet;
+      if (/(kid|child|son|daughter|teen|homework)/.test(k))  return _AGENT_ICONS.kid;
+      if (/(door|porch|entry|entrance|threshold)/.test(k))   return _AGENT_ICONS.door;
+      if (/(lock|deadbolt|latch)/.test(k))                   return _AGENT_ICONS.lock;
+      if (/(car|vehicle|driveway|gate)/.test(k))             return _AGENT_ICONS.car;
+      if (/(bell|doorbell|chime|ring)/.test(k))              return _AGENT_ICONS.bell;
+      if (/(light|lamp|brightness|illumin)/.test(k))         return _AGENT_ICONS.light;
+      if (/(motion|sensor|presence|detect)/.test(k))         return _AGENT_ICONS.sensor;
+      if (/(sleep|night|moon|bedtime)/.test(k))              return _AGENT_ICONS.moon;
+      if (/(fire|flame|heat|smoke)/.test(k))                 return _AGENT_ICONS.flame;
+      if (/(secur|guard|protect|alarm|shield)/.test(k))      return _AGENT_ICONS.shield;
+      if (/(person|guest|visitor|stranger|face)/.test(k))    return _AGENT_ICONS.person;
+      if (/(troubleshoot|diagnos|health|cam|status)/.test(k))return _AGENT_ICONS.troubleshooter;
+      if (/(story|story\s*tell|recap|highlight|memory)/.test(k)) return _AGENT_ICONS.storyteller;
+      if (/(house|profile|household|family)/.test(k))        return _AGENT_ICONS.houseprofile;
+      if (/(ask|chat|assistant|q\s*&\s*a)/.test(k))          return _AGENT_ICONS.askhome;
+      return _AGENT_ICONS.askhome;
+    }
+
+    // Distill an agent's recent message into a 1–2 word badge that fits
+    // comfortably next to the icon. We look for a state keyword first
+    // (open / closed / sleeping / arrived / detected …) and use that
+    // alone. If nothing matches, we fall back to a leading "<N> seen"
+    // when the message starts with a number, otherwise the first word.
+    const _STATE_KEYWORDS = [
+      // Status / activity verbs — pick the most informative single word.
+      ['Open',     /\b(opened|open|left\s+open|raised|raised)\b/i],
+      ['Closed',   /\b(closed|closing|shut|locked)\b/i],
+      ['Secure',   /\b(secure|safe|all\s+clear|all\s+normal|protected)\b/i],
+      ['Arrived',  /\b(arrived|delivered|dropped\s+off|left\s+at)\b/i],
+      ['Picked up',/\b(picked\s+up|retrieved|collected|taken)\b/i],
+      ['Waiting',  /\b(waiting|pending|outstanding)\b/i],
+      ['Resting',  /\b(resting|sleeping|asleep|napping)\b/i],
+      ['Awake',    /\b(awake|woke\s+up|up\s+from)\b/i],
+      ['Playing',  /\b(playing|active|running|chasing)\b/i],
+      ['Eating',   /\b(eating|feeding|drinking|chewing)\b/i],
+      ['Cooking',  /\b(cooking|boiling|simmering|baking)\b/i],
+      ['On',       /\b(turned\s+on|switched\s+on|powered\s+on|now\s+on)\b/i],
+      ['Off',      /\b(turned\s+off|switched\s+off|powered\s+off|now\s+off)\b/i],
+      ['Detected', /\b(detected|spotted|sighted|noticed|seen)\b/i],
+      ['Alert',    /\b(alert|warning|alarm|attention)\b/i],
+      ['Online',   /\b(online|connected|reachable)\b/i],
+      ['Offline',  /\b(offline|disconnect(ed)?|unreachable|down)\b/i],
+      ['Empty',    /\b(empty|cleared|none|nothing)\b/i],
+      ['Full',     /\b(full|busy|crowded)\b/i],
+      ['Visiting', /\b(visit(ed|ing)?|stopped\s+by)\b/i],
+      ['Quiet',    /\b(quiet|standing\s+by|idle|no\s+activity)\b/i]
+    ];
+    function _shortStateFromMessage(msg) {
+      const s = String(msg || '').trim();
+      if (!s) return '';
+      // 1) Leading count → "<N> seen" / "<N> today" — keep the number.
+      const num = s.match(/^(\d+)\b/);
+      if (num) {
+        // Prefer a unit word that follows the number (species / packages /
+        // visits / deliveries) when it's short enough.
+        const unitMatch = s.slice(num[0].length).match(/^\s+([a-z]+)/i);
+        const unit = unitMatch ? unitMatch[1].toLowerCase() : '';
+        const shortUnits = { species:'seen', visits:'seen', visit:'seen',
+          packages:'pkgs', package:'pkgs', deliveries:'pkgs', delivery:'pkgs',
+          alerts:'alerts', alert:'alerts', events:'events', event:'events',
+          birds:'birds', bird:'birds', pets:'pets', pet:'pets',
+          people:'people', person:'people', visitors:'guests', visitor:'guests' };
+        if (unit && shortUnits[unit]) return num[1] + ' ' + shortUnits[unit];
+        return num[1] + ' today';
+      }
+      // 2) State keyword — pick the most informative single match.
+      for (const [label, re] of _STATE_KEYWORDS) {
+        if (re.test(s)) return label;
+      }
+      // 3) Fallback: first 1–2 leading words, title-cased, capped at 14 chars.
+      const words = s.split(/\s+/).slice(0, 2).join(' ').replace(/[.,;:!?]+$/, '');
+      const cap = words.length > 14 ? words.slice(0, 14).replace(/\s+\S*$/, '') + '…' : words;
+      return cap.charAt(0).toUpperCase() + cap.slice(1);
+    }
+    // Pick a state accent from message keywords — warn for action words
+    // (open, left, detected, alert), active for "currently…", quiet otherwise.
+    function _accentFromMessage(msg) {
+      const s = String(msg || '').toLowerCase();
+      if (!s) return 'is-quiet';
+      // Reassuring keywords trump alarming ones — "currently closed and
+      // secure, with no open duration" should NOT read as warn.
+      if (/\b(secure|closed|all\s+normal|all\s+clear|no\s+open|no\s+activity|online|standing\s+by|ready|ok)\b/.test(s)) return 'is-active';
+      if (/\b(left\s+open|door\s+open|alert|warning|detect(ed)?|outside|missing|broken|offline|fall|down|stranger)\b/.test(s)) return 'is-warn';
+      return 'is-active';
+    }
+    // Format a message timestamp as a short "Xh ago" / "Yd ago" tagline.
+    function _agoFrom(ts) {
+      if (!ts) return '';
+      const t = (typeof ts === 'number') ? ts : +new Date(ts);
+      if (!isFinite(t) || t <= 0) return '';
+      const diff = Date.now() - t;
+      const sec = Math.floor(diff / 1000);
+      if (sec < 60)   return 'just now';
+      const min = Math.floor(sec / 60);
+      if (min < 60)   return min + 'm ago';
+      const hr = Math.floor(min / 60);
+      if (hr < 24)    return hr + 'h ago';
+      const day = Math.floor(hr / 24);
+      if (day < 7)    return day + 'd ago';
+      const wk = Math.floor(day / 7);
+      return wk + 'w ago';
+    }
+
+    // Scan an agent record for a recent-activity sentence we can show on
+    // the home tile. Lumen ships these under wildly different keys per
+    // account, so we walk known places top-down and return the first
+    // useful string. Result is run through _shortStateFromMessage to
+    // produce the 1–2 word badge.
+    const _MESSAGE_KEYS = [
+      'latest_message','last_message','recent_message',
+      'last_action','last_event','last_alert','last_log',
+      'activity_summary','status_message','status_text',
+      'runtime_status','runtime_message','runtime_status_text',
+      'summary','message','description'
+    ];
+    function _extractRecentMessage(a) {
+      if (!a || typeof a !== 'object') return '';
+      // Top-level scan first.
+      for (const k of _MESSAGE_KEYS) {
+        const v = a[k];
+        if (typeof v === 'string' && v.trim()) return v.trim();
+      }
+      // Pull from recent_messages / recent_activity / feed arrays.
+      const arrays = [a.recent_messages, a.recent_activity, a.feed, a.messages, a.events, a.activity, a.history, a.timeline];
+      for (const arr of arrays) {
+        if (Array.isArray(arr) && arr.length) {
+          const m = arr[0];
+          const v = m && (m.text || m.summary || m.title || m.message || m.body || m.action);
+          if (typeof v === 'string' && v.trim()) return v.trim();
+        }
+      }
+      // Nested known carriers.
+      for (const nestKey of ['identity','metadata','profile','provenance','status','runtime']) {
+        const obj = a[nestKey];
+        if (obj && typeof obj === 'object') {
+          for (const k of _MESSAGE_KEYS) {
+            const v = obj[k];
+            if (typeof v === 'string' && v.trim()) return v.trim();
+          }
+        }
+      }
+      return '';
+    }
+
+    // Pull the most-recent activity timestamp out of an agent record so
+    // we can sort the home row newest-first. Returns 0 (oldest) when
+    // nothing is parseable so those tiles sink to the bottom.
+    function _agentLatestMs(a) {
+      const candidates = [
+        a && a.latest_at,
+        a && a.updated_at,
+        a && a.last_active_at,
+        a && a.last_seen_at,
+        a && a.modified_at,
+        a && a.identity && a.identity.updated_at,
+        a && a.identity && a.identity.last_active_at
+      ];
+      for (const c of candidates) {
+        if (!c) continue;
+        const t = (typeof c === 'number') ? c : +new Date(c);
+        if (isFinite(t) && t > 0) return t;
+      }
+      if (Array.isArray(a && a.recent_messages) && a.recent_messages.length) {
+        const m = a.recent_messages[0];
+        const t = +new Date(m.timestamp || m.created_at || m.time || m.at || 0);
+        if (isFinite(t) && t > 0) return t;
+      }
+      // Last resort — created_at sorts very stable agents to the bottom.
+      const created = a && (a.created_at || a.identity?.created_at);
+      if (created) {
+        const t = (typeof created === 'number') ? created : +new Date(created);
+        if (isFinite(t) && t > 0) return t;
+      }
+      return 0;
+    }
+
+    // Build a runtime list from the producer snippet's `agents` payload
+    // (if present), falling back to the hardcoded list. Each entry needs
+    // { id, label, iconHtml, evaluate(groups) } to be tile-renderable.
+    // Sorted newest-first so the most active agent leads the home row.
+    function _resolveAgents() {
+      const raw = (typeof window !== 'undefined' && Array.isArray(window.__rawAgents))
+        ? window.__rawAgents : [];
+      // Once the user has loaded ANY data (even an empty agents array),
+      // the row reflects their paste exactly — no demo backfill. The
+      // hardcoded fallback is only for the first-visit "no data yet"
+      // state, so the prototype still shows something on cold start.
+      const userLoaded = (typeof window !== 'undefined' && window.__lastLoadDiag);
+      if (!raw.length) return userLoaded ? [] : _AGENTS_FALLBACK;
+      // Stable sort by latest activity, newest first. Agents without any
+      // timestamp fall to the bottom in their original (lumen-supplied)
+      // order so the row still feels predictable.
+      const sorted = raw
+        .map((a, i) => ({ a, i, ms: _agentLatestMs(a) }))
+        .sort((x, y) => (y.ms - x.ms) || (x.i - y.i))
+        .map(x => x.a);
+      return sorted.map(a => {
+        const f = _agentFields(a);
+        return {
+          id: f.id,
+          label: f.name,
+          iconHtml: _iconForAgent(a),
+          evaluate: () => {
+            // 1) Prefer a real recent-activity message wherever it lives.
+            //    Lumen accounts can ship message text under any number of
+            //    keys, so we cast a wide net over both top-level and
+            //    nested objects (identity / provenance / metadata).
+            const msg = _extractRecentMessage(a);
+            const at  = a.latest_at || a.updated_at || a.last_active_at ||
+                        a.identity?.updated_at || a.identity?.last_active_at ||
+                        (Array.isArray(a.recent_messages) && a.recent_messages[0]
+                          ? (a.recent_messages[0].timestamp || a.recent_messages[0].created_at || a.recent_messages[0].time || a.recent_messages[0].at)
+                          : null);
+            if (msg) {
+              return {
+                state:  _shortStateFromMessage(msg),
+                since:  _agoFrom(at) || '',
+                accent: _accentFromMessage(msg),
+                thumb:  a.thumb || '',
+                primary: null,
+                fullMessage: msg
+              };
+            }
+            // 2) No message text — derive a 1–2 word badge that conveys
+            //    the agent's PURPOSE plus its lifecycle. "Garage agent +
+            //    active" reads better as "Watching" than as a generic
+            //    "Active". Description (if present) wins when it offers
+            //    a more specific verb than lifecycle alone.
+            const lifecycle = String(f.state || '').toLowerCase();
+            const purpose   = (f.category + ' ' + f.name + ' ' + f.description).toLowerCase();
+            let pillState = 'Standing by', accent = 'is-quiet';
+            if (/error|fail|down|unavailable|alert/.test(lifecycle)) {
+              pillState = 'Alert'; accent = 'is-warn';
+            } else if (/paused|disabled|inactive|stopped/.test(lifecycle)) {
+              pillState = 'Paused'; accent = 'is-quiet';
+            } else if (/draft|pending/.test(lifecycle)) {
+              pillState = 'Draft'; accent = 'is-quiet';
+            } else if (/active|enabled|online|running|live/.test(lifecycle)) {
+              // Map purpose to an action verb so 7 "Active" tiles don't
+              // read identically. Order matters — most specific first.
+              if      (/garage/.test(purpose))                        { pillState = 'Watching'; accent = 'is-active'; }
+              else if (/package|delivery|parcel/.test(purpose))       { pillState = 'Tracking'; accent = 'is-active'; }
+              else if (/bird|species|wildlife/.test(purpose))         { pillState = 'Counting'; accent = 'is-active'; }
+              else if (/baby|crib|nursery/.test(purpose))             { pillState = 'Listening';accent = 'is-active'; }
+              else if (/pet|dog|cat/.test(purpose))                   { pillState = 'Watching'; accent = 'is-active'; }
+              else if (/stove|kitchen|fire/.test(purpose))            { pillState = 'Watching'; accent = 'is-active'; }
+              else if (/security|guard|alarm/.test(purpose))          { pillState = 'On guard'; accent = 'is-active'; }
+              else if (/door|porch|entry/.test(purpose))              { pillState = 'Watching'; accent = 'is-active'; }
+              else if (/story|recap|highlight|memory/.test(purpose))  { pillState = 'Recapping';accent = 'is-active'; }
+              else if (/profile|household|family/.test(purpose))      { pillState = 'Learning'; accent = 'is-active'; }
+              else if (/troubleshoot|diagnos|health|status/.test(purpose)) { pillState = 'Healthy'; accent = 'is-active'; }
+              else if (/ask|chat|assistant/.test(purpose))            { pillState = 'Online';   accent = 'is-active'; }
+              else                                                    { pillState = 'Active';   accent = 'is-active'; }
+            } else if (lifecycle) {
+              pillState = lifecycle.charAt(0).toUpperCase() + lifecycle.slice(1);
+              accent = 'is-active';
+            }
+            const toolCount = Array.isArray(a.tools) ? a.tools.length :
+                              (typeof a.tools_count === 'number' ? a.tools_count : 0);
+            const trigCount = Array.isArray(a.triggers) ? a.triggers.length :
+                              (typeof a.triggers_count === 'number' ? a.triggers_count : 0);
+            const ago = _agoFrom(at);
+            const since = ago || (toolCount ? toolCount + ' tools'
+                                : trigCount ? trigCount + ' rules'
+                                : '');
+            return { state: pillState, since, accent, thumb: a.thumb || '', primary: null };
+          }
+        };
+      });
+    }
+    // Backward-compatible alias for code that reads `_AGENTS` directly.
+    const _AGENTS = new Proxy(_AGENTS_FALLBACK, {
+      get(target, prop) {
+        const live = _resolveAgents();
+        if (prop === 'find' || prop === 'map' || prop === 'filter' ||
+            prop === 'forEach' || prop === 'length' || prop === 'slice' ||
+            typeof prop === 'symbol') {
+          return live[prop]?.bind ? live[prop].bind(live) : live[prop];
+        }
+        return live[prop];
+      }
+    });
 
     // Map a Home-tab agent id to the matching creator template id so we can
     // tell which domains are "already covered" by an active widget.
-    const _AGENT_TO_TEMPLATE = { garage: 'garage', package: 'package', birds: 'bird' };
+    const _AGENT_TO_TEMPLATE = {
+      garage: 'garage',
+      package: 'package',
+      // birds: 'bird',     // bird agent removed — suggestions can still surface bird template
+      // No template overlap for AskHome / StoryTeller / House Profile / Trash Bin / Troubleshooter.
+    };
     const _ACTIVE_TEMPLATE_IDS = () => new Set(_AGENTS.map(a => _AGENT_TO_TEMPLATE[a.id]).filter(Boolean));
 
     // Inspect the events captured by a single camera and, if we see signal
@@ -8550,137 +9340,132 @@
     // detection label, and the push-notification preview content.
     // Ported from Wyze-cam-agent's TEMPLATE constants.
     // ════════════════════════════════════════
-    const _CREATOR_TEMPLATES = [
-      {
-        id: 'stove', emoji: '🔥', name: 'Stove', domain: 'stove',
-        description: 'Monitor your stove to prevent accidents',
-        features: ['Detects if a burner is left on', 'Alerts if unattended', 'Works in any lighting'],
-        triggerWords: /\b(stove|burner|range|kitchen|cook(ing)?)\b/i,
-        clarification: { q: 'Are you primarily worried about a safety hazard (smoke / fire) or just leaving it on?',
+    // Helper to keep the 20 lumen templates terse — fills the standard
+    // duration/unattended/positioning/test/etc. slots with sensible
+    // defaults so each entry only specifies what's unique.
+    function _mkTpl(opts) {
+      const name = opts.name;
+      const detectionLabel = opts.detectionLabel || name.toLowerCase() + ' event';
+      return Object.assign({
+        emoji: '✨',
+        domain: opts.id,
+        features: ['Visual analysis', 'Memory management', 'Works across your cameras'],
+        clarification: { q: 'How would you like ' + name + ' to behave?',
           options: [
-            { value: 'status', label: 'Status check', sub: 'Did I leave it on?' },
-            { value: 'hazard', label: 'Safety hazard', sub: 'Smoke & fire' }
-          ] },
-        durationLabel: 'If the stove is left on, how long should I wait before alerting you?',
-        unattendedLabel: 'How long can the stove be left unattended before I send an extra safety alert?',
-        cameraLabel: 'Great! Now which camera should I use for your Stove agent?',
-        positionLabel: 'Hold the camera and adjust until you can clearly see the stovetop.',
-        positionTip: '💡 Tip: mount the camera above and angled down so all four burners are in frame.',
-        testAction: '🔥 I turned on the front left burner',
-        testActionEcho: 'Okay I turned on the front left burner',
-        detectionLabel: 'front left burner',
-        detectionMessage: "Perfect! I detected the front left burner is on.",
-        offPrompt: 'Great! Now please turn off the burner so I can verify I stop detecting it.',
+            { value: 'alert',  label: 'Alert me',     sub: 'Push notifications' },
+            { value: 'log',    label: 'Just log it',  sub: 'No interruptions' }
+          ]
+        },
+        durationLabel: 'How quickly should I react?',
+        unattendedLabel: 'How long until I send a follow-up nudge?',
+        cameraLabel: 'Which camera should ' + name + ' watch?',
+        positionLabel: 'Aim the camera so the area you want to watch is centered.',
+        positionTip: 'Center the subject in the dashed area.',
+        testAction: '🎯 Trigger the event now',
+        testActionEcho: 'Okay I triggered the event',
+        detectionLabel,
+        detectionMessage: 'Perfect! I detected ' + detectionLabel + '.',
+        offPrompt: 'Now reset the trigger so I can verify I stop detecting it.',
         offEcho: "Okay it's off now",
         learning: ['Detection calibrated', 'Monitoring zone set', 'Alerts configured', 'Agent ready'],
-        pushTitle: 'Stove Agent', pushMessage: 'Front left burner detected', pushThumb: '🔥',
-        successMessage: '🎉 Your Stove Agent is live. I\'ll keep an eye on the kitchen and ping you if a burner is left on too long.',
-        gradient: 'linear-gradient(135deg, #FFB340, #FF4F4F)'
-      },
-      {
-        id: 'garage', emoji: '🚪', name: 'Garage Door', domain: 'garage',
-        description: 'Watch the garage and alert if it\'s left open',
-        features: ['Detects open / closed state', 'Alerts on unexpected opens', 'Auto-close suggestions'],
-        triggerWords: /\b(garage|garage\s*door|driveway\s*door)\b/i,
+        pushTitle: name + ' Agent',
+        pushMessage: name + ' detected something',
+        pushThumb: opts.emoji || '✨',
+        successMessage: '✓ ' + name + ' is on. I\'ll keep an eye out and ping you when it matters.',
+        gradient: 'linear-gradient(135deg, #1DF0BB, #4a8cff)'
+      }, opts);
+    }
+
+    // 20 templates mirroring lumen.wyzecam.com/agents/settings → Templates,
+    // plus the prototype's IFTTT-style Automation template at the end.
+    const _CREATOR_TEMPLATES_FALLBACK = [
+      _mkTpl({ id: 'gym',         emoji: '💪', name: 'Gym Monitoring',  category: 'Wellness',
+        description: 'Tracks your home gym sessions and notes equipment left out after workouts',
+        triggerWords: /\b(gym|workout|exercise|fitness|weights)\b/i,
+        gradient: 'linear-gradient(135deg, #FF6B9D, #FF4F4F)' }),
+      _mkTpl({ id: 'stove',       emoji: '🔥', name: 'Stove Watch',     category: 'Safety',
+        description: 'Monitors your kitchen stove for unattended cooking and alerts on potential fire hazards',
+        triggerWords: /\b(stove|burner|range|kitchen|cook(ing)?|fire)\b/i,
+        gradient: 'linear-gradient(135deg, #FFB340, #FF4F4F)' }),
+      _mkTpl({ id: 'medicine',    emoji: '💊', name: 'Medicine Reminder', category: 'Wellness',
+        description: 'Monitors a medicine area and reminds you if a scheduled dose may have been missed',
+        triggerWords: /\b(medicine|pill|prescription|dose|medication)\b/i,
+        gradient: 'linear-gradient(135deg, #FF6B9D, #4a8cff)' }),
+      _mkTpl({ id: 'senior',      emoji: '👴', name: 'Senior Care',     category: 'Safety',
+        description: 'Monitors daily routines of elderly household members and alerts on prolonged inactivity',
+        triggerWords: /\b(senior|elderly|grandma|grandpa|mom|dad|elder)\b/i,
+        gradient: 'linear-gradient(135deg, #FFB340, #FF6B9D)' }),
+      _mkTpl({ id: 'pool',        emoji: '🏊', name: 'Pool Watch',      category: 'Safety',
+        description: 'Monitors pool area for unauthorized access, unaccompanied children, and pet safety',
+        triggerWords: /\b(pool|swim|water|hot\s*tub)\b/i,
+        gradient: 'linear-gradient(135deg, #4a8cff, #1DF0BB)' }),
+      _mkTpl({ id: 'baby',        emoji: '🍼', name: 'Baby Monitor',    category: 'Family',
+        description: 'Overnight nursery monitor for safety checks and summaries',
+        triggerWords: /\b(baby|crib|nursery|infant|newborn)\b/i,
+        gradient: 'linear-gradient(135deg, #FF6B9D, #FFB340)' }),
+      _mkTpl({ id: 'hummingbird', emoji: '🌺', name: 'Hummingbird Watch', category: 'Nature',
+        description: 'Tracks hummingbird feeder visits, monitors nectar level, and reminds you when to change nectar',
+        triggerWords: /\b(hummingbird|nectar|feeder)\b/i,
+        gradient: 'linear-gradient(135deg, #FF6B9D, #1DF0BB)' }),
+      _mkTpl({ id: 'pet',         emoji: '🐾', name: 'Pet Monitoring',  category: 'Family',
+        description: 'Tracks your pet\'s activity, well-being, and alerts if they may have escaped',
+        triggerWords: /\b(pet|dog|cat|puppy|kitten)\b/i,
+        gradient: 'linear-gradient(135deg, #1DF0BB, #FFB340)' }),
+      _mkTpl({ id: 'schoolbus',   emoji: '🚌', name: 'School Bus Watch', category: 'Family',
+        description: 'Detects your child\'s school bus arriving for pickup and dropoff, and alerts if the bus is late',
+        triggerWords: /\b(school\s*bus|bus|pickup|dropoff)\b/i,
+        gradient: 'linear-gradient(135deg, #FFB340, #4a8cff)' }),
+      _mkTpl({ id: 'trashbin',    emoji: '🗑️', name: 'Trash Bin Checker', category: 'Utility',
+        description: 'Checks whether the bins made it out and the truck arrived',
+        triggerWords: /\b(trash|garbage|bin|recycl|collection)\b/i,
+        gradient: 'linear-gradient(135deg, #6B6B6B, #1DF0BB)' }),
+      _mkTpl({ id: 'bird',        emoji: '🐦', name: 'Bird Monitoring', category: 'Nature',
+        description: 'Watches your bird feeder or backyard for visiting species and tracks feeder status',
+        triggerWords: /\b(bird|feeder|sparrow|robin|cardinal)\b/i,
+        gradient: 'linear-gradient(135deg, #1DF0BB, #4a8cff)' }),
+      _mkTpl({ id: 'garage',      emoji: '🚗', name: 'Garage Door Watcher', category: 'Security',
+        description: 'Detects when your garage door is left open and alerts you',
+        triggerWords: /\b(garage|door|car)\b/i,
         clarification: { q: 'Is your priority knowing when the door is left open, or detecting unexpected opens?',
           options: [
-            { value: 'left-open', label: 'Left open', sub: 'Forgot to close' },
+            { value: 'left',       label: 'Left open',       sub: 'Forgot to close' },
             { value: 'unexpected', label: 'Unexpected open', sub: 'Out of routine' }
           ] },
-        durationLabel: 'If the garage is left open, when should I alert you?',
-        unattendedLabel: 'And how long without anyone in view counts as "unattended"?',
-        cameraLabel: 'Which camera covers the garage best?',
-        positionLabel: 'Find an angle that shows the full garage door from inside or outside.',
-        positionTip: '💡 Tip: aim so the entire door is visible, including the bottom seal.',
-        testAction: '🚪 I just opened the door',
-        testActionEcho: 'I opened the garage door',
-        detectionLabel: 'garage door',
-        detectionMessage: 'Perfect! I detected the door is open.',
-        offPrompt: 'Now close the door so I can verify the closed state.',
-        offEcho: 'Closed it',
-        learning: ['Door open / closed states learned', 'Alert thresholds set', 'Notify rules saved', 'Agent ready'],
-        pushTitle: 'Garage Agent', pushMessage: 'Garage door has been open 12 minutes', pushThumb: '🚪',
-        successMessage: '🚪 Garage Agent is on. I\'ll let you know if the door is left open longer than your threshold.',
-        gradient: 'linear-gradient(135deg, #FFB340, #FF8C42)'
-      },
-      {
-        id: 'bird', emoji: '🐦', name: 'Bird Feeder', domain: 'bird',
-        description: 'Identify visiting birds and build a daily highlight reel',
-        features: ['Species recognition', 'Daily highlights', 'Rare-bird alerts'],
-        triggerWords: /\b(bird|feeder|sparrow|cardinal|finch|hummingbird|robin|jay|owl)\b/i,
-        clarification: { q: 'Are you more interested in identifying species or in catching rare visitors?',
-          options: [
-            { value: 'species', label: 'Identify species', sub: 'Daily catalog' },
-            { value: 'rare', label: 'Rare visitors',     sub: 'Alert only on rares' }
-          ] },
-        durationLabel: 'How long after a bird arrives should I save a clip?',
-        unattendedLabel: 'After a clip is saved, how long should I wait before grouping the next visit?',
-        cameraLabel: 'Which camera looks at the feeder?',
-        positionLabel: 'Frame the feeder so the perch and seed tray are in the center.',
-        positionTip: '💡 Tip: backlight from the sky can wash out small birds — angle slightly downward.',
-        testAction: '🐦 A bird just landed',
-        testActionEcho: 'A bird landed on the feeder',
-        detectionLabel: 'visiting bird',
-        detectionMessage: 'Got it! I logged a visiting bird.',
-        offPrompt: 'When the bird flies away, let me know so I can verify the empty state.',
-        offEcho: 'Bird flew away',
-        learning: ['Feeder zone calibrated', 'Species index loaded', 'Daily summary scheduled', 'Agent ready'],
-        pushTitle: 'Bird Agent', pushMessage: 'Cardinal at the feeder', pushThumb: '🐦',
-        successMessage: '🐦 Bird Agent is on. I\'ll log every visit and put together a daily highlight.',
-        gradient: 'linear-gradient(135deg, #1DF0BB, #4a8cff)'
-      },
-      {
-        id: 'package', emoji: '📦', name: 'Package', domain: 'package',
-        description: 'Track porch deliveries from drop-off to pickup',
-        features: ['Detects deliveries', 'Tracks dwell time', 'Alerts if stolen / removed'],
-        triggerWords: /\b(package|porch|deliver(y|ies)?|UPS|FedEx|Amazon|USPS)\b/i,
-        clarification: { q: 'Do you want to know about deliveries the moment they land, or only after they\'ve sat too long?',
-          options: [
-            { value: 'arrival', label: 'On arrival', sub: 'Every delivery' },
-            { value: 'lingering', label: 'After lingering', sub: 'Only stale ones' }
-          ] },
-        durationLabel: 'If a package is left on the porch, when should I alert you?',
-        unattendedLabel: 'If the package disappears, how long is "too quick" before I flag a possible theft?',
-        cameraLabel: 'Which camera covers the porch?',
-        positionLabel: 'Center the doormat in the frame so the full drop zone is visible.',
-        positionTip: '💡 Tip: the lower third of the frame should be your drop zone.',
-        testAction: '📦 I placed a test box on the porch',
-        testActionEcho: 'I put a box on the porch',
-        detectionLabel: 'package on the porch',
-        detectionMessage: 'Got it! Package detected on the porch.',
-        offPrompt: 'Now grab the box back so I can verify the empty state.',
-        offEcho: 'Picked it up',
-        learning: ['Drop zone calibrated', 'Carrier patterns loaded', 'Theft alert configured', 'Agent ready'],
-        pushTitle: 'Package Agent', pushMessage: 'Package waiting · 3h 12m', pushThumb: '📦',
-        successMessage: '📦 Package Agent is live. I\'ll text you when something lands and again if it sits too long.',
-        gradient: 'linear-gradient(135deg, #FFB340, #1DF0BB)'
-      },
-      {
-        id: 'pet', emoji: '🐾', name: 'Pet', domain: 'pet',
-        description: 'Watch your pets and log their day',
-        features: ['Activity heatmap', 'Bark / meow detection', 'Treat-toss reminders'],
-        triggerWords: /\b(pet|dog|cat|puppy|kitten|max|bella|luna)\b/i,
-        clarification: { q: 'Is this for daily activity logs, or for safety alerts when something unusual happens?',
-          options: [
-            { value: 'log', label: 'Activity log', sub: 'Daily diary' },
-            { value: 'safety', label: 'Safety alerts', sub: 'Vomit / accident' }
-          ] },
-        durationLabel: 'How long should I wait between log entries?',
-        unattendedLabel: 'If your pet hasn\'t moved for a while, when should I check in?',
-        cameraLabel: 'Which camera shows your pet\'s favorite hangout?',
-        positionLabel: 'Frame the room so most of your pet\'s usual zones are visible.',
-        positionTip: '💡 Tip: low-mounted cameras read pet body language better than ceiling angles.',
-        testAction: '🐾 My pet just walked into frame',
-        testActionEcho: 'Pet is in frame',
-        detectionLabel: 'pet',
-        detectionMessage: 'Got it! I see your pet.',
-        offPrompt: 'When your pet leaves the frame, ping me so I can verify.',
-        offEcho: 'Pet left',
-        learning: ['Activity zones learned', 'Audio profile set', 'Daily diary scheduled', 'Agent ready'],
-        pushTitle: 'Pet Agent', pushMessage: 'Max is barking at the door', pushThumb: '🐾',
-        successMessage: '🐾 Pet Agent is on. I\'ll log activity and send anything unusual.',
-        gradient: 'linear-gradient(135deg, #1DF0BB, #FFB340)'
-      },
+        gradient: 'linear-gradient(135deg, #FFB340, #FF8C42)' }),
+      _mkTpl({ id: 'garden',      emoji: '🌱', name: 'Garden Watch',    category: 'Nature',
+        description: 'Monitors your garden for plant health changes, animal intrusions, and watering activity',
+        triggerWords: /\b(garden|plant|tomato|veggie|sprinkler)\b/i,
+        gradient: 'linear-gradient(135deg, #1DF0BB, #4a8cff)' }),
+      _mkTpl({ id: 'fall',        emoji: '🚨', name: 'Fall Detection',  category: 'Safety',
+        description: 'Watches a camera for sudden human falls or collapses and alerts immediately',
+        triggerWords: /\b(fall|collapse|trip|down)\b/i,
+        gradient: 'linear-gradient(135deg, #FF4F4F, #FFB340)' }),
+      _mkTpl({ id: 'camhealth',   emoji: '📷', name: 'Camera Health Check', category: 'Utility',
+        description: 'Daily image quality check across your cameras',
+        triggerWords: /\b(camera|health|quality|offline|broken)\b/i,
+        gradient: 'linear-gradient(135deg, #6B6B6B, #4a8cff)' }),
+      _mkTpl({ id: 'cat',         emoji: '🐱', name: 'Cat Monitoring',  category: 'Family',
+        description: 'Keeps tabs on your cat\'s location, activity, and enforces indoor-only rules if configured',
+        triggerWords: /\b(cat|kitten|kitty|feline)\b/i,
+        gradient: 'linear-gradient(135deg, #FFB340, #1DF0BB)' }),
+      _mkTpl({ id: 'chicken',     emoji: '🐔', name: 'Chicken Monitoring', category: 'Nature',
+        description: 'Monitors your chicken coop for headcount, predators, and coop door status',
+        triggerWords: /\b(chicken|coop|hen|rooster|poultry)\b/i,
+        gradient: 'linear-gradient(135deg, #FFB340, #FF6B9D)' }),
+      _mkTpl({ id: 'night',       emoji: '🌙', name: 'Night Watcher',   category: 'Security',
+        description: 'Perimeter security monitor for after-hours activity',
+        triggerWords: /\b(night|after\s*hours|perimeter|intruder|stranger)\b/i,
+        gradient: 'linear-gradient(135deg, #4a8cff, #6B6B6B)' }),
+      _mkTpl({ id: 'package',     emoji: '📦', name: 'Package Reminder', category: 'Delivery',
+        description: 'Tracks package arrivals and reminds you if one sits outside',
+        triggerWords: /\b(package|parcel|delivery|UPS|FedEx|Amazon)\b/i,
+        gradient: 'linear-gradient(135deg, #FFB340, #1DF0BB)' }),
+      _mkTpl({ id: 'kids',        emoji: '👧', name: 'Kids Watch',      category: 'Family',
+        description: 'Monitors a play area for children\'s safety, including zone departure and stranger detection',
+        triggerWords: /\b(kid|child|children|play)\b/i,
+        gradient: 'linear-gradient(135deg, #FF6B9D, #FFB340)' }),
+      // ⚡ IFTTT-style automation — kept at the end. Different shape: skips
+      // camera/positioning/test/learning entirely and runs trigger → action.
       {
         id: 'automation', emoji: '⚡', name: 'Automation', domain: 'automation',
         description: 'IFTTT-style rules — when X happens, do Y across your devices',
@@ -8696,8 +9481,6 @@
             { value: 'door-open',   label: 'When door opens',    sub: 'Sensor' }
           ]
         },
-        // The duration step is repurposed for "what should happen" — the
-        // action the automation runs when the trigger fires.
         durationLabel: 'What should happen?',
         durationOptions: [
           { value: 'lights-off',  label: 'Turn off all lights' },
@@ -8707,8 +9490,6 @@
           { value: 'cameras-off', label: 'Disarm all cameras' },
           { value: 'notify',      label: 'Send a notification' }
         ],
-        // Skipped for automation — kept here as fallbacks so the
-        // creator helpers don't crash.
         unattendedLabel: '', cameraLabel: '',
         positionLabel: '', positionTip: '',
         testAction: '', testActionEcho: '',
@@ -8721,6 +9502,55 @@
         isAutomation: true
       }
     ];
+
+    // Always keep the Automation tile available regardless of which template
+    // list is in play (user-loaded or fallback).
+    const _AUTOMATION_TPL = _CREATOR_TEMPLATES_FALLBACK.find(t => t.isAutomation);
+
+    // Build a runtime template list from the producer snippet's `templates`
+    // payload (if present), promoting the lumen-style records into full
+    // creator config via _mkTpl. Always appends the Automation template at
+    // the end. If the producer didn't ship templates, use the fallback set.
+    function _resolveTemplates() {
+      const raw = (typeof window !== 'undefined' && Array.isArray(window.__rawTemplates))
+        ? window.__rawTemplates : [];
+      // Same rule as agents: post-paste, the template grid reflects the
+      // user's data exactly. Always include the Automation card though
+      // since the creator UX expects it.
+      const userLoaded = (typeof window !== 'undefined' && window.__lastLoadDiag);
+      if (!raw.length) return userLoaded
+        ? (_AUTOMATION_TPL ? [_AUTOMATION_TPL] : [])
+        : _CREATOR_TEMPLATES_FALLBACK;
+      // Tolerant field lookup so the producer payload can name keys
+      // however lumen happens to ship them.
+      const pickEmoji = (t) => t.emoji || t.icon || t.icon_emoji || t.symbol || '✨';
+      const pickName  = (t) => t.name || t.title || t.label || 'Template';
+      const pickDesc  = (t) => t.description || t.summary || t.tagline || t.subtitle || '';
+      const pickCat   = (t) => t.category || t.kind || t.group || 'Custom';
+      const live = raw.map(t => _mkTpl({
+        id: t.id || t.template_id || (pickName(t)).toLowerCase().replace(/\s+/g,'-'),
+        emoji: pickEmoji(t),
+        name: pickName(t),
+        category: pickCat(t),
+        description: pickDesc(t),
+        triggerWords: t.triggerWords || new RegExp('\\b' + pickName(t).split(/\s+/)[0] + '\\b', 'i'),
+        gradient: t.gradient || 'linear-gradient(135deg, #1DF0BB, #4a8cff)'
+      }));
+      // Append Automation if the user's payload didn't already include it.
+      if (!live.some(t => t.isAutomation) && _AUTOMATION_TPL) live.push(_AUTOMATION_TPL);
+      return live;
+    }
+    // Backward-compatible Proxy so existing code (.map / .find / .slice / .length)
+    // hits the live list automatically.
+    const _CREATOR_TEMPLATES = new Proxy(_CREATOR_TEMPLATES_FALLBACK, {
+      get(target, prop) {
+        const live = _resolveTemplates();
+        if (prop === Symbol.iterator) return live[Symbol.iterator].bind(live);
+        if (typeof prop === 'string' && /^\d+$/.test(prop)) return live[+prop];
+        const val = live[prop];
+        return (typeof val === 'function') ? val.bind(live) : val;
+      }
+    });
 
     function _matchTemplate(text) {
       const s = String(text || '');
@@ -8908,7 +9738,13 @@
               <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Hi there! 👋 I'm Wyze Buddy, your AI agent creator. I'll help you set up a camera agent to watch over your home.</div></div>
               ${tile}`;
           }
-          const tpls = _CREATOR_TEMPLATES.map(tpl => `
+          // Show the first 8 templates by default; reveal the rest behind
+          // a "Show more" button so the grid stays scannable.
+          const TPL_PREVIEW = 8;
+          const showAll = !!window.__creatorShowAllTpls;
+          const visibleTpls = showAll ? _CREATOR_TEMPLATES : _CREATOR_TEMPLATES.slice(0, TPL_PREVIEW);
+          const moreCount = _CREATOR_TEMPLATES.length - TPL_PREVIEW;
+          const tpls = visibleTpls.map(tpl => `
             <button class="ac-template-tile" data-step="0" data-value="tpl:${_esc(tpl.id)}">
               <div class="ac-template-tile-icon" style="background:${_esc(tpl.gradient || 'rgba(255,255,255,0.06)')};">${_esc(tpl.emoji)}</div>
               <div class="ac-template-tile-name">${_esc(tpl.name)}</div>
@@ -8920,9 +9756,13 @@
               <div class="ac-template-tile-name">Customize my own</div>
               <div class="ac-template-tile-desc">Build an agent from scratch</div>
             </button>`;
+          const moreBtn = (moreCount > 0)
+            ? `<button class="ac-template-more" type="button" data-act="tpl-${showAll ? 'less' : 'more'}">${showAll ? 'Show less ▴' : ('Show ' + moreCount + ' more templates ▾')}</button>`
+            : '';
           return `
             <div class="ac-msg ac-msg-bot"><div class="ac-bubble">Hi there! 👋 I'm Wyze Buddy, your AI agent creator. I'll help you set up a camera agent to watch over your home. Pick a template below — or describe what you want to monitor in your own words.</div></div>
             <div class="ac-template-grid">${tpls}${customTile}</div>
+            ${moreBtn}
             <div class="ac-tip">💡 Tap a template to start, or type a custom request below.</div>`;
         }
         case 1: // user intent echo
@@ -9411,6 +10251,15 @@
       view.querySelector('.chat-settings')?.addEventListener('click', () => {
         if (typeof _openSettingsSheet === 'function') _openSettingsSheet();
       });
+      // Show more / show less toggle for the template grid.
+      view.querySelector('[data-act="tpl-more"]')?.addEventListener('click', () => {
+        window.__creatorShowAllTpls = true;
+        _creatorRender();
+      });
+      view.querySelector('[data-act="tpl-less"]')?.addEventListener('click', () => {
+        window.__creatorShowAllTpls = false;
+        _creatorRender();
+      });
       _chatFooterWire(view, {
         onSubmit: (text) => {
           if ((window.__creator?.step || 0) === 0) _creatorAdvance(0, text);
@@ -9562,6 +10411,12 @@
     // duration / recency string ("3 mins", "past 7 days", "6h ago").
     function _agentHeadline(id, s) {
       if (!s || !s.state) return { state: 'No data', since: '', accent: 'is-quiet' };
+      // If the live evaluator produced a real recent-message state, pass
+      // it through verbatim — don't mangle it with the legacy id-based
+      // transforms below (which assumed the old hardcoded evaluators).
+      if (s.fullMessage) {
+        return { state: s.state, since: s.since || '', accent: s.accent || '' };
+      }
       if (id === 'garage') {
         if (s.state === 'No data yet') return { state: 'No data', since: '', accent: 'is-quiet' };
         const isOpen = /open/i.test(s.state) && !/closed/i.test(s.state);
@@ -9573,12 +10428,12 @@
       }
       if (id === 'package') {
         if (s.state === 'No packages') {
-          return { state: 'All clear', since: 'past 7 days', accent: 'is-quiet' };
+          return { state: 'All clear', since: '7 days', accent: 'is-quiet' };
         }
         const m = String(s.state).match(/^(\d+)/);
         const n = m ? parseInt(m[1], 10) : 0;
         return {
-          state: n === 1 ? 'Package left' : n + ' packages left',
+          state: n === 1 ? 'Package' : n + ' packages',
           since: s.since || '',
           accent: 'is-warn'
         };
@@ -9970,13 +10825,49 @@
               signed-in lumen.wyzecam.com tab, then tap Load.
             </div>
             <button class="load-btn" id="loadClipboardBtnHome" type="button">Load from clipboard</button>
-            <button class="help-btn-action tiny" id="emptyHelpBtnHome" type="button" style="margin-top:8px;">How to use &rsaquo;</button>
+            <div class="empty-row" style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; justify-content:center;">
+              <button class="help-btn-action tiny" id="emptyHelpBtnHome" type="button">How to use &rsaquo;</button>
+              <button class="help-btn-action tiny ghost" id="emptyDiagBtn" type="button">Diagnose &rsaquo;</button>
+            </div>
+            <details class="empty-paste" id="emptyPasteDetails">
+              <summary>Or paste JSON manually &rsaquo;</summary>
+              <textarea class="empty-paste-area" id="pasteJsonArea" rows="6"
+                placeholder='Paste any JSON with { groups, devices, agents, templates } here. Useful when clipboard / bookmarklet fails.'></textarea>
+              <button class="load-btn tiny" id="loadPasteBtn" type="button">Load pasted JSON</button>
+            </details>
             <div class="empty-err" id="loadErrHome"></div>
           </div>`;
         host.querySelector('#loadClipboardBtnHome')
           ?.addEventListener('click', () => loadFromClipboard({ silent: false }));
         host.querySelector('#emptyHelpBtnHome')
           ?.addEventListener('click', () => _openHelpModal());
+        host.querySelector('#emptyDiagBtn')
+          ?.addEventListener('click', _openDiagnoseModal);
+        // Manual paste — call the loader directly with whatever the user
+        // dropped in the textarea. Bypasses clipboard permissions and any
+        // bookmarklet weirdness, so it always works.
+        host.querySelector('#loadPasteBtn')?.addEventListener('click', async () => {
+          const ta = host.querySelector('#pasteJsonArea');
+          const errEl = host.querySelector('#loadErrHome');
+          if (errEl) errEl.textContent = '';
+          if (!ta || !ta.value.trim()) {
+            if (errEl) errEl.textContent = 'Paste JSON above first.';
+            return;
+          }
+          try {
+            await _loadGroupsFromText(ta.value);
+            try { localStorage.setItem('wyze:lastData', ta.value); } catch {}
+            if (typeof _showToast === 'function') {
+              _showToast('Loaded ' +
+                (window.__rawGroups||[]).length    + ' groups · ' +
+                (window.__rawDevices||[]).length   + ' devices · ' +
+                (window.__rawAgents||[]).length    + ' agents · ' +
+                (window.__rawTemplates||[]).length + ' templates');
+            }
+          } catch (e) {
+            if (errEl) errEl.textContent = 'Could not load: ' + e.message;
+          }
+        });
         host.querySelectorAll('.home-agent').forEach(el => {
           el.addEventListener('click', () => {
             if (el.dataset.agentAdd !== undefined) { _openAgentCreator(); return; }
@@ -10035,12 +10926,77 @@
       }).join('');
       const agentsGrid = (typeof _renderAgentsGrid === 'function')
         ? _renderAgentsGrid(window.__rawGroups || []) : '';
+      // Always-visible status pill — single source of truth for "what
+      // does the app think is loaded". Removes any ambiguity between
+      // toast (transient) / banner (conditional) / DevTools console.
+      const userAgentCount = (window.__rawAgents || []).length;
+      const userTplCount   = (window.__rawTemplates || []).length;
+      const userHasAgents  = userAgentCount > 0;
+      const statusPill = `
+        <div class="home-load-status ${userHasAgents ? 'is-live' : 'is-demo'}" data-load-status>
+          <span class="home-load-dot"></span>
+          ${userHasAgents
+            ? `<span class="home-load-text"><strong>${userAgentCount}</strong> live agents · <strong>${userTplCount}</strong> templates</span>`
+            : `<span class="home-load-text">Showing <strong>demo</strong> — no agents loaded</span>`}
+          <button class="home-load-action" type="button" data-load-action="diagnose">Diagnose</button>
+          <button class="home-load-action" type="button" data-load-action="rerender">Re-render</button>
+        </div>`;
+      // Old amber banner — kept only for the "really obvious" case where
+      // cameras loaded but agents didn't (the most common user pitfall).
+      const diagBanner = (!userHasAgents && devices.length)
+        ? `<div class="home-agent-diag" data-diag="missing-agents">
+             <span class="home-agent-diag-icon">!</span>
+             <div class="home-agent-diag-text">
+               <strong>Showing demo agents.</strong>
+               Your snippet didn't ship any agents.
+               <span class="home-agent-diag-link" data-diag-action="diagnose">Diagnose ›</span>
+               &nbsp;·&nbsp;
+               <span class="home-agent-diag-link" data-diag-action="help">How to use ›</span>
+             </div>
+           </div>`
+        : '';
       host.innerHTML = `
+        ${statusPill}
         ${agentsGrid}
+        ${diagBanner}
         <div class="home-section-title">
           Cameras <span class="home-section-count">${devices.length}</span>
         </div>
         <div class="home-cameras-grid">${cards}</div>`;
+      // Wire the diagnostic banner's "How to use" link.
+      host.querySelector('[data-diag-action="help"]')
+        ?.addEventListener('click', () => _openHelpModal());
+      // Wire the "Diagnose" link — opens a modal that dumps the last-load
+      // result + reads clipboard to show what's actually there.
+      host.querySelector('[data-diag-action="diagnose"]')
+        ?.addEventListener('click', _openDiagnoseModal);
+      // Wire the status pill's actions.
+      host.querySelectorAll('[data-load-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const a = btn.dataset.loadAction;
+          if (a === 'diagnose') _openDiagnoseModal();
+          else if (a === 'rerender') {
+            renderHomeView();
+            if (typeof _showToast === 'function') _showToast('Re-rendered home view');
+          }
+        });
+      });
+      // Auto-dismiss the load-status pill after a few seconds — it's a
+      // toast, not a permanent banner. Hovering / clicking inside it
+      // cancels the timer so the user can read or use the buttons.
+      const statusEl = host.querySelector('.home-load-status');
+      if (statusEl) {
+        clearTimeout(window.__statusDismissTimer);
+        window.__statusDismissTimer = setTimeout(() => {
+          statusEl.classList.add('is-dismissed');
+        }, 4500);
+        const cancelDismiss = () => {
+          clearTimeout(window.__statusDismissTimer);
+          statusEl.classList.remove('is-dismissed');
+        };
+        statusEl.addEventListener('mouseenter', cancelDismiss);
+        statusEl.addEventListener('click', cancelDismiss);
+      }
       // Tap a device → open the Live stream view for that camera. The
       // "Try X agent" pill stops propagation and instead opens the chat
       // creator flow with that template pre-selected.
@@ -10755,7 +11711,38 @@
           ]
         };
       }
-      return null;
+      // ── Generic fallback ──
+      // Any agent that isn't one of the hardcoded domains (e.g., user-loaded
+      // lumen agents with ids like "lumen1", "agent_xyz") still gets a
+      // detail view. We surface the live state + most recent message and
+      // a stat row counting the agent's events today vs week.
+      const agent = (typeof _AGENTS !== 'undefined') ? _AGENTS.find(a => a.id === id) : null;
+      const allEvents = Array.isArray(groups) ? groups : [];
+      const eventsToday = allEvents.filter(g => {
+        const t = parseTs(g.start);
+        return t && !isNaN(t) && t >= todayStart;
+      }).length;
+      const heroAccent =
+        state.accent === 'is-warn'   ? 'amber' :
+        state.accent === 'is-active' ? 'green' :
+                                       'gray';
+      return {
+        heroIcon:   '🤖',
+        heroTitle:  state.state || (agent && agent.label) || 'Agent',
+        heroSub:    state.fullMessage || state.since || (agent && agent.label) || '',
+        heroPrimary: null,
+        heroAccent,
+        stats: [
+          { label: 'Today',   value: eventsToday + ' event' + (eventsToday === 1 ? '' : 's') },
+          { label: 'Updated', value: state.since || '—' }
+        ],
+        quick: [
+          { id: 'mute',   label: 'Mute',     icon: 'sound', on: true },
+          { id: 'notify', label: 'Notify',   icon: 'talk' },
+          { id: 'snap',   label: 'Snapshot', icon: 'snap' },
+          { id: 'full',   label: 'Full',     icon: 'full' }
+        ]
+      };
     }
 
     function _openAgentLiveView(agentId) {
@@ -11855,11 +12842,16 @@
         try { localStorage.removeItem('wyze:lastData'); } catch {}
         try { localStorage.removeItem('wyze:settings'); } catch {}
         try { localStorage.removeItem('wyze:sharing'); } catch {}
-        // Hard restart — full page reload. Cache-bust via a timestamp
-        // query so the browser also re-fetches the HTML/asset bundle.
-        const url = new URL(location.href);
-        url.searchParams.set('reset', Date.now().toString(36));
-        location.replace(url.toString());
+        // Wipe in-memory shadows so the Proxy fallbacks don't keep
+        // returning the previous agents/templates between now and reload.
+        try { window.__rawGroups = []; window.__rawDevices = []; window.__rawAgents = []; window.__rawTemplates = []; } catch {}
+        // One-shot flag for the post-reload init(): "you just reset,
+        // don't auto-pull from clipboard". Stored in sessionStorage so
+        // the URL stays clean (?reset=… would otherwise pile up on
+        // every restart). init() reads it once and immediately clears it.
+        try { sessionStorage.setItem('wyze:justReset', '1'); } catch {}
+        // Plain reload — same path, no query params.
+        location.reload();
       } catch (e) {
         if (typeof _showToast === 'function') _showToast('Could not restart: ' + e.message);
       }
@@ -12842,13 +13834,53 @@
     // bookmarklet link.
     // ════════════════════════════════════════
     const _PRODUCER_SNIPPET = `(async () => {
+  const SNIPPET_VERSION = '2026-05-08c';
+  const trace = [];
+  const log = (...args) => { try { console.log('[wyze]', ...args); } catch {} trace.push(args.map(a => typeof a === 'string' ? a : JSON.stringify(a)).join(' ')); };
+  log('snippet', SNIPPET_VERSION, '· host', location.host, '· path', location.pathname);
   const MAX = 50;
   const since = Math.floor((Date.now() - 7*86400*1000) / 1000);
+  // Tolerant fetch with verbose logging — returns parsed JSON, the
+  // status code, and the top-level keys so we can see exactly what
+  // each endpoint shipped (or didn't).
+  const fetchJson = async (u) => {
+    try {
+      const r = await fetch(u, { credentials:'include' });
+      const status = r.status;
+      let body = {};
+      try { body = await r.json(); } catch { body = {}; }
+      const keys = body && typeof body === 'object' && !Array.isArray(body) ? Object.keys(body) : (Array.isArray(body) ? ['<array len=' + body.length + '>'] : []);
+      log('  fetch', u, '→', status, keys.length ? 'keys=[' + keys.slice(0,8).join(',') + (keys.length>8?',…':'') + ']' : '<empty>');
+      return body;
+    } catch (e) {
+      log('  fetch', u, '→ ERROR', e.message);
+      return {};
+    }
+  };
+  // Walk an arbitrary object up to a depth limit and yield every array we
+  // find whose elements look like agent / template records. Used to mine
+  // window.__NEXT_DATA__, Apollo cache, Redux store, etc. without knowing
+  // the exact shape ahead of time.
+  const walkArrays = (root, predicate, maxDepth = 6) => {
+    const out = [];
+    const seen = new WeakSet();
+    const walk = (node, depth) => {
+      if (!node || typeof node !== 'object' || depth > maxDepth) return;
+      if (seen.has(node)) return; seen.add(node);
+      if (Array.isArray(node)) {
+        if (node.length && node.every(predicate)) { out.push(node); return; }
+        node.forEach(v => walk(v, depth + 1));
+        return;
+      }
+      Object.values(node).forEach(v => walk(v, depth + 1));
+    };
+    walk(root, 0);
+    return out;
+  };
   let all = [], offset = 0;
   while (all.length < MAX) {
     const remaining = MAX - all.length;
-    const r = await fetch('/api/eventgroups?since=' + since + '&limit=' + remaining + '&offset=' + offset + '&include_thumbnails=true', { credentials:'include' });
-    const j = await r.json();
+    const j = await fetchJson('/api/eventgroups?since=' + since + '&limit=' + remaining + '&offset=' + offset + '&include_thumbnails=true');
     const page = j.groups || [];
     all = all.concat(page);
     if (!j.has_more || !page.length) break;
@@ -12857,20 +13889,237 @@
   all = all.slice(0, MAX);
   for (let i = 0; i < all.length; i += 6) {
     await Promise.all(all.slice(i, i+6).map(async g => {
-      try {
-        const d = await (await fetch('/api/eventgroups/' + g.group_id, { credentials:'include' })).json();
-        g.clip_urls = (d.events || []).map(e => e.file_list?.[0]?.url).filter(Boolean);
-      } catch {}
+      const d = await fetchJson('/api/eventgroups/' + g.group_id);
+      g.clip_urls = (d.events || []).map(e => e.file_list?.[0]?.url).filter(Boolean);
     }));
   }
-  let devices = [];
-  try { devices = (await (await fetch('/api/devices', { credentials:'include' })).json()).devices || []; } catch {}
-  const payload = JSON.stringify({ groups: all, devices });
-  // DevTools steals document focus, so navigator.clipboard.writeText
-  // throws "Document is not focused". Fall back to a hidden textarea +
-  // execCommand('copy') which works without focus.
+  // Devices, Home agents, and creator templates — all optional. The
+  // prototype falls back to its hardcoded mirrors when these are missing.
+  // Try a wide set of endpoint names AND response-shape keys so this
+  // keeps working when lumen renames either side.
+  const pickArr = (r, keys) => {
+    if (Array.isArray(r)) return r;
+    if (!r || typeof r !== 'object') return null;
+    for (const k of keys) if (Array.isArray(r[k])) return r[k];
+    // Object map { id: {...} } → promote the values when they look like records.
+    const vals = Object.values(r);
+    if (vals.length && vals.every(v => v && typeof v === 'object' && (v.id || v.name || v.agent_id))) return vals;
+    return null;
+  };
+  const devices = pickArr(await fetchJson('/api/devices'), ['devices','data','items','list','results']) || [];
+  let agents = [], agentsFrom = '';
+  // 1) Try the JSON APIs.
+  const _AGENT_URLS = [
+    '/api/agents', '/api/agents/list', '/api/agents/active', '/api/agents/settings',
+    '/api/user/agents', '/api/v2/agents', '/api/home/agents'
+  ];
+  for (const u of _AGENT_URLS) {
+    const r = await fetchJson(u);
+    const list = pickArr(r, ['agents','data','items','list','results']);
+    if (Array.isArray(list) && list.length) { agents = list; agentsFrom = u; break; }
+  }
+  log('after API tier · agents:', agents.length, 'from', agentsFrom || '(none)');
+  // 2) If APIs didn't yield anything, mine window.__NEXT_DATA__ — most
+  //    agent-platform sites are Next.js, so SSR props usually include
+  //    the agent list under SOME key.
+  if (!agents.length) {
+    const looksLikeAgent = v =>
+      v && typeof v === 'object'
+      && (v.id || v.agent_id || v._id)
+      && (v.name || v.label || v.display_name || v.title);
+    try {
+      const nd = window.__NEXT_DATA__;
+      log('__NEXT_DATA__ present:', !!nd, nd ? '· top keys: ' + Object.keys(nd).slice(0,8).join(',') : '');
+      if (nd) {
+        const candidates = walkArrays(nd, looksLikeAgent);
+        log('  agent-shaped arrays found in __NEXT_DATA__:', candidates.length, candidates.length ? '· sizes: ' + candidates.map(a => a.length).join(',') : '');
+        if (candidates.length) {
+          candidates.sort((a, b) => b.length - a.length);
+          agents = candidates[0];
+          agentsFrom = '__NEXT_DATA__';
+        }
+      }
+    } catch (e) { log('__NEXT_DATA__ walk error:', e.message); }
+  }
+  // 2b) Mine other globals that some apps stash data under.
+  if (!agents.length) {
+    const looksLikeAgent = v =>
+      v && typeof v === 'object'
+      && (v.id || v.agent_id || v._id)
+      && (v.name || v.label || v.display_name || v.title);
+    const globals = ['__INITIAL_STATE__','__APOLLO_STATE__','__REDUX_STATE__','__INITIAL_DATA__','__PRELOADED_STATE__','__nuxt','app','store'];
+    for (const g of globals) {
+      try {
+        const v = window[g];
+        if (!v) continue;
+        const candidates = walkArrays(v, looksLikeAgent);
+        log('  global', g, '→ arrays:', candidates.length);
+        if (candidates.length) {
+          candidates.sort((a, b) => b.length - a.length);
+          agents = candidates[0];
+          agentsFrom = g;
+          break;
+        }
+      } catch {}
+    }
+  }
+  // 3) Last resort — scrape the rendered DOM. Cast a wider net of
+  //    selectors since CSS classes vary per app.
+  if (!agents.length) {
+    try {
+      const selectors = [
+        '[data-agent-id]', '[data-agentid]', '[data-agent]',
+        '[class*="agent-card" i]', '[class*="AgentCard" i]',
+        '[class*="agent-row" i]', '[class*="AgentRow" i]',
+        '[class*="agent-tile" i]', '[class*="agent-item" i]',
+        'article[class*="agent" i]', 'li[class*="agent" i]'
+      ];
+      const cards = document.querySelectorAll(selectors.join(','));
+      log('DOM scrape candidates:', cards.length, '(selectors tried:', selectors.length + ')');
+      const seen = new Set();
+      const scraped = [];
+      cards.forEach((el) => {
+        const id = el.dataset.agentId || el.dataset.agentid || el.dataset.agent || el.id;
+        const name = (el.querySelector('h1, h2, h3, h4, [class*="name" i], [class*="title" i]')?.textContent || '').trim();
+        const desc = (el.querySelector('p, [class*="desc" i], [class*="sub" i], [class*="status" i]')?.textContent || '').trim();
+        const key = (id || name).toLowerCase();
+        if (!name || seen.has(key)) return;
+        seen.add(key);
+        scraped.push({ id: id || key.replace(/\\s+/g, '-'), name, description: desc, status_text: desc });
+      });
+      log('  scraped:', scraped.length, 'records');
+      if (scraped.length) { agents = scraped; agentsFrom = 'DOM scrape'; }
+    } catch (e) { log('DOM scrape error:', e.message); }
+  }
+  log('AGENTS RESOLVED · count:', agents.length, '· source:', agentsFrom || '(none)');
+  if (agents.length) log('  first agent keys:', Object.keys(agents[0]).slice(0,12).join(','));
+  // Hydrate each agent with its most recent activity message + timestamp,
+  // which the home tile renders as the live state. Try a few likely
+  // endpoints; first non-empty match wins per agent.
+  await Promise.all(agents.map(async (a) => {
+    // Many lumen payloads already embed recent_messages / recent_activity.
+    let msgs = a.recent_messages || a.recent_activity || a.feed || a.messages || a.events;
+    if (!Array.isArray(msgs) || !msgs.length) {
+      const id = a.id || a.agent_id;
+      if (!id) return;
+      const feeds = ['/api/agents/'+id+'/feed', '/api/agents/'+id+'/messages',
+                     '/api/agents/'+id+'/activity', '/api/feeds?agent_id='+id];
+      for (const u of feeds) {
+        const r = await fetchJson(u);
+        const list = pickArr(r, ['messages','feed','activity','data','items','results']);
+        if (Array.isArray(list) && list.length) { msgs = list; break; }
+      }
+    }
+    if (!Array.isArray(msgs) || !msgs.length) return;
+    // Sort newest-first, take the head as the live state.
+    const ts = (m) => +new Date(m.timestamp || m.created_at || m.time || m.at || 0);
+    const sorted = msgs.slice().sort((x, y) => ts(y) - ts(x));
+    const top = sorted[0];
+    a.latest_message = top.text || top.summary || top.title || top.message || '';
+    a.latest_at = top.timestamp || top.created_at || top.time || top.at || null;
+    a.recent_messages = sorted.slice(0, 5);
+  }));
+  let templates = [], tplFrom = '';
+  const _TPL_URLS = [
+    '/api/agent_templates', '/api/agents/templates', '/api/templates',
+    '/api/v2/agent_templates', '/api/agents/library', '/api/home/templates'
+  ];
+  for (const u of _TPL_URLS) {
+    const r = await fetchJson(u);
+    const list = pickArr(r, ['templates','data','items','list','results']);
+    if (Array.isArray(list) && list.length) { templates = list; tplFrom = u; break; }
+  }
+  log('after API tier · templates:', templates.length, 'from', tplFrom || '(none)');
+  if (!templates.length) {
+    const looksLikeTemplate = v =>
+      v && typeof v === 'object'
+      && (v.id || v.template_id || v.slug)
+      && (v.name || v.title || v.label)
+      && !(v.agent_id || v.tools);
+    try {
+      const nd = window.__NEXT_DATA__;
+      if (nd) {
+        const candidates = walkArrays(nd, looksLikeTemplate);
+        log('  template-shaped arrays in __NEXT_DATA__:', candidates.length, candidates.length ? '· sizes: ' + candidates.map(a=>a.length).join(',') : '');
+        if (candidates.length) {
+          candidates.sort((a, b) => b.length - a.length);
+          templates = candidates[0];
+          tplFrom = '__NEXT_DATA__';
+        }
+      }
+    } catch (e) { log('template walk error:', e.message); }
+  }
+  log('TEMPLATES RESOLVED · count:', templates.length, '· source:', tplFrom || '(none)');
+  // Surface which endpoint actually served the data so a future API
+  // rename is easy to spot in the user's DevTools console.
+  try { console.log('[wyze snippet] agents from', agentsFrom || '(none)', '·', agents.length, 'records'); } catch {}
+  try { console.log('[wyze snippet] templates from', tplFrom || '(none)', '·', templates.length, 'records'); } catch {}
+  // Capture raw __NEXT_DATA__ + any large inline JSON script so the
+  // receiving loader can do its own deep-walk if our tiers missed.
+  // Cap at ~2MB to keep clipboard reasonable.
+  let nextDataRaw = null;
+  try {
+    if (window.__NEXT_DATA__) {
+      const s = JSON.stringify(window.__NEXT_DATA__);
+      if (s.length < 2 * 1024 * 1024) {
+        nextDataRaw = window.__NEXT_DATA__;
+        log('shipping raw __NEXT_DATA__ (' + s.length + ' chars)');
+      } else {
+        log('__NEXT_DATA__ too large to ship (' + s.length + ' chars)');
+      }
+    } else {
+      // Try other inline-state script tags (#__NEXT_DATA__, #__APOLLO_STATE__, etc.)
+      const candidates = ['__NEXT_DATA__','__APOLLO_STATE__','__INITIAL_STATE__','__INITIAL_DATA__','__PRELOADED_STATE__'];
+      for (const id of candidates) {
+        const el = document.getElementById(id) || document.querySelector('script[id="' + id + '"]');
+        if (el && el.textContent) {
+          try {
+            const parsed = JSON.parse(el.textContent);
+            if (parsed) { nextDataRaw = parsed; log('shipping raw <script id=' + id + '>'); break; }
+          } catch {}
+        }
+      }
+    }
+  } catch (e) { log('__NEXT_DATA__ capture error:', e.message); }
+  // Capture any visible agent-related text from the DOM as a last
+  // resort — even if the loader can't deep-walk, the user can read it.
+  let domDump = null;
+  try {
+    const selectors = '[data-agent-id],[data-agentid],[data-agent],[class*="agent" i]:not(html):not(body)';
+    const nodes = Array.from(document.querySelectorAll(selectors)).slice(0, 80);
+    domDump = nodes.map(n => ({
+      tag: n.tagName.toLowerCase(),
+      classes: n.className?.toString?.()?.slice(0, 80),
+      id: n.id,
+      data: Object.fromEntries(Object.entries(n.dataset || {}).slice(0, 6)),
+      text: (n.textContent || '').replace(/\\s+/g,' ').trim().slice(0, 160)
+    })).filter(r => r.text);
+    log('DOM dump · captured', domDump.length, 'agent-ish nodes');
+  } catch (e) { log('DOM dump error:', e.message); }
+  // Embed everything in the payload so the receiving loader has full
+  // context: structured arrays + raw fallback sources + diagnostic trace.
+  const _diag = {
+    snippet_version: SNIPPET_VERSION,
+    host: location.host,
+    path: location.pathname,
+    counts: { groups: all.length, devices: devices.length, agents: agents.length, templates: templates.length },
+    agents_from: agentsFrom || '(none)',
+    templates_from: tplFrom || '(none)',
+    first_agent_keys: agents[0] ? Object.keys(agents[0]).slice(0,16) : [],
+    has_next_data: !!nextDataRaw,
+    dom_dump_count: (domDump || []).length,
+    trace
+  };
+  const payload = JSON.stringify({ groups: all, devices, agents, templates, _diag, _nextData: nextDataRaw, _domDump: domDump });
+  const summary = all.length + ' groups · ' + devices.length + ' devices · ' + agents.length + ' agents · ' + templates.length + ' templates';
+  log('PAYLOAD READY · size:', payload.length, 'chars · summary:', summary);
+  // Auto-copy attempt #1: navigator.clipboard.writeText. Throws "Document
+  // is not focused" when DevTools has focus, which is most of the time.
   let copied = false;
   try { await navigator.clipboard.writeText(payload); copied = true; } catch {}
+  // Attempt #2: hidden-textarea + execCommand('copy'). Same focus
+  // requirement, but worth a try when called via bookmarklet (where the
+  // page IS focused).
   if (!copied) {
     try {
       const ta = document.createElement('textarea');
@@ -12883,12 +14132,136 @@
       document.body.removeChild(ta);
     } catch {}
   }
-  if (copied) alert('Copied ' + all.length + ' groups + ' + devices.length + ' devices to clipboard. Switch back to the app and tap Load.');
-  else { window.__WYZE_DATA = payload; alert('Could not copy automatically. Run  copy(window.__WYZE_DATA)  in the console, then tap Load.'); }
+  if (copied) {
+    alert('Copied ' + summary + ' to clipboard. Switch back to the app and tap Load.');
+    return;
+  }
+  // Fallback: render a floating panel ON THE PAGE with a Copy button.
+  // Clicking the button IS a user gesture, so navigator.clipboard.writeText
+  // works even when DevTools has focus. The textarea also lets the user
+  // manually Cmd+A, Cmd+C as a last resort.
+  window.__WYZE_DATA = payload;
+  document.querySelectorAll('.__wyze-copy-panel').forEach(n => n.remove());
+  const panel = document.createElement('div');
+  panel.className = '__wyze-copy-panel';
+  panel.style.cssText = 'position:fixed;z-index:2147483647;right:16px;bottom:16px;width:340px;max-width:calc(100vw - 32px);background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:12px;padding:14px;font:13px/1.4 system-ui,sans-serif;box-shadow:0 10px 40px rgba(0,0,0,0.6);';
+  // Pretty-print the trace as a small log block so the user can see at a
+  // glance which tier won (or didn't) without opening DevTools.
+  const traceBlock = trace.map(l => '· ' + l).join('\\n');
+  panel.innerHTML =
+    '<div style="font-weight:700;margin-bottom:4px">Wyze data ready · ' + SNIPPET_VERSION + '</div>' +
+    '<div style="font-size:11px;color:' + (agents.length ? '#9a9a9a' : '#FFB340') + ';margin-bottom:10px">' + summary + '</div>' +
+    '<details style="margin-bottom:10px"><summary style="font-size:11px;color:#1DF0BB;cursor:pointer;user-select:none">Diagnostic trace ›</summary>' +
+    '<pre style="margin:6px 0 0;padding:6px;background:#0e0e0e;border:1px solid #2a2a2a;border-radius:6px;font:9px/1.4 ui-monospace,Menlo,monospace;color:#9a9a9a;max-height:160px;overflow:auto;white-space:pre-wrap;word-break:break-word">' + traceBlock.replace(/[<>&]/g, c => ({"<":"&lt;",">":"&gt;","&":"&amp;"}[c])) + '</pre></details>' +
+    '<textarea readonly style="width:100%;box-sizing:border-box;height:60px;background:#0e0e0e;color:#cdcdcd;border:1px solid #2a2a2a;border-radius:6px;padding:6px;font:10px/1.4 ui-monospace,Menlo,monospace;resize:none;margin-bottom:10px"></textarea>' +
+    '<div style="display:flex;gap:8px"><button style="flex:1;background:#1DF0BB;color:#0d0d0d;border:0;border-radius:8px;padding:10px;font-weight:700;cursor:pointer">Copy data</button>' +
+    '<button style="background:#2a2a2a;color:#fff;border:0;border-radius:8px;padding:10px 12px;cursor:pointer">Copy trace</button>' +
+    '<button style="background:#2a2a2a;color:#fff;border:0;border-radius:8px;padding:10px 12px;cursor:pointer">Close</button></div>' +
+    '<div style="font-size:10px;color:#6a6a6a;margin-top:8px">If 0 agents found, expand "Diagnostic trace" above and tap Copy trace to share with Claude.</div>';
+  const ta2 = panel.querySelector('textarea'); ta2.value = payload;
+  const [copyDataBtn, copyTraceBtn, closeBtn] = panel.querySelectorAll('button');
+  const doCopy = async (text, btn, okMsg, failMsg) => {
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch {}
+    if (!ok) { try { ta2.value = text; ta2.focus(); ta2.select(); ok = !!document.execCommand('copy'); ta2.value = payload; } catch {} }
+    btn.textContent = ok ? okMsg : failMsg;
+    btn.style.background = ok ? '#1DF0BB' : '#FFB340';
+    return ok;
+  };
+  copyDataBtn.addEventListener('click', async () => {
+    const ok = await doCopy(payload, copyDataBtn, '✓ Copied — switch to app and Load', 'Copy failed — select textarea + Cmd+C');
+    if (ok) setTimeout(() => panel.remove(), 1800);
+  });
+  copyTraceBtn.addEventListener('click', () => doCopy(JSON.stringify({_diag, sample: payload.slice(0, 500)}, null, 2), copyTraceBtn, '✓ Trace copied', 'Copy failed'));
+  closeBtn.addEventListener('click', () => panel.remove());
+  document.body.appendChild(panel);
 })();`;
 
     function _bookmarkletHref() {
       return 'javascript:' + encodeURIComponent(_PRODUCER_SNIPPET);
+    }
+
+    // Diagnose modal — shows what was loaded last and what's currently in
+    // the clipboard. Lets the user see at a glance whether the snippet
+    // actually shipped agents, and under what shape, so we can fix the
+    // bookmarklet instead of guessing.
+    async function _openDiagnoseModal() {
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame) return;
+      const old = frame.querySelector('.diag-modal');
+      if (old) old.remove();
+      const modal = document.createElement('div');
+      modal.className = 'help-modal diag-modal';
+      // Read clipboard right now so we can compare it to the last load.
+      let clipText = '';
+      let clipParse = null;
+      try {
+        clipText = await (navigator.clipboard?.readText?.() || Promise.resolve(''));
+        if (clipText && clipText.trim().startsWith('{')) {
+          try { clipParse = JSON.parse(clipText); } catch {}
+        }
+      } catch {}
+      const clipKeys = clipParse && typeof clipParse === 'object' ? Object.keys(clipParse) : null;
+      const clipAgentsType = clipParse
+        ? (Array.isArray(clipParse.agents) ? 'array(' + clipParse.agents.length + ')'
+           : clipParse.agents && typeof clipParse.agents === 'object' ? 'object{' + Object.keys(clipParse.agents).join(',') + '}'
+           : clipParse.agents === undefined ? 'missing' : typeof clipParse.agents)
+        : '—';
+      const clipFirstAgentKeys = clipParse && Array.isArray(clipParse.agents) && clipParse.agents[0]
+        ? Object.keys(clipParse.agents[0])
+        : null;
+      const last = window.__lastLoadDiag;
+      const fmt = (obj) => obj ? JSON.stringify(obj, null, 2) : 'no data';
+      const buildStamp = (typeof _BUILD_STAMP !== 'undefined') ? _BUILD_STAMP : '(unknown)';
+      modal.innerHTML = `
+        <div class="help-backdrop"></div>
+        <div class="help-sheet" role="dialog" aria-label="Diagnose load">
+          <h3>Diagnose load</h3>
+          <p class="help-sub">Compare what's in your clipboard vs. what landed in the app. Send me a screenshot if anything looks wrong.</p>
+          <div class="diag-section">
+            <div class="diag-title">Build</div>
+            <pre class="diag-code">${_esc(buildStamp)}</pre>
+          </div>
+          <div class="diag-section">
+            <div class="diag-title">Last successful load</div>
+            <pre class="diag-code">${_esc(fmt(last))}</pre>
+          </div>
+          <div class="diag-section">
+            <div class="diag-title">Clipboard right now</div>
+            <pre class="diag-code">${_esc(clipText
+              ? ('length: ' + clipText.length + ' chars\n' +
+                 'starts with: ' + clipText.slice(0, 60).replace(/\n/g,' ') + '\n' +
+                 'top-level keys: ' + (clipKeys ? clipKeys.join(', ') : '(not JSON)') + '\n' +
+                 'agents: ' + clipAgentsType + '\n' +
+                 'first agent keys: ' + (clipFirstAgentKeys ? clipFirstAgentKeys.join(', ') : '—'))
+              : '(empty or no permission)')}</pre>
+          </div>
+          <div class="diag-section">
+            <div class="diag-title">Tip</div>
+            <pre class="diag-code">If "agents: missing" or empty, your bookmarklet
+didn't fetch them — re-copy the latest snippet
+from the How-to-use modal (the saved one is stale).
+
+If "agents: object{…}" with unknown keys, share
+those keys and I'll teach the loader to read them.</pre>
+          </div>
+          <div class="help-row">
+            <button class="help-btn-action" type="button" data-act="copy">Copy diagnostic</button>
+            <button class="help-btn-action ghost" type="button" data-act="close">Close</button>
+          </div>
+        </div>`;
+      frame.appendChild(modal);
+      // The .help-modal CSS uses `.open` to flip display:none → block,
+      // matching the existing How-to-use modal pattern.
+      requestAnimationFrame(() => modal.classList.add('open'));
+      const close = () => { modal.classList.add('closing'); setTimeout(() => modal.remove(), 180); };
+      modal.querySelector('.help-backdrop').addEventListener('click', close);
+      modal.querySelector('[data-act="close"]').addEventListener('click', close);
+      modal.querySelector('[data-act="copy"]').addEventListener('click', () => {
+        const blob = JSON.stringify({ build: buildStamp, last, clipboard: { length: clipText.length, topKeys: clipKeys, agentsType: clipAgentsType, firstAgentKeys: clipFirstAgentKeys } }, null, 2);
+        navigator.clipboard?.writeText(blob).catch(() => {});
+        if (typeof _showToast === 'function') _showToast('Copied diagnostic');
+      });
     }
 
     function _openHelpModal() {
@@ -13001,8 +14374,32 @@
       setTimeout(() => modal.remove(), 180);
     }
 
+    // Build stamp — bumped on every edit so you can tell at a glance which
+    // version of the prototype is live. If the stamp in the corner is
+    // older than the time you expect, the browser cached the page —
+    // hard-reload (Cmd+Shift+R) or close the tab and reopen.
+    const _BUILD_STAMP = '2026-05-08 e — agent row count = exact paste; demo only for first-visit cold start';
+
+    function _renderBuildStamp() {
+      // Tiny grey footer pinned to the bottom of the phone frame so it
+      // doesn't compete with chrome. Click it to copy the stamp for bug
+      // reports.
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame || frame.querySelector('.build-stamp')) return;
+      const el = document.createElement('div');
+      el.className = 'build-stamp';
+      el.title = 'Click to copy build stamp';
+      el.textContent = 'build · ' + _BUILD_STAMP.split(' — ')[0];
+      el.addEventListener('click', () => {
+        navigator.clipboard?.writeText(_BUILD_STAMP).catch(() => {});
+        if (typeof _showToast === 'function') _showToast('Copied build stamp');
+      });
+      frame.appendChild(el);
+    }
+
     async function init() {
       renderEmptyState();
+      _renderBuildStamp();
       wireKeywordClicks();
       wireCompactExpand();
       wireCameraDropdown();
@@ -13018,20 +14415,37 @@
       document.getElementById('openHelpBtn')?.addEventListener('click', _openHelpModal);
       document.getElementById('clearDataBtn')?.addEventListener('click', _clearAllEvents);
       // Data-load priority on each page load:
-      // 1. Clipboard (fresh data the user just copied — top priority)
+      // 1. Clipboard (fresh data the user just copied — top priority).
+      //    SKIPPED when we just came back from a Reset — otherwise the
+      //    stale clipboard contents instantly re-populate the page and
+      //    the user thinks Reset is broken.
       // 2. localStorage (the most recent snapshot we saved on this device)
       // 3. /sample.json (Mac-saved bundle, dev-only fallback)
+      //
+      // The reset flag is a one-shot: read it, then immediately clear it
+      // so a subsequent manual reload behaves normally (clipboard wins).
+      let justReset = false;
       try {
-        const t = await navigator.clipboard?.readText?.();
-        if (t && t.trim() && t.trim().startsWith('{')) {
-          try { await _loadGroupsFromText(t); _persistLastData(t); return; } catch {}
+        if (sessionStorage.getItem('wyze:justReset') === '1') {
+          justReset = true;
+          sessionStorage.removeItem('wyze:justReset');
         }
       } catch {}
-      try {
-        const ls = localStorage.getItem('wyze:lastData');
-        if (ls && ls.trim()) { await _loadGroupsFromText(ls); return; }
-      } catch {}
-      await _loadFromServerFile();
+      if (!justReset) {
+        try {
+          const t = await navigator.clipboard?.readText?.();
+          if (t && t.trim() && t.trim().startsWith('{')) {
+            try { await _loadGroupsFromText(t); _persistLastData(t); return; } catch {}
+          }
+        } catch {}
+        try {
+          const ls = localStorage.getItem('wyze:lastData');
+          if (ls && ls.trim()) { await _loadGroupsFromText(ls); return; }
+        } catch {}
+        await _loadFromServerFile();
+      }
+      // Reset path: leave the empty state on screen. User taps Load
+      // (or paste fresh data) when ready. URL stays as /event-page.html.
     }
     // Persist the last successfully-loaded JSON so reloads survive without
     // needing a fresh clipboard copy each time.
