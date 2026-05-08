@@ -98,15 +98,39 @@
     .status-icons { display: flex; gap: 5px; align-items: center; }
     .status-icons svg { width: 16px; height: 12px; fill: var(--text-primary); }
 
-    /* ── Header ── */
+    /* ── Header — title left, actions right ── */
     .page-header {
       padding: 4px 16px 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
       flex-shrink: 0;
     }
-    .page-title { font-weight: 700; font-size: 28px; line-height: 34px; color: var(--text-primary); }
+    .page-title {
+      font-weight: 700; font-size: 20px; line-height: 26px;
+      color: var(--text-primary);
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    /* Slow-breathing live dot in front of "Happening" on the Home tab. */
+    .page-title .title-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: #1DF0BB;
+      box-shadow: 0 0 0 0 rgba(29,240,187,0.55);
+      animation: title-dot-breath 2.4s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes title-dot-breath {
+      0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(29,240,187,0.55); opacity: 1; }
+      50%      { transform: scale(0.85); box-shadow: 0 0 0 6px rgba(29,240,187,0); opacity: 0.7; }
+    }
+    /* Clock icon in front of "What happened?" on the Events tab. */
+    .page-title .title-clock {
+      width: 18px; height: 18px;
+      stroke: currentColor; fill: none;
+      flex-shrink: 0;
+    }
     .header-right { display: flex; gap: 8px; align-items: center; }
     .classic-toggle {
       display: flex; align-items: center; gap: 4px;
@@ -1871,7 +1895,7 @@
     }
     .phone-frame.dark .home-view .home-section-title {
       display: flex; align-items: baseline; justify-content: space-between;
-      padding: 18px 4px 8px;
+      padding: 4px 4px 6px;
       font-weight: 700; font-size: 14px; color: #fff;
       letter-spacing: 0.1px;
     }
@@ -1879,25 +1903,24 @@
       font-weight: 500; color: #6B6B6B; font-size: 12px;
     }
 
-    .phone-frame.dark .home-device {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 12px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: background .15s;
-      border: 1px solid rgba(255,255,255,0.04);
+    /* Home camera grid — live-view-style tiles, 2 per row, no gap. */
+    .phone-frame.dark .home-cameras-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin: 0 -14px;          /* bleed to phone-frame edges */
     }
-    .phone-frame.dark .home-device:hover { background: rgba(255,255,255,0.07); }
+    .phone-frame.dark .home-device {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      background: linear-gradient(135deg, #2a2a2a, #161616);
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform .15s;
+    }
     .phone-frame.dark .home-device:active { transform: scale(0.99); }
     .phone-frame.dark .home-device .home-device-thumb {
-      flex-shrink: 0;
-      position: relative;
-      width: 64px; height: 48px;
-      border-radius: 8px;
-      overflow: hidden;
-      background: linear-gradient(135deg, #2a2a2a, #161616);
+      position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
     }
     .phone-frame.dark .home-device .home-device-thumb img {
@@ -1906,65 +1929,110 @@
       object-fit: cover;
     }
     .phone-frame.dark .home-device .home-device-thumb svg {
-      width: 22px; height: 22px;
-      stroke: rgba(255,255,255,0.55); fill: none; stroke-width: 1.6;
+      width: 36px; height: 36px;
+      stroke: rgba(255,255,255,0.45); fill: none; stroke-width: 1.4;
       stroke-linecap: round; stroke-linejoin: round;
     }
+    /* Bottom gradient + name strip overlay — like a security NVR feed. */
     .phone-frame.dark .home-device .home-device-info {
-      flex: 1; min-width: 0;
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 18px 10px 8px;
+      background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0));
+      pointer-events: none;
     }
     .phone-frame.dark .home-device .home-device-name {
-      font-weight: 600; font-size: 14px; color: #fff;
-      line-height: 1.3;
+      font-weight: 700; font-size: 13px; color: #fff;
+      line-height: 1.2;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
       overflow: hidden;
       text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
+      white-space: nowrap;
     }
     .phone-frame.dark .home-device .home-device-meta {
-      font-size: 11px; color: #787878;
-      margin-top: 3px;
-      line-height: 1.3;
+      display: none;             /* hidden in live-grid mode — keep DOM small */
     }
+    /* Status pill in top-left corner. */
     .phone-frame.dark .home-device .home-device-status {
-      flex-shrink: 0;
-      display: flex; flex-direction: column; align-items: flex-end;
-      gap: 2px;
+      position: absolute; top: 8px; left: 8px;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 7px;
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+      pointer-events: none;
     }
     .phone-frame.dark .home-device .status-dot {
-      width: 8px; height: 8px;
+      width: 6px; height: 6px;
       border-radius: 50%;
       background: #6B6B6B;
     }
     .phone-frame.dark .home-device .status-dot.online { background: #1DF0BB; }
     .phone-frame.dark .home-device .home-device-recent {
-      font-size: 10px; color: #A0A0A0;
+      font-size: 10px; color: #fff; font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+    /* "Try X agent" suggestion pill — shown when the camera's events look
+       like a fit for a creator template that isn't already a home widget.
+       Sits in the top-right of the tile, above the gradient overlay. */
+    .phone-frame.dark .home-device .home-device-suggest {
+      position: absolute;
+      top: 8px; right: 8px;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 9px 4px 7px;
+      background: #1DF0BB;
+      color: #0d0d0d;
+      border: none; border-radius: 999px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(29,240,187,0.35);
+      max-width: calc(100% - 16px);
+      animation: suggest-pulse 2.4s ease-in-out infinite;
+    }
+    .phone-frame.dark .home-device .home-device-suggest:active { transform: scale(0.96); }
+    .phone-frame.dark .home-device .home-device-suggest-emoji { font-size: 11px; line-height: 1; }
+    .phone-frame.dark .home-device .home-device-suggest-text {
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    @keyframes suggest-pulse {
+      0%, 100% { box-shadow: 0 4px 10px rgba(29,240,187,0.35); }
+      50%      { box-shadow: 0 4px 14px rgba(29,240,187,0.65); }
     }
 
-    /* ── Camera Agent widgets ── */
+    /* ── Camera Agent widgets — single horizontal row, vertical tiles ──
+       Strictly horizontal scroll (no vertical drift on desktop wheel). */
     .phone-frame.dark .home-view .home-agents {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      flex: 0 0 auto;               /* don't let the parent flex squeeze height */
+      display: flex;
+      flex-wrap: nowrap;
       gap: 10px;
-      margin: 4px 0 18px;
+      overflow-x: auto;
+      overflow-y: hidden;           /* never scroll vertically inside the row */
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: none;
+      scrollbar-width: none;
+      margin: 4px -14px 0;          /* bleed to phone-frame edges */
+      padding: 14px 14px 4px;       /* breathing room above for the badge */
+      scroll-snap-type: x proximity;
+      touch-action: pan-x;          /* swipe gestures stay horizontal */
     }
+    .phone-frame.dark .home-view .home-agents::-webkit-scrollbar { display: none; }
     .phone-frame.dark .home-view .home-agent {
       position: relative;
-      display: flex; align-items: center; gap: 10px;
-      min-height: 88px;
-      padding: 10px;
-      background: #1A1A1A;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.04);
+      flex: 0 0 auto;
+      width: 100px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      padding: 4px 4px 8px;
+      background: transparent;
+      border: none;
       cursor: pointer;
-      transition: transform .12s, background .15s;
-      overflow: hidden;
+      transition: transform .12s;
+      scroll-snap-align: start;
     }
     .phone-frame.dark .home-view .home-agent:active { transform: scale(0.98); }
     .phone-frame.dark .home-view .home-agent-thumb {
       flex-shrink: 0;
-      width: 64px; height: 64px;
+      width: 76px; height: 76px;
       border-radius: 50%;
       background: linear-gradient(135deg, #2a2a2a, #161616);
       position: relative; overflow: hidden;
@@ -1974,60 +2042,96 @@
       position: absolute; inset: 0;
       width: 100%; height: 100%; object-fit: cover;
     }
-    /* When a real photo loaded, the agent icon sits as a small badge in the
-       lower-right corner so the user can identify the agent at a glance. */
-    .phone-frame.dark .home-view .home-agent-thumb.has-image .home-agent-emblem {
-      position: absolute; right: 0; bottom: 0;
-      width: 22px; height: 22px;
-      background: rgba(0,0,0,0.85);
-      color: #fff;
-      border-radius: 50%;
+    /* Agent emblem badge — top-left of the tile, OUTSIDE the round mask so
+       the icon is never clipped. It's a sibling of the thumb so the
+       thumb's overflow:hidden doesn't reach it. */
+    .phone-frame.dark .home-view .home-agent {
+      overflow: visible;
+    }
+    /* State pill — anchored to the TOP-LEFT of the tile (above the thumb's
+       circular mask) so it never gets clipped by the agent row's scroll
+       container. Always solid green. Icon-only when agent has no data. */
+    .phone-frame.dark .home-view .home-agent-emblem {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      max-width: calc(100% - 8px);
+      padding: 4px 10px 4px 6px;
+      background: #1DF0BB;
+      color: #0d0d0d;
+      border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 5px;
+      box-shadow: 0 0 0 2px #0a0a0a, 0 2px 6px rgba(0,0,0,0.45);
+      z-index: 3;
+      pointer-events: none;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .phone-frame.dark .home-view .home-agent-emblem-icon {
+      width: 14px; height: 14px;
+      flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 0 1.5px rgba(0,0,0,0.6);
     }
-    .phone-frame.dark .home-view .home-agent-thumb.has-image .home-agent-emblem svg {
-      width: 12px; height: 12px;
+    .phone-frame.dark .home-view .home-agent-emblem-icon svg {
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round; stroke-linejoin: round;
     }
-    /* No photo yet — fill the circle with the agent emblem centered. */
-    .phone-frame.dark .home-view .home-agent-thumb:not(.has-image) .home-agent-emblem {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      color: #1DF0BB;
+    .phone-frame.dark .home-view .home-agent-emblem-text {
+      max-width: 100px;
+      overflow: hidden; text-overflow: ellipsis;
     }
-    .phone-frame.dark .home-view .home-agent-thumb:not(.has-image) .home-agent-emblem svg {
-      width: 30px; height: 30px;
+    /* No-data state — collapse to icon-only and remove right padding. */
+    .phone-frame.dark .home-view .home-agent.is-quiet .home-agent-emblem {
+      padding: 6px;
     }
-    .phone-frame.dark .home-view .home-agent-info { flex: 1; min-width: 0; }
-    .phone-frame.dark .home-view .home-agent-label {
-      font-size: 11px; color: #6B6B6B;
-      text-transform: uppercase; letter-spacing: 0.4px;
+    .phone-frame.dark .home-view .home-agent.is-quiet .home-agent-emblem-text {
+      display: none;
     }
-    .phone-frame.dark .home-view .home-agent-state {
-      font-size: 14px; font-weight: 700; color: #fff;
-      margin-top: 2px;
+    .phone-frame.dark .home-view .home-agent-info {
+      width: 100%;
+      text-align: center;
+      min-width: 0;
+    }
+    /* Below the thumb is now ONLY the tagline (e.g., "for 3 mins").
+       Color/weight scales with the agent's state — bright when there's
+       something happening, dimmed when it's quiet. */
+    .phone-frame.dark .home-view .home-agent-since {
+      font-size: 11px;
+      color: #6B6B6B;        /* default = dimmed (quiet) */
+      font-weight: 500;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .phone-frame.dark .home-view .home-agent-state.is-warn   { color: #FFB340; }
-    .phone-frame.dark .home-view .home-agent-state.is-active { color: #1DF0BB; }
-    .phone-frame.dark .home-view .home-agent-state.is-quiet  { color: #6B6B6B; }
-    .phone-frame.dark .home-view .home-agent-since {
-      font-size: 11px; color: #787878; margin-top: 2px;
+    .phone-frame.dark .home-view .home-agent.is-warn .home-agent-since {
+      color: #FFB340;
+      font-weight: 700;
     }
-    /* "+ Add agent" tile — dashed outline, no thumb image, plus glyph */
-    .phone-frame.dark .home-view .home-agent-add {
-      background: rgba(255,255,255,0.02);
-      border: 1px dashed rgba(255,255,255,0.18);
+    .phone-frame.dark .home-view .home-agent.is-active .home-agent-since {
+      color: #1DF0BB;
+      font-weight: 700;
     }
+    .phone-frame.dark .home-view .home-agent.is-quiet .home-agent-since {
+      color: #6B6B6B;
+      font-weight: 500;
+    }
+    /* "+ Add agent" tile — dashed-outline thumb to differentiate it. */
     .phone-frame.dark .home-view .home-agent-add-thumb {
-      background: rgba(29,240,187,0.10);
+      background: rgba(29,240,187,0.06);
+      border: 1.5px dashed rgba(29,240,187,0.45);
       display: flex; align-items: center; justify-content: center;
     }
     .phone-frame.dark .home-view .home-agent-add-plus {
-      font-size: 32px; font-weight: 300;
+      font-size: 28px; font-weight: 300;
       color: #1DF0BB;
       line-height: 1;
     }
-    .phone-frame.dark .home-view .home-agent-add .home-agent-label { color: #1DF0BB; }
+    .phone-frame.dark .home-view .home-agent-add .home-agent-emblem {
+      background: rgba(29,240,187,0.14);
+      color: #1DF0BB;
+    }
 
     /* ── Agent detail sheet (slide-up) ── */
     .phone-frame.dark .agent-sheet {
@@ -2278,16 +2382,90 @@
     }
 
     /* ───────── Live stream view ───────── */
+    /* Camera detail = next-layer push: slides in from the right, fills the
+       full phone-frame, back button at top-left.
+       Agent detail = bottom popup: slides up to ~90% height, close ✕ at
+       top-right (sized like the chat drawer). */
     .phone-frame.dark .live-view {
-      position: absolute; inset: 0;
+      position: absolute;
       z-index: 210;
       background: #0a0a0a;
       display: flex; flex-direction: column;
-      transform: translateY(100%);
       transition: transform .3s cubic-bezier(0.22, 0.65, 0.34, 1);
       overflow: hidden;
     }
-    .phone-frame.dark .live-view.open { transform: translateY(0); }
+    /* Bare .live-view (no variant) is fully hidden so the next open
+       doesn't animate from a stale transform path. Variant classes are
+       what give the view its slide-in direction. */
+    .phone-frame.dark .live-view {
+      inset: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .phone-frame.dark .live-view.is-camera,
+    .phone-frame.dark .live-view.is-agent {
+      visibility: visible;
+      pointer-events: auto;
+    }
+    /* Camera — full frame, slides horizontally from the right. */
+    .phone-frame.dark .live-view.is-camera {
+      inset: 0;
+      transform: translateX(100%);
+      border-radius: 0;
+    }
+    .phone-frame.dark .live-view.is-camera.open { transform: translateX(0); }
+    /* Agent — bottom sheet matching chat-drawer dimensions. */
+    .phone-frame.dark .live-view.is-agent {
+      inset: auto 0 0 0;
+      height: 90%;
+      transform: translateY(100%);
+      border-radius: 18px 18px 0 0;
+      box-shadow: 0 -10px 32px rgba(0,0,0,0.6);
+    }
+    .phone-frame.dark .live-view.is-agent.open { transform: translateY(0); }
+    /* Dimmed backdrop behind the agent bottom-popup. Tap to dismiss. */
+    .phone-frame.dark .live-backdrop {
+      position: absolute; inset: 0;
+      z-index: 209;          /* below .live-view (210), above page content */
+      background: rgba(0,0,0,0.55);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .phone-frame.dark.live-popup-open .live-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    /* Drag-handle bar at the top of the agent bottom-sheet (matches chat drawer). */
+    .phone-frame.dark .live-view .live-handle {
+      flex-shrink: 0;
+      padding: 6px 0 4px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .live-view .live-handle div {
+      width: 36px; height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.18);
+    }
+    /* Camera variant has no handle. */
+    .phone-frame.dark .live-view.is-camera .live-handle { display: none; }
+
+    /* Agent live-view emblem badge — same icon style as the home tile, sits
+       to the LEFT of the title in the agent popup header. */
+    .phone-frame.dark .live-view .live-emblem {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #1DF0BB;
+      color: #0d0d0d;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 2px rgba(13,13,13,0.7);
+    }
+    .phone-frame.dark .live-view .live-emblem svg {
+      width: 18px; height: 18px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
 
     .phone-frame.dark .live-view .live-header {
       flex-shrink: 0;
@@ -2724,16 +2902,10 @@
        Ported from Wyze-cam-agent/src/pages/AgentCreator.jsx,
        restyled with this project's dark theme.
        ───────────────────────────────────────────── */
-    .phone-frame.dark .agent-creator-view {
-      position: absolute; inset: 0;
-      z-index: 215;
-      background: #0a0a0a;
-      display: flex; flex-direction: column;
-      transform: translateY(100%);
-      transition: transform .3s cubic-bezier(0.22, 0.65, 0.34, 1);
-      overflow: hidden;
-    }
-    .phone-frame.dark .agent-creator-view.open { transform: translateY(0); }
+    /* Creator-mode lives inside .chat-drawer (which already provides the
+       bottom-sheet positioning + slide-up via .chat-open on the parent).
+       So .is-creator only needs to override the chrome — no positioning. */
+    .phone-frame.dark .chat-drawer.is-creator { background: #0a0a0a; }
 
     /* ───────── Agent Settings full-screen sheet ───────── */
     .phone-frame.dark .agent-settings-view {
@@ -3038,17 +3210,17 @@
     .phone-frame.dark .agent-settings-view .as-action-btn.is-danger { color: #FF4F4F; border-color: rgba(255,75,79,0.45); }
 
     /* Sticky header with progress bar */
-    .phone-frame.dark .agent-creator-view .ac-header {
+    .phone-frame.dark .chat-drawer.is-creator .ac-header {
       flex-shrink: 0;
       background: #0a0a0a;
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    .phone-frame.dark .agent-creator-view .ac-header-row {
+    .phone-frame.dark .chat-drawer.is-creator .ac-header-row {
       display: flex; align-items: center; gap: 10px;
       padding: 14px 14px 8px;
       padding-top: max(14px, env(safe-area-inset-top));
     }
-    .phone-frame.dark .agent-creator-view .ac-back {
+    .phone-frame.dark .chat-drawer.is-creator .ac-back {
       flex-shrink: 0;
       width: 36px; height: 36px;
       border: none; border-radius: 50%;
@@ -3056,17 +3228,17 @@
       color: #fff; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
-    .phone-frame.dark .agent-creator-view .ac-back svg {
+    .phone-frame.dark .chat-drawer.is-creator .ac-back svg {
       width: 16px; height: 16px;
       stroke: currentColor; fill: none; stroke-width: 2;
       stroke-linecap: round; stroke-linejoin: round;
     }
-    .phone-frame.dark .agent-creator-view .ac-title {
+    .phone-frame.dark .chat-drawer.is-creator .ac-title {
       flex: 1; min-width: 0;
       font-weight: 700; font-size: 15px; color: #fff;
       letter-spacing: -0.05px;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-emoji {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-emoji {
       flex-shrink: 0;
       width: 32px; height: 32px;
       border-radius: 50%;
@@ -3075,11 +3247,11 @@
       font-size: 16px;
     }
     /* Progress: thin continuous bar with CREATE / TEST / DONE labels */
-    .phone-frame.dark .agent-creator-view .ac-progress {
+    .phone-frame.dark .chat-drawer.is-creator .ac-progress {
       padding: 0 16px 10px;
       display: flex; flex-direction: column; gap: 6px;
     }
-    .phone-frame.dark .agent-creator-view .ac-progress-labels {
+    .phone-frame.dark .chat-drawer.is-creator .ac-progress-labels {
       display: flex; justify-content: space-between;
       font-size: 9px;
       color: #5a5a5a;
@@ -3087,16 +3259,16 @@
       text-transform: uppercase;
       font-weight: 600;
     }
-    .phone-frame.dark .agent-creator-view .ac-progress-label.is-active { color: #1DF0BB; }
-    .phone-frame.dark .agent-creator-view .ac-progress-label.is-done   { color: rgba(29,240,187,0.6); }
-    .phone-frame.dark .agent-creator-view .ac-progress-track {
+    .phone-frame.dark .chat-drawer.is-creator .ac-progress-label.is-active { color: #1DF0BB; }
+    .phone-frame.dark .chat-drawer.is-creator .ac-progress-label.is-done   { color: rgba(29,240,187,0.6); }
+    .phone-frame.dark .chat-drawer.is-creator .ac-progress-track {
       position: relative;
       height: 2px;
       background: rgba(255,255,255,0.08);
       border-radius: 999px;
       overflow: hidden;
     }
-    .phone-frame.dark .agent-creator-view .ac-progress-fill {
+    .phone-frame.dark .chat-drawer.is-creator .ac-progress-fill {
       position: absolute; left: 0; top: 0; bottom: 0;
       background: linear-gradient(90deg, #1DF0BB 0%, #5BD9F0 100%);
       border-radius: 999px;
@@ -3105,7 +3277,7 @@
     }
 
     /* Scrollable conversation area */
-    .phone-frame.dark .agent-creator-view .ac-convo {
+    .phone-frame.dark .chat-drawer.is-creator .ac-convo {
       flex: 1;
       overflow-y: auto;
       padding: 12px 14px 20px;
@@ -3114,49 +3286,49 @@
     }
 
     /* Speech bubbles */
-    .phone-frame.dark .agent-creator-view .ac-msg {
+    .phone-frame.dark .chat-drawer.is-creator .ac-msg {
       max-width: 85%;
       display: flex;
     }
-    .phone-frame.dark .agent-creator-view .ac-msg-bot { align-self: flex-start; }
-    .phone-frame.dark .agent-creator-view .ac-msg-user { align-self: flex-end; }
-    .phone-frame.dark .agent-creator-view .ac-bubble {
+    .phone-frame.dark .chat-drawer.is-creator .ac-msg-bot { align-self: flex-start; }
+    .phone-frame.dark .chat-drawer.is-creator .ac-msg-user { align-self: flex-end; }
+    .phone-frame.dark .chat-drawer.is-creator .ac-bubble {
       padding: 10px 13px;
       border-radius: 16px;
       font-size: 13px; line-height: 1.45;
       word-wrap: break-word;
       white-space: pre-wrap;
     }
-    .phone-frame.dark .agent-creator-view .ac-msg-bot .ac-bubble {
+    .phone-frame.dark .chat-drawer.is-creator .ac-msg-bot .ac-bubble {
       background: rgba(255,255,255,0.06);
       color: #E8E8E8;
       border-bottom-left-radius: 4px;
     }
-    .phone-frame.dark .agent-creator-view .ac-msg-user .ac-bubble {
+    .phone-frame.dark .chat-drawer.is-creator .ac-msg-user .ac-bubble {
       background: #1DF0BB;
       color: #0d0d0d;
       border-bottom-right-radius: 4px;
       font-weight: 500;
     }
-    .phone-frame.dark .agent-creator-view .ac-msg-voice .ac-bubble::before {
+    .phone-frame.dark .chat-drawer.is-creator .ac-msg-voice .ac-bubble::before {
       content: '🎙 ';
       opacity: 0.55; font-size: 11px;
     }
-    .phone-frame.dark .agent-creator-view .ac-tip {
+    .phone-frame.dark .chat-drawer.is-creator .ac-tip {
       align-self: flex-start;
       max-width: 85%;
       font-size: 11px; color: #6B6B6B;
       padding: 0 6px;
       font-style: italic;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-grid {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-grid {
       align-self: stretch;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin: 4px 0 6px;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile {
       display: flex; flex-direction: column; gap: 6px;
       padding: 12px;
       background: rgba(255,255,255,0.04);
@@ -3166,27 +3338,27 @@
       cursor: pointer;
       transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile:hover {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile:hover {
       background: rgba(29,240,187,0.06);
       border-color: rgba(29,240,187,0.35);
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile:active { transform: scale(0.97); }
-    .phone-frame.dark .agent-creator-view .ac-template-tile.is-locked {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile:active { transform: scale(0.97); }
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile.is-locked {
       opacity: 0.45;
       cursor: default;
       pointer-events: none;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile.is-picked {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile.is-picked {
       opacity: 1;
       border-color: rgba(29,240,187,0.55);
       background: rgba(29,240,187,0.08);
     }
     /* The picked tile rendered as a sent chat message (right-aligned). */
-    .phone-frame.dark .agent-creator-view .ac-msg-tile {
+    .phone-frame.dark .chat-drawer.is-creator .ac-msg-tile {
       align-self: flex-end;
       max-width: 75%;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile.is-sent {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile.is-sent {
       cursor: default;
       pointer-events: none;
       background: rgba(29,240,187,0.14);
@@ -3194,50 +3366,50 @@
       padding: 10px 12px;
       gap: 4px;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile.is-sent .ac-template-tile-icon {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile.is-sent .ac-template-tile-icon {
       width: 28px; height: 28px; border-radius: 8px; font-size: 16px;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile.is-sent .ac-template-tile-name {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile.is-sent .ac-template-tile-name {
       color: #1DF0BB;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile.is-sent .ac-template-tile-desc {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile.is-sent .ac-template-tile-desc {
       color: #A7E5D2;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile-custom {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile-custom {
       border-style: dashed;
       border-color: rgba(255,255,255,0.18);
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile-icon-custom {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile-icon-custom {
       background: rgba(29,240,187,0.12);
       color: #1DF0BB;
       font-weight: 300;
       font-size: 26px;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile-icon {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile-icon {
       width: 36px; height: 36px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
       font-size: 20px;
       background: rgba(255,255,255,0.06);
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile-name {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile-name {
       font-size: 13px; font-weight: 700; color: #fff;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-tile-desc {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-tile-desc {
       font-size: 11px; color: #A0A0A0; line-height: 1.35;
     }
-    .phone-frame.dark .agent-creator-view .ac-bubble-pick {
+    .phone-frame.dark .chat-drawer.is-creator .ac-bubble-pick {
       background: rgba(29,240,187,0.18);
       color: #1DF0BB;
       border: 1px solid rgba(29,240,187,0.35);
     }
 
     /* Quick-replies */
-    .phone-frame.dark .agent-creator-view .ac-quick-replies {
+    .phone-frame.dark .chat-drawer.is-creator .ac-quick-replies {
       display: flex; flex-wrap: wrap; gap: 6px;
       align-self: flex-start;
       margin-top: 2px;
     }
-    .phone-frame.dark .agent-creator-view .ac-chip {
+    .phone-frame.dark .chat-drawer.is-creator .ac-chip {
       padding: 8px 12px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.10);
@@ -3247,63 +3419,63 @@
       cursor: pointer;
       display: inline-flex; align-items: center; gap: 6px;
     }
-    .phone-frame.dark .agent-creator-view .ac-chip-sub {
+    .phone-frame.dark .chat-drawer.is-creator .ac-chip-sub {
       font-size: 10px; color: #787878; font-weight: 500;
       margin-left: 4px;
     }
-    .phone-frame.dark .agent-creator-view .ac-chip:hover { background: rgba(255,255,255,0.08); }
-    .phone-frame.dark .agent-creator-view .ac-chip.is-selected {
+    .phone-frame.dark .chat-drawer.is-creator .ac-chip:hover { background: rgba(255,255,255,0.08); }
+    .phone-frame.dark .chat-drawer.is-creator .ac-chip.is-selected {
       background: #1DF0BB; color: #0d0d0d; border-color: #1DF0BB;
     }
-    .phone-frame.dark .agent-creator-view .ac-chip.is-selected .ac-chip-sub { color: rgba(13,13,13,0.65); }
-    .phone-frame.dark .agent-creator-view .ac-chip.is-disabled { opacity: 0.5; cursor: default; }
+    .phone-frame.dark .chat-drawer.is-creator .ac-chip.is-selected .ac-chip-sub { color: rgba(13,13,13,0.65); }
+    .phone-frame.dark .chat-drawer.is-creator .ac-chip.is-disabled { opacity: 0.5; cursor: default; }
 
     /* Inline cards (template, summary, learning, push, live preview) */
-    .phone-frame.dark .agent-creator-view .ac-card {
+    .phone-frame.dark .chat-drawer.is-creator .ac-card {
       align-self: stretch;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: 14px;
       padding: 14px;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-card {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-card {
       display: flex; flex-direction: column; gap: 10px;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-head {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-head {
       display: flex; align-items: center; gap: 12px;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-icon {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-icon {
       width: 44px; height: 44px;
       border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
       font-size: 22px;
       background: rgba(29,240,187,0.12);
     }
-    .phone-frame.dark .agent-creator-view .ac-template-name {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-name {
       font-weight: 700; font-size: 15px; color: #fff;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-desc {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-desc {
       font-size: 11px; color: #A0A0A0;
       margin-top: 2px;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-features {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-features {
       list-style: none; padding: 0; margin: 4px 0 0;
       display: flex; flex-direction: column; gap: 6px;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-features li {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-features li {
       display: flex; align-items: center; gap: 8px;
       font-size: 12px; color: #C8C8C8;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-features li::before {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-features li::before {
       content: '✓';
       color: #1DF0BB;
       font-weight: 700;
       flex-shrink: 0;
     }
-    .phone-frame.dark .agent-creator-view .ac-template-actions {
+    .phone-frame.dark .chat-drawer.is-creator .ac-template-actions {
       display: flex; gap: 8px; margin-top: 6px;
     }
-    .phone-frame.dark .agent-creator-view .ac-btn {
+    .phone-frame.dark .chat-drawer.is-creator .ac-btn {
       padding: 10px 14px;
       border: none; border-radius: 999px;
       background: #1DF0BB; color: #0d0d0d;
@@ -3311,17 +3483,17 @@
       cursor: pointer;
       flex: 1;
     }
-    .phone-frame.dark .agent-creator-view .ac-btn-secondary {
+    .phone-frame.dark .chat-drawer.is-creator .ac-btn-secondary {
       background: rgba(255,255,255,0.06);
       color: #C8C8C8;
       border: 1px solid rgba(255,255,255,0.06);
     }
-    .phone-frame.dark .agent-creator-view .ac-btn-block {
+    .phone-frame.dark .chat-drawer.is-creator .ac-btn-block {
       display: block; width: 100%;
     }
 
     /* Camera carousel */
-    .phone-frame.dark .agent-creator-view .ac-cam-carousel {
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-carousel {
       display: flex; gap: 8px;
       overflow-x: auto;
       overflow-y: visible;
@@ -3333,8 +3505,8 @@
       flex: 0 0 auto;
       min-height: 220px;
     }
-    .phone-frame.dark .agent-creator-view .ac-cam-carousel::-webkit-scrollbar { display: none; }
-    .phone-frame.dark .agent-creator-view .ac-cam-card {
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-carousel::-webkit-scrollbar { display: none; }
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-card {
       flex: 0 0 70%;
       scroll-snap-align: start;
       background: rgba(255,255,255,0.04);
@@ -3347,12 +3519,12 @@
       font: inherit;
       transition: border-color 0.12s ease, background 0.12s ease, transform 0.12s ease;
     }
-    .phone-frame.dark .agent-creator-view .ac-cam-card:hover {
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-card:hover {
       border-color: rgba(29,240,187,0.55);
       background: rgba(29,240,187,0.06);
     }
-    .phone-frame.dark .agent-creator-view .ac-cam-card:active { transform: scale(0.98); }
-    .phone-frame.dark .agent-creator-view .ac-cam-cta {
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-card:active { transform: scale(0.98); }
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-cta {
       margin-top: auto;
       align-self: flex-start;
       font-size: 11px; font-weight: 700;
@@ -3361,11 +3533,11 @@
       padding: 6px 10px;
       border-radius: 999px;
     }
-    .phone-frame.dark .agent-creator-view .ac-cam-card.is-selected {
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-card.is-selected {
       border-color: #1DF0BB;
       background: rgba(29,240,187,0.06);
     }
-    .phone-frame.dark .agent-creator-view .ac-cam-thumb {
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-thumb {
       position: relative;
       width: 100%;
       height: 120px;
@@ -3374,24 +3546,24 @@
       overflow: hidden;
       background: linear-gradient(135deg, #2a2a2a, #161616);
     }
-    .phone-frame.dark .agent-creator-view .ac-cam-thumb img {
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-thumb img {
       position: absolute; inset: 0;
       width: 100%; height: 100%;
       object-fit: cover;
     }
-    .phone-frame.dark .agent-creator-view .ac-cam-thumb-icon {
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-thumb-icon {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
       color: #5a5a5a; font-size: 24px;
     }
-    .phone-frame.dark .agent-creator-view .ac-cam-name {
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-name {
       font-size: 13px; font-weight: 700; color: #fff;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .phone-frame.dark .agent-creator-view .ac-cam-model {
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-model {
       font-size: 11px; color: #A0A0A0;
     }
-    .phone-frame.dark .agent-creator-view .ac-cam-tag {
+    .phone-frame.dark .chat-drawer.is-creator .ac-cam-tag {
       display: inline-block;
       margin-top: 2px;
       font-size: 10px; padding: 2px 6px;
@@ -3399,7 +3571,7 @@
       color: #FFB340;
       border-radius: 999px;
     }
-    .phone-frame.dark .agent-creator-view .ac-carousel-hint {
+    .phone-frame.dark .chat-drawer.is-creator .ac-carousel-hint {
       align-self: center;
       font-size: 10px; color: #6B6B6B;
       letter-spacing: 0.5px;
@@ -3408,30 +3580,30 @@
     }
 
     /* Summary card */
-    .phone-frame.dark .agent-creator-view .ac-summary-grid {
+    .phone-frame.dark .chat-drawer.is-creator .ac-summary-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px 12px;
       margin: 6px 0 12px;
     }
-    .phone-frame.dark .agent-creator-view .ac-summary-cell {
+    .phone-frame.dark .chat-drawer.is-creator .ac-summary-cell {
       padding: 8px 10px;
       background: rgba(255,255,255,0.04);
       border-radius: 8px;
       display: flex; flex-direction: column;
     }
-    .phone-frame.dark .agent-creator-view .ac-summary-cell.full { grid-column: 1 / -1; }
-    .phone-frame.dark .agent-creator-view .ac-summary-cell-label {
+    .phone-frame.dark .chat-drawer.is-creator .ac-summary-cell.full { grid-column: 1 / -1; }
+    .phone-frame.dark .chat-drawer.is-creator .ac-summary-cell-label {
       font-size: 10px; color: #6B6B6B;
       text-transform: uppercase; letter-spacing: 0.4px;
     }
-    .phone-frame.dark .agent-creator-view .ac-summary-cell-value {
+    .phone-frame.dark .chat-drawer.is-creator .ac-summary-cell-value {
       font-size: 13px; font-weight: 600; color: #fff;
       margin-top: 3px;
     }
 
     /* Live preview (camera positioning + test) */
-    .phone-frame.dark .agent-creator-view .ac-live-preview {
+    .phone-frame.dark .chat-drawer.is-creator .ac-live-preview {
       position: relative;
       aspect-ratio: 4 / 3;
       border-radius: 12px;
@@ -3441,11 +3613,11 @@
       align-items: center; justify-content: center;
       gap: 8px;
     }
-    .phone-frame.dark .agent-creator-view .ac-live-preview-emoji {
+    .phone-frame.dark .chat-drawer.is-creator .ac-live-preview-emoji {
       font-size: 48px;
       filter: grayscale(0.1);
     }
-    .phone-frame.dark .agent-creator-view .ac-live-preview-status {
+    .phone-frame.dark .chat-drawer.is-creator .ac-live-preview-status {
       position: absolute; top: 10px; left: 10px;
       padding: 4px 10px;
       font-size: 11px; font-weight: 700;
@@ -3454,18 +3626,18 @@
       background: rgba(0,0,0,0.65);
       color: #FFB340;
     }
-    .phone-frame.dark .agent-creator-view .ac-live-preview-status.is-good { color: #1DF0BB; }
-    .phone-frame.dark .agent-creator-view .ac-live-preview-overlay {
+    .phone-frame.dark .chat-drawer.is-creator .ac-live-preview-status.is-good { color: #1DF0BB; }
+    .phone-frame.dark .chat-drawer.is-creator .ac-live-preview-overlay {
       position: absolute; inset: 14px;
       border: 2px dashed rgba(255,179,64,0.6);
       border-radius: 8px;
       pointer-events: none;
     }
-    .phone-frame.dark .agent-creator-view .ac-live-preview-overlay.is-good {
+    .phone-frame.dark .chat-drawer.is-creator .ac-live-preview-overlay.is-good {
       border-color: rgba(29,240,187,0.7);
       border-style: solid;
     }
-    .phone-frame.dark .agent-creator-view .ac-tip-banner {
+    .phone-frame.dark .chat-drawer.is-creator .ac-tip-banner {
       align-self: stretch;
       padding: 8px 10px;
       border: 1px solid rgba(255,179,64,0.25);
@@ -3476,7 +3648,7 @@
     }
 
     /* Push notification preview */
-    .phone-frame.dark .agent-creator-view .ac-push {
+    .phone-frame.dark .chat-drawer.is-creator .ac-push {
       align-self: stretch;
       background: rgba(28,28,28,0.92);
       border: 1px solid rgba(255,255,255,0.08);
@@ -3485,7 +3657,7 @@
       display: flex; gap: 10px;
       backdrop-filter: blur(16px);
     }
-    .phone-frame.dark .agent-creator-view .ac-push-icon {
+    .phone-frame.dark .chat-drawer.is-creator .ac-push-icon {
       flex-shrink: 0;
       width: 32px; height: 32px;
       border-radius: 8px;
@@ -3493,24 +3665,24 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 18px;
     }
-    .phone-frame.dark .agent-creator-view .ac-push-body {
+    .phone-frame.dark .chat-drawer.is-creator .ac-push-body {
       flex: 1; min-width: 0;
     }
-    .phone-frame.dark .agent-creator-view .ac-push-title-row {
+    .phone-frame.dark .chat-drawer.is-creator .ac-push-title-row {
       display: flex; align-items: baseline; gap: 6px;
     }
-    .phone-frame.dark .agent-creator-view .ac-push-title {
+    .phone-frame.dark .chat-drawer.is-creator .ac-push-title {
       font-size: 12px; font-weight: 700; color: #fff;
     }
-    .phone-frame.dark .agent-creator-view .ac-push-when {
+    .phone-frame.dark .chat-drawer.is-creator .ac-push-when {
       font-size: 10px; color: #6B6B6B;
       margin-left: auto;
     }
-    .phone-frame.dark .agent-creator-view .ac-push-message {
+    .phone-frame.dark .chat-drawer.is-creator .ac-push-message {
       font-size: 12px; color: #C8C8C8;
       margin-top: 2px;
     }
-    .phone-frame.dark .agent-creator-view .ac-push-thumb {
+    .phone-frame.dark .chat-drawer.is-creator .ac-push-thumb {
       flex-shrink: 0;
       width: 56px; height: 40px;
       border-radius: 6px;
@@ -3520,73 +3692,73 @@
     }
 
     /* Learning card */
-    .phone-frame.dark .agent-creator-view .ac-learning-title {
+    .phone-frame.dark .chat-drawer.is-creator .ac-learning-title {
       font-weight: 700; font-size: 14px; color: #fff;
       margin-bottom: 8px;
     }
-    .phone-frame.dark .agent-creator-view .ac-learning-list {
+    .phone-frame.dark .chat-drawer.is-creator .ac-learning-list {
       list-style: none; padding: 0; margin: 0;
       display: flex; flex-direction: column; gap: 6px;
     }
-    .phone-frame.dark .agent-creator-view .ac-learning-list li {
+    .phone-frame.dark .chat-drawer.is-creator .ac-learning-list li {
       display: flex; align-items: center; gap: 8px;
       font-size: 12px; color: #C8C8C8;
     }
-    .phone-frame.dark .agent-creator-view .ac-learning-list li::before {
+    .phone-frame.dark .chat-drawer.is-creator .ac-learning-list li::before {
       content: '✓';
       color: #1DF0BB; font-weight: 700;
     }
 
     /* Final summary */
-    .phone-frame.dark .agent-creator-view .ac-final {
+    .phone-frame.dark .chat-drawer.is-creator .ac-final {
       align-self: stretch;
       border: 1px solid rgba(29,240,187,0.20);
       background: linear-gradient(135deg, rgba(29,240,187,0.04), rgba(74,140,255,0.04));
       border-radius: 14px;
       padding: 16px;
     }
-    .phone-frame.dark .agent-creator-view .ac-final-head {
+    .phone-frame.dark .chat-drawer.is-creator .ac-final-head {
       display: flex; align-items: center; gap: 10px;
       margin-bottom: 10px;
     }
-    .phone-frame.dark .agent-creator-view .ac-final-emoji {
+    .phone-frame.dark .chat-drawer.is-creator .ac-final-emoji {
       width: 44px; height: 44px;
       border-radius: 50%;
       background: rgba(29,240,187,0.12);
       display: flex; align-items: center; justify-content: center;
       font-size: 22px;
     }
-    .phone-frame.dark .agent-creator-view .ac-final-name {
+    .phone-frame.dark .chat-drawer.is-creator .ac-final-name {
       font-weight: 700; font-size: 15px; color: #fff;
     }
-    .phone-frame.dark .agent-creator-view .ac-final-sub {
+    .phone-frame.dark .chat-drawer.is-creator .ac-final-sub {
       font-size: 11px; color: #A0A0A0;
     }
-    .phone-frame.dark .agent-creator-view .ac-final-grid {
+    .phone-frame.dark .chat-drawer.is-creator .ac-final-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
       margin: 10px 0;
     }
-    .phone-frame.dark .agent-creator-view .ac-final-grid > div {
+    .phone-frame.dark .chat-drawer.is-creator .ac-final-grid > div {
       padding: 8px 10px;
       background: rgba(255,255,255,0.04);
       border-radius: 8px;
     }
-    .phone-frame.dark .agent-creator-view .ac-final-grid span {
+    .phone-frame.dark .chat-drawer.is-creator .ac-final-grid span {
       font-size: 10px; color: #6B6B6B;
       text-transform: uppercase; letter-spacing: 0.4px;
       display: block;
     }
-    .phone-frame.dark .agent-creator-view .ac-final-grid strong {
+    .phone-frame.dark .chat-drawer.is-creator .ac-final-grid strong {
       font-size: 12px; color: #fff; font-weight: 600;
     }
-    .phone-frame.dark .agent-creator-view .ac-final-price {
+    .phone-frame.dark .chat-drawer.is-creator .ac-final-price {
       font-size: 11px; color: #A0A0A0;
       margin: 6px 0 12px;
       text-align: center;
     }
-    .phone-frame.dark .agent-creator-view .ac-activate {
+    .phone-frame.dark .chat-drawer.is-creator .ac-activate {
       width: 100%;
       padding: 14px;
       border: none;
@@ -3598,7 +3770,7 @@
       cursor: pointer;
       margin-bottom: 8px;
     }
-    .phone-frame.dark .agent-creator-view .ac-back-edit {
+    .phone-frame.dark .chat-drawer.is-creator .ac-back-edit {
       width: 100%;
       padding: 10px;
       border: none;
@@ -3609,17 +3781,17 @@
     }
 
     /* Sticky footer voice/keyboard input (dual mode) */
-    .phone-frame.dark .agent-creator-view .ac-footer {
+    .phone-frame.dark .chat-drawer .ac-footer {
       flex-shrink: 0;
       padding: 10px 12px max(12px, env(safe-area-inset-bottom));
       background: #0a0a0a;
       border-top: 1px solid rgba(255,255,255,0.05);
       display: flex; flex-direction: column; gap: 8px;
     }
-    .phone-frame.dark .agent-creator-view .ac-footer-row {
+    .phone-frame.dark .chat-drawer .ac-footer-row {
       display: flex; align-items: center; gap: 8px;
     }
-    .phone-frame.dark .agent-creator-view .ac-icon-btn {
+    .phone-frame.dark .chat-drawer .ac-icon-btn {
       flex-shrink: 0;
       width: 44px; height: 44px;
       border: none;
@@ -3630,12 +3802,12 @@
       display: flex; align-items: center; justify-content: center;
       transition: background 0.12s ease;
     }
-    .phone-frame.dark .agent-creator-view .ac-icon-btn:hover:not(:disabled) {
+    .phone-frame.dark .chat-drawer .ac-icon-btn:hover:not(:disabled) {
       background: rgba(255,255,255,0.1);
     }
-    .phone-frame.dark .agent-creator-view .ac-icon-btn:disabled { opacity: 0.4; cursor: default; }
-    .phone-frame.dark .agent-creator-view .ac-icon-btn svg { width: 20px; height: 20px; }
-    .phone-frame.dark .agent-creator-view .ac-input {
+    .phone-frame.dark .chat-drawer .ac-icon-btn:disabled { opacity: 0.4; cursor: default; }
+    .phone-frame.dark .chat-drawer .ac-icon-btn svg { width: 20px; height: 20px; }
+    .phone-frame.dark .chat-drawer .ac-input {
       flex: 1;
       height: 44px;
       background: rgba(255,255,255,0.06);
@@ -3646,11 +3818,11 @@
       font: inherit; font-size: 13px;
       outline: none;
     }
-    .phone-frame.dark .agent-creator-view .ac-input::placeholder { color: #6B6B6B; }
-    .phone-frame.dark .agent-creator-view .ac-input:focus {
+    .phone-frame.dark .chat-drawer .ac-input::placeholder { color: #6B6B6B; }
+    .phone-frame.dark .chat-drawer .ac-input:focus {
       border-color: rgba(29,240,187,0.45);
     }
-    .phone-frame.dark .agent-creator-view .ac-send-btn {
+    .phone-frame.dark .chat-drawer .ac-send-btn {
       flex-shrink: 0;
       width: 44px; height: 44px;
       border-radius: 12px;
@@ -3661,10 +3833,10 @@
       display: flex; align-items: center; justify-content: center;
       transition: opacity 0.12s ease;
     }
-    .phone-frame.dark .agent-creator-view .ac-send-btn:disabled { opacity: 0.4; cursor: default; }
-    .phone-frame.dark .agent-creator-view .ac-send-btn svg { width: 18px; height: 18px; }
+    .phone-frame.dark .chat-drawer .ac-send-btn:disabled { opacity: 0.4; cursor: default; }
+    .phone-frame.dark .chat-drawer .ac-send-btn svg { width: 18px; height: 18px; }
     /* Voice button — fills remaining width */
-    .phone-frame.dark .agent-creator-view .ac-voice-btn {
+    .phone-frame.dark .chat-drawer .ac-voice-btn {
       flex: 1;
       height: 44px;
       border: none;
@@ -3679,45 +3851,45 @@
       touch-action: manipulation;
       transition: background 0.12s ease, color 0.12s ease, transform 0.08s ease;
     }
-    .phone-frame.dark .agent-creator-view .ac-voice-btn:hover:not(:disabled) {
+    .phone-frame.dark .chat-drawer .ac-voice-btn:hover:not(:disabled) {
       background: rgba(255,255,255,0.14);
     }
-    .phone-frame.dark .agent-creator-view .ac-voice-btn:active:not(:disabled) { transform: scale(0.98); }
-    .phone-frame.dark .agent-creator-view .ac-voice-btn:disabled { opacity: 0.4; cursor: default; }
-    .phone-frame.dark .agent-creator-view .ac-voice-btn svg { width: 18px; height: 18px; }
-    .phone-frame.dark .agent-creator-view .ac-voice-btn .ac-voice-idle,
-    .phone-frame.dark .agent-creator-view .ac-voice-btn .ac-voice-active {
+    .phone-frame.dark .chat-drawer .ac-voice-btn:active:not(:disabled) { transform: scale(0.98); }
+    .phone-frame.dark .chat-drawer .ac-voice-btn:disabled { opacity: 0.4; cursor: default; }
+    .phone-frame.dark .chat-drawer .ac-voice-btn svg { width: 18px; height: 18px; }
+    .phone-frame.dark .chat-drawer .ac-voice-btn .ac-voice-idle,
+    .phone-frame.dark .chat-drawer .ac-voice-btn .ac-voice-active {
       display: flex; align-items: center; gap: 8px;
     }
-    .phone-frame.dark .agent-creator-view .ac-voice-btn .ac-voice-active { display: none; }
-    .phone-frame.dark .agent-creator-view .ac-voice-btn.is-recording {
+    .phone-frame.dark .chat-drawer .ac-voice-btn .ac-voice-active { display: none; }
+    .phone-frame.dark .chat-drawer .ac-voice-btn.is-recording {
       background: #ef4444;
       color: #fff;
     }
-    .phone-frame.dark .agent-creator-view .ac-voice-btn.is-recording .ac-voice-idle { display: none; }
-    .phone-frame.dark .agent-creator-view .ac-voice-btn.is-recording .ac-voice-active { display: flex; }
+    .phone-frame.dark .chat-drawer .ac-voice-btn.is-recording .ac-voice-idle { display: none; }
+    .phone-frame.dark .chat-drawer .ac-voice-btn.is-recording .ac-voice-active { display: flex; }
     /* Animated waveform bars while recording */
-    .phone-frame.dark .agent-creator-view .ac-waveform {
+    .phone-frame.dark .chat-drawer .ac-waveform {
       display: inline-flex; align-items: center; gap: 3px; height: 18px;
     }
-    .phone-frame.dark .agent-creator-view .ac-waveform > span {
+    .phone-frame.dark .chat-drawer .ac-waveform > span {
       display: inline-block;
       width: 3px;
       background: #fff;
       border-radius: 2px;
       animation: ac-wave 0.9s ease-in-out infinite;
     }
-    .phone-frame.dark .agent-creator-view .ac-waveform > span:nth-child(1) { height: 6px;  animation-delay: 0s; }
-    .phone-frame.dark .agent-creator-view .ac-waveform > span:nth-child(2) { height: 14px; animation-delay: 0.12s; }
-    .phone-frame.dark .agent-creator-view .ac-waveform > span:nth-child(3) { height: 18px; animation-delay: 0.24s; }
-    .phone-frame.dark .agent-creator-view .ac-waveform > span:nth-child(4) { height: 12px; animation-delay: 0.36s; }
-    .phone-frame.dark .agent-creator-view .ac-waveform > span:nth-child(5) { height: 8px;  animation-delay: 0.48s; }
+    .phone-frame.dark .chat-drawer .ac-waveform > span:nth-child(1) { height: 6px;  animation-delay: 0s; }
+    .phone-frame.dark .chat-drawer .ac-waveform > span:nth-child(2) { height: 14px; animation-delay: 0.12s; }
+    .phone-frame.dark .chat-drawer .ac-waveform > span:nth-child(3) { height: 18px; animation-delay: 0.24s; }
+    .phone-frame.dark .chat-drawer .ac-waveform > span:nth-child(4) { height: 12px; animation-delay: 0.36s; }
+    .phone-frame.dark .chat-drawer .ac-waveform > span:nth-child(5) { height: 8px;  animation-delay: 0.48s; }
     @keyframes ac-wave {
       0%, 100% { transform: scaleY(0.4); }
       50%      { transform: scaleY(1.2); }
     }
     /* Live transcription bubble — appears above the input row */
-    .phone-frame.dark .agent-creator-view .ac-transcribe {
+    .phone-frame.dark .chat-drawer .ac-transcribe {
       background: rgba(255,255,255,0.08);
       border-radius: 12px;
       padding: 10px 14px;
@@ -3726,9 +3898,9 @@
       font-size: 13px; line-height: 1.4;
       display: flex; align-items: center; gap: 4px;
     }
-    .phone-frame.dark .agent-creator-view .ac-transcribe[hidden] { display: none; }
-    .phone-frame.dark .agent-creator-view .ac-transcribe-text { white-space: pre-wrap; }
-    .phone-frame.dark .agent-creator-view .ac-transcribe-caret {
+    .phone-frame.dark .chat-drawer .ac-transcribe[hidden] { display: none; }
+    .phone-frame.dark .chat-drawer .ac-transcribe-text { white-space: pre-wrap; }
+    .phone-frame.dark .chat-drawer .ac-transcribe-caret {
       display: inline-block;
       width: 2px; height: 14px;
       background: #1DF0BB;
@@ -3816,8 +3988,79 @@
        only when the user is already inside a chat-like context: the chat
        drawer, agent-creator flow, or agent-settings sheet. */
     .phone-frame.dark.chat-open .chat-fab,
-    .phone-frame.dark:has(.agent-creator-view.open) .chat-fab,
     .phone-frame.dark:has(.agent-settings-view.open) .chat-fab { display: none; }
+
+    /* Proactive chat bubble — Wyze AI starts the conversation. Sits ABOVE
+       and slightly to the right of the FAB so it doesn't collide with the
+       Story/All toggle on the right side; tail points down-left at the FAB.
+       Hidden by default; revealed via JS on a timer. */
+    .phone-frame.dark .chat-fab-bubble {
+      position: absolute;
+      /* FAB occupies left:12.5% (translateX -50%), 48px wide, ~75px from
+         bottom. Anchor bubble's left edge near the FAB right edge with
+         comfortable spacing, and bottom above the FAB's top. */
+      left: calc(12.5% + 12px);
+      bottom: calc(64px + max(env(safe-area-inset-bottom), 0px) + 70px);
+      max-width: 220px;
+      padding: 8px 28px 8px 12px;
+      background: #1DF0BB;
+      border: 1px solid #1DF0BB;
+      border-radius: 14px 14px 14px 4px;
+      color: #0d0d0d;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.35;
+      cursor: pointer;
+      z-index: 211;
+      box-shadow: 0 6px 16px rgba(29,240,187,0.35);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .25s ease, transform .25s ease;
+      pointer-events: none;
+    }
+    .phone-frame.dark .chat-fab-bubble:not([hidden]) {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    /* Tail pointing down-left toward the FAB (border-radius 4px on the
+       bottom-left of the bubble already mimics a chat-bubble corner). */
+    .phone-frame.dark .chat-fab-bubble::before,
+    .phone-frame.dark .chat-fab-bubble::after {
+      content: '';
+      position: absolute;
+      left: 6px; bottom: -7px;
+      width: 0; height: 0;
+      border-style: solid;
+      border-width: 7px 7px 0 0;
+      border-color: #1DF0BB transparent transparent transparent;
+    }
+    /* Blinking cursor while text is typing in. */
+    .phone-frame.dark .chat-fab-bubble.is-typing .chat-fab-bubble-text::after {
+      content: '';
+      display: inline-block;
+      width: 1px; height: 12px;
+      margin-left: 2px;
+      vertical-align: -2px;
+      background: currentColor;
+      animation: chat-fab-caret 0.7s steps(1) infinite;
+    }
+    @keyframes chat-fab-caret {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+    .phone-frame.dark .chat-fab-bubble-close {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 18px; height: 18px;
+      border: none; background: transparent;
+      color: rgba(13,13,13,0.55); cursor: pointer;
+      font-size: 14px; line-height: 1;
+      border-radius: 50%;
+    }
+    .phone-frame.dark .chat-fab-bubble-close:hover { color: #0d0d0d; background: rgba(13,13,13,0.10); }
+    .phone-frame.dark.chat-open .chat-fab-bubble,
+    .phone-frame.dark:has(.agent-settings-view.open) .chat-fab-bubble { display: none; }
 
     /* Chat drawer — slide-up sheet, ~80% of phone-frame height. */
     .phone-frame.dark .chat-backdrop {
@@ -3903,6 +4146,9 @@
       content: ''; width: 6px; height: 6px;
       background: #1DF0BB; border-radius: 50%;
     }
+    /* In creator mode the sub-line is descriptive ("Creating Garage Door
+       Agent"), not an online indicator — drop the green dot. */
+    .phone-frame.dark .chat-drawer .chat-sub-creator::before { display: none; }
     .phone-frame.dark .chat-drawer .chat-test,
     .phone-frame.dark .chat-drawer .chat-settings,
     .phone-frame.dark .chat-drawer .chat-open-ext,
@@ -4485,6 +4731,154 @@
       width: 16px; height: 16px;
       stroke: currentColor; fill: none; stroke-width: 2.4;
       stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* "Select element" entry button — sits at bottom-right of chat composer
+       (next to send). Pointer-and-corner-bracket icon. */
+    .phone-frame.dark .chat-drawer .chat-pick {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(29,240,187,0.45);
+      border-radius: 50%;
+      background: rgba(29,240,187,0.08);
+      color: #1DF0BB;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-frame.dark .chat-drawer .chat-pick:active { transform: scale(0.92); }
+    .phone-frame.dark .chat-drawer .chat-pick svg {
+      width: 16px; height: 16px;
+      stroke: currentColor; fill: none; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ───────── Element selection mode ───────── */
+    .phone-frame.dark.is-selecting { cursor: crosshair; }
+    /* Subtle dimming of non-selectable surfaces. */
+    .phone-frame.dark.is-selecting::after {
+      content: '';
+      position: absolute; inset: 0;
+      pointer-events: none;
+      box-shadow: inset 0 0 0 2px rgba(29,240,187,0.55);
+      border-radius: 32px;
+      animation: select-glow 1.4s ease-in-out infinite;
+      z-index: 9999;
+    }
+    @keyframes select-glow {
+      0%, 100% { box-shadow: inset 0 0 0 2px rgba(29,240,187,0.45); }
+      50%      { box-shadow: inset 0 0 0 2px rgba(29,240,187,0.9), inset 0 0 12px rgba(29,240,187,0.35); }
+    }
+    /* Top banner that explains the mode. */
+    .phone-frame.dark .select-banner {
+      position: absolute; left: 12px; right: 12px;
+      top: max(env(safe-area-inset-top), 0px);
+      transform: translateY(-110%);
+      background: #1DF0BB;
+      color: #0d0d0d;
+      font-size: 12px; font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(29,240,187,0.35);
+      display: flex; align-items: center; gap: 8px;
+      z-index: 10000;
+      transition: transform .25s cubic-bezier(0.22, 0.65, 0.34, 1);
+      pointer-events: auto;
+    }
+    .phone-frame.dark.is-selecting .select-banner { transform: translateY(8px); }
+    .phone-frame.dark .select-banner-cancel {
+      margin-left: auto;
+      background: rgba(13,13,13,0.15);
+      border: none;
+      color: #0d0d0d;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    /* Selectable element hover/touch state. */
+    .phone-frame.dark.is-selecting [data-selectable]:hover,
+    .phone-frame.dark.is-selecting [data-selectable].is-hover {
+      outline: 2px dashed #1DF0BB;
+      outline-offset: 2px;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Attachment chip in chat composer — preserves the element's aspect
+       ratio. Wide elements render as a rectangle; square elements as a
+       square. The dismiss × sits in the top-right corner of the snapshot. */
+    .phone-frame.dark .chat-drawer .chat-attachment {
+      flex-shrink: 0;
+      margin: 6px 12px 6px;
+      display: flex; align-items: stretch; gap: 10px;
+    }
+    .phone-frame.dark .chat-drawer .chat-attachment-thumb {
+      position: relative;
+      width: 80px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2a2a2a, #161616);
+      overflow: hidden;
+      border: 1px solid rgba(29,240,187,0.45);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .phone-frame.dark .chat-drawer .chat-attachment-thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .phone-frame.dark .chat-drawer .chat-attachment-text {
+      flex: 1; min-width: 0;
+      align-self: center;
+      overflow: hidden;
+      font-size: 12px; color: #C5F8E5;
+      line-height: 1.35;
+    }
+    .phone-frame.dark .chat-drawer .chat-attachment-label { color: #1DF0BB; font-weight: 700; display: block; }
+    .phone-frame.dark .chat-drawer .chat-attachment-detail {
+      color: #C5F8E5; font-weight: 500;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      display: block;
+    }
+    .phone-frame.dark .chat-drawer .chat-attachment-x {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 20px; height: 20px;
+      background: rgba(0,0,0,0.7);
+      border: none; border-radius: 50%;
+      color: #fff; font-size: 12px; line-height: 1;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0;
+      backdrop-filter: blur(4px);
+    }
+    .phone-frame.dark .chat-drawer .chat-attachment-x:hover { background: #FF4F4F; }
+
+    /* Inline attachment chip when message renders in chat history. */
+    .phone-frame.dark .chat-drawer .chat-msg-attachment {
+      align-self: flex-end;
+      max-width: 240px;
+      margin: 4px 0;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-attachment-thumb {
+      width: 100%;
+      max-width: 200px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2a2a2a, #161616);
+      overflow: hidden;
+      border: 1px solid rgba(29,240,187,0.45);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-attachment-thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .phone-frame.dark .chat-drawer .chat-msg-attachment-meta {
+      margin-top: 4px;
+      font-size: 11px; color: #1DF0BB; font-weight: 700;
+      text-align: right;
     }
 
     /* App footer (disclaimer) */
@@ -5503,16 +5897,17 @@
     /* Page header (Events title + Classic toggle + Search) */
     .page-header { padding: 8px 16px 4px; }
     .phone-frame.dark .classic-toggle {
-      border-radius: 999px;
-      padding: 6px 12px;
-      gap: 6px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      padding: 0;
+      gap: 0;
       background: transparent;
-      border-color: rgba(255,255,255,0.18);
+      border: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
     }
-    .phone-frame.dark .classic-toggle svg { width: 16px; height: 16px; }
-    .phone-frame.dark .classic-toggle span {
-      font-weight: 600; font-size: 14px; color: #C8C8C8;
-    }
+    .phone-frame.dark .classic-toggle svg { width: 18px; height: 18px; stroke: #C8C8C8; }
+    .phone-frame.dark .classic-toggle:hover { background: rgba(255,255,255,0.06); }
     .phone-frame.dark .search-icon > svg:not(.search-sparkle) {
       width: 22px; height: 22px; stroke: #fff;
     }
@@ -5557,9 +5952,9 @@
     <div class="phone-frame dark">
       <!-- Page header: Events title + Classic toggle + Search -->
       <div class="page-header">
-        <span class="page-title">Events</span>
+        <span class="page-title"><svg class="title-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>What happened?</span>
         <div class="header-right">
-          <div class="classic-toggle">
+          <div class="classic-toggle" aria-label="Classic view" title="Classic view">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
               <circle cx="3" cy="4" r="1" fill="currentColor" stroke="none"/>
               <circle cx="3" cy="8" r="1" fill="currentColor" stroke="none"/>
@@ -5568,7 +5963,6 @@
               <line x1="6" y1="8" x2="14" y2="8"/>
               <line x1="6" y1="12" x2="14" y2="12"/>
             </svg>
-            <span>Classic</span>
           </div>
           <div class="search-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
@@ -5583,13 +5977,6 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 12a9 9 0 1 1-3-6.7"/>
               <polyline points="21 4 21 10 15 10"/>
-            </svg>
-          </button>
-          <button class="help-btn" id="openHelpBtn" type="button" aria-label="How to use">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 4"/>
-              <circle cx="12" cy="17" r="0.6" fill="currentColor"/>
             </svg>
           </button>
         </div>
@@ -5655,6 +6042,10 @@
         <!-- Populated by renderHomeView() -->
       </div>
 
+      <!-- Backdrop dim — only visible when live-view opens as a bottom
+           popup (agent variant). Camera variant fills the frame so no dim. -->
+      <div class="live-backdrop"></div>
+
       <!-- Live-stream sheet: full-frame view that slides up over Home or
            Event when a camera is tapped. Populated by _openLiveView(). -->
       <div class="live-view">
@@ -5674,11 +6065,27 @@
         </svg>
       </button>
 
+      <!-- Proactive nudge bubble — Wyze AI speaks first.
+           Shown next to the chat-fab on a timer; tap to open chat. -->
+      <div class="chat-fab-bubble" hidden>
+        <span class="chat-fab-bubble-text"></span>
+        <button class="chat-fab-bubble-close" type="button" aria-label="Dismiss">×</button>
+      </div>
+
       <!-- Wyze AI chat drawer -->
       <div class="chat-drawer">
         <!-- populated by _openChatDrawer() -->
       </div>
       <div class="chat-backdrop"></div>
+
+      <!-- Selection-mode banner — shown when the user activates "ask about
+           this UI element". Tap an element on the visible page to attach
+           it as context, then chat reopens with a composer. -->
+      <div class="select-banner" hidden>
+        <span class="select-banner-icon">🎯</span>
+        <span class="select-banner-text">Tap to Ask — pick anything on screen</span>
+        <button class="select-banner-cancel" type="button">Cancel</button>
+      </div>
 
       <!-- Camera Agent detail sheet (Home → tap a widget) -->
       <div class="agent-backdrop"></div>
@@ -5692,11 +6099,9 @@
         <!-- populated by _openSettingsSheet() -->
       </div>
 
-      <!-- AgentCreator full-frame view — opened from the "+ Add agent"
-           home tile. Implements the multi-step Wyze Buddy chat flow. -->
-      <div class="agent-creator-view">
-        <!-- populated by _openAgentCreator() -->
-      </div>
+      <!-- AgentCreator now lives inside .chat-drawer (above) — see
+           _openAgentCreator(). The legacy .agent-creator-view container
+           was removed when the flow was unified into the chat surface. -->
 
       <div class="agent-settings-view">
         <!-- populated by _openAgentSettings() -->
@@ -7958,7 +8363,7 @@
     const _AGENT_ICONS = {
       garage:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-6 9 6v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M6 13h12"/><path d="M6 17h12"/></svg>',
       package: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7.5l7.5-3 7.5 3v9l-7.5 3-7.5-3z"/><path d="M4.5 7.5L12 10.5l7.5-3"/><path d="M12 10.5v9"/></svg>',
-      birds:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l3 3-3 3"/><path d="M5 13c2 4 6 5 10 4 3-1 5-3 5-7"/><path d="M5 13c-1-2 0-4 2-5l4 1"/><circle cx="11" cy="9" r="0.8" fill="currentColor"/></svg>'
+      birds:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h.01"/><path d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20"/><path d="m20 7 2 .5-2 .5"/><path d="M10 18v3"/><path d="M14 17.75V21"/><path d="M7 18a6 6 0 0 0 3.84-10.61"/></svg>'
     };
 
     // Format a duration in ms into a short "Xh Ym" / "Ym" string.
@@ -8081,6 +8486,53 @@
       { id: 'package', label: 'Packages',       iconHtml: _AGENT_ICONS.package, evaluate: _agentPackage },
       { id: 'birds',   label: 'Birds Watcher',  iconHtml: _AGENT_ICONS.birds,   evaluate: _agentBirds   }
     ];
+
+    // Map a Home-tab agent id to the matching creator template id so we can
+    // tell which domains are "already covered" by an active widget.
+    const _AGENT_TO_TEMPLATE = { garage: 'garage', package: 'package', birds: 'bird' };
+    const _ACTIVE_TEMPLATE_IDS = () => new Set(_AGENTS.map(a => _AGENT_TO_TEMPLATE[a.id]).filter(Boolean));
+
+    // Inspect the events captured by a single camera and, if we see signal
+    // for a template that isn't already a Home widget, suggest it. Returns
+    // { id, name, emoji } or null.
+    function _suggestAgentForCamera(dev, groups) {
+      if (!dev) return null;
+      const mac = dev.device_mac || '';
+      const camName = (dev.device_name || '') + ' ';
+      const active = _ACTIVE_TEMPLATE_IDS();
+      const candidates = (typeof _CREATOR_TEMPLATES !== 'undefined')
+        ? _CREATOR_TEMPLATES.filter(t => !active.has(t.id))
+        : [];
+      if (!candidates.length) return null;
+      // Build the corpus to test against: camera name + this camera's event
+      // summaries / titles / ai_tags.
+      const camEvents = (groups || []).filter(g =>
+        (g.cameras || []).some(c => (typeof _macsMatch === 'function')
+          ? _macsMatch(c, mac) : c === mac));
+      const textSamples = [camName];
+      camEvents.forEach(g => {
+        textSamples.push(String(g.summary || g.title || ''));
+        if (Array.isArray(g.ai_tags)) textSamples.push(g.ai_tags.join(' '));
+      });
+      // Score each candidate by how many text samples match its triggers.
+      let best = null;
+      let bestScore = 0;
+      for (const t of candidates) {
+        let score = 0;
+        for (const s of textSamples) if (t.triggerWords.test(s)) score++;
+        if (score > bestScore) { best = t; bestScore = score; }
+      }
+      // Without real data, allow a "hint by camera-name" fallback so the
+      // demo still shows a suggestion when relevant. Stove for any name
+      // mentioning kitchen / range; pet for any pet keyword.
+      if (!best) {
+        for (const t of candidates) {
+          if (t.triggerWords.test(camName)) { best = t; break; }
+        }
+      }
+      if (!best) return null;
+      return { id: best.id, name: best.name, emoji: best.emoji };
+    }
 
     // ════════════════════════════════════════
     // Templates used by the AgentCreator. Each describes one preset agent
@@ -8265,30 +8717,39 @@
       };
     }
 
-    function _openAgentCreator() {
-      const view = document.querySelector('.phone-frame.dark .agent-creator-view');
-      if (!view) return;
-      window.__creator = _newCreatorState();
-      window.__creatorFooterMode = 'voice'; // default to voice mode each open
-      _creatorRender();
-      view.offsetHeight;
-      view.classList.add('open');
-    }
+    // Open the AgentCreator inside the existing chat drawer so the entire
+     // "Create Your Camera Agent" flow lives in the same chat surface as
+     // regular Wyze AI chat.
+     function _openAgentCreator() {
+       const frame = document.querySelector('.phone-frame.dark');
+       const drawer = frame?.querySelector('.chat-drawer');
+       if (!frame || !drawer) return;
+       window.__creator = _newCreatorState();
+       window.__creatorFooterMode = 'voice';
+       drawer.classList.add('is-creator');
+       _creatorRender();
+       frame.classList.add('chat-open');
+     }
 
-    function _closeAgentCreator() {
-      const view = document.querySelector('.phone-frame.dark .agent-creator-view');
-      if (!view) return;
-      view.classList.remove('open');
-      setTimeout(() => {
-        if (!view.classList.contains('open')) view.innerHTML = '';
-      }, 320);
-    }
+     function _closeAgentCreator() {
+       const frame = document.querySelector('.phone-frame.dark');
+       const drawer = frame?.querySelector('.chat-drawer');
+       if (!frame || !drawer) return;
+       frame.classList.remove('chat-open');
+       // Leave is-creator on while sliding down so the content doesn't flash
+       // back to the chat view; clear after the transition.
+       setTimeout(() => {
+         drawer.classList.remove('is-creator');
+         drawer.innerHTML = '';
+         window.__creator = null;
+       }, 320);
+     }
 
     // Renders the entire view from window.__creator state. Called after
     // every state mutation to keep things simple (no incremental DOM
     // diffing — the conversation is short).
     function _creatorRender() {
-      const view = document.querySelector('.phone-frame.dark .agent-creator-view');
+      const view = document.querySelector('.phone-frame.dark .chat-drawer');
       const s = window.__creator;
       if (!view || !s) return;
 
@@ -8306,24 +8767,38 @@
       else if (s.step >= 8)              pct = 33 + Math.min(1, (s.step - 8) / 7) * 33;
       else                                pct = Math.min(1, s.step / 7) * 33;
 
+      const subText = s.template ? 'Creating ' + s.template.name + ' Agent' : 'Create your camera agent';
       const headerHtml = `
-        <div class="ac-header">
-          <div class="ac-header-row">
-            <button class="ac-back" type="button" aria-label="Close">
-              <svg viewBox="0 0 18 18"><path d="M11 4l-5 5 5 5"/></svg>
-            </button>
-            <div class="ac-title">${s.template ? 'Create ' + _esc(s.template.name) + ' Agent' : 'Create Your Camera Agent'}</div>
-            <div class="ac-template-emoji">${s.template ? _esc(s.template.emoji) : '✨'}</div>
+        <div class="chat-handle"><div></div></div>
+        <div class="chat-header">
+          <div class="chat-avatar">
+            <svg viewBox="0 0 32 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5502 1.08369C9.64261 0.941508 9.76686 0.822788 9.9131 0.736939C10.0593 0.651091 10.2236 0.60047 10.3928 0.589086L19.1117 0.00244385C19.2809 -0.00894033 19.4504 0.0192249 19.6068 0.0847092C19.7632 0.150194 19.9023 0.251199 20.0129 0.379725L23.2195 4.10524L27.034 3.84858C27.9012 3.79024 28.756 4.07875 29.4104 4.65066C30.0648 5.22257 30.4652 6.03103 30.5236 6.89818L31.5502 22.1562C31.6086 23.0234 31.32 23.8782 30.7481 24.5326C30.1762 25.187 29.3678 25.5875 28.5006 25.6458L4.52365 27.2591C3.6565 27.3174 2.80169 27.0289 2.14727 26.457C1.49285 25.8851 1.09242 25.0766 1.03408 24.2095L0.00745214 8.95142C-0.050893 8.08427 0.237625 7.22946 0.809535 6.57504C1.38145 5.92062 2.1899 5.52019 3.05705 5.46185L6.87157 5.20519L9.5502 1.08369ZM10.7278 13.7041C10.9425 13.6897 11.1522 13.6331 11.345 13.5376C11.5378 13.4421 11.71 13.3095 11.8515 13.1475C11.9931 12.9855 12.1014 12.7972 12.1702 12.5933C12.2391 12.3894 12.267 12.174 12.2526 11.9593C12.2381 11.7446 12.1816 11.5349 12.0861 11.3421C11.9906 11.1493 11.858 10.9771 11.696 10.8356C11.534 10.694 11.3457 10.5857 11.1418 10.5169C10.9379 10.448 10.7225 10.4201 10.5078 10.4345C10.0742 10.4637 9.67 10.6639 9.38405 10.9911C9.09809 11.3183 8.95383 11.7457 8.983 12.1793C9.01218 12.6129 9.21239 13.0171 9.5396 13.3031C9.86681 13.589 10.2942 13.7333 10.7278 13.7041ZM11.481 16.7626C11.3486 16.6343 11.1917 16.534 11.0196 16.468C10.8474 16.4019 10.6637 16.3714 10.4795 16.3783C10.2952 16.3851 10.1143 16.4292 9.94757 16.5079C9.78084 16.5866 9.63177 16.6983 9.50936 16.8361C9.38694 16.974 9.29371 17.1352 9.23529 17.3101C9.17686 17.4849 9.15446 17.6698 9.16942 17.8536C9.18439 18.0373 9.23641 18.2161 9.32236 18.3793C9.4083 18.5424 9.52639 18.6864 9.6695 18.8026C11.0528 20.032 13.3119 20.9989 16.1281 20.8094C18.9465 20.6198 21.0557 19.3612 22.2639 17.9552C22.3809 17.8191 22.4699 17.6613 22.5258 17.4908C22.5817 17.3203 22.6035 17.1404 22.59 16.9615C22.5764 16.7826 22.5277 16.6081 22.4467 16.448C22.3657 16.2879 22.254 16.1453 22.1179 16.0283C21.9818 15.9114 21.824 15.8224 21.6535 15.7665C21.483 15.7106 21.3031 15.6887 21.1242 15.7023C20.9453 15.7159 20.7708 15.7645 20.6107 15.8455C20.4505 15.9265 20.3079 16.0383 20.191 16.1744C19.4642 17.0225 18.0351 17.9441 15.9447 18.0848C13.8566 18.2253 12.3169 17.5034 11.483 16.7603M22.0634 11.297C22.0926 11.7306 21.9483 12.158 21.6623 12.4852C21.3764 12.8124 20.9722 13.0126 20.5386 13.0418C20.105 13.071 19.6776 12.9267 19.3504 12.6408C19.0232 12.3548 18.823 11.9506 18.7938 11.517C18.7646 11.0834 18.9089 10.656 19.1948 10.3288C19.4808 10.0016 19.885 9.80138 20.3186 9.77221C20.7522 9.74304 21.1796 9.8873 21.5068 10.1733C21.834 10.4592 22.0342 10.8634 22.0634 11.297Z"/>
+              <rect class="eyelid eyelid-l" x="8.7" y="9.5"  width="3.9" height="4.4"/>
+              <rect class="eyelid eyelid-r" x="18.5" y="9.2" width="3.9" height="4.2"/>
+            </svg>
           </div>
-          <div class="ac-progress">
-            <div class="ac-progress-labels">
-              <span class="ac-progress-label ${stage === 'create' ? 'is-active' : 'is-done'}">Create</span>
-              <span class="ac-progress-label ${stage === 'test' ? 'is-active' : (stage === 'done' ? 'is-done' : '')}">Test</span>
-              <span class="ac-progress-label ${stage === 'done' ? 'is-active' : ''}">Done</span>
-            </div>
-            <div class="ac-progress-track">
-              <div class="ac-progress-fill" style="width:${pct.toFixed(1)}%"></div>
-            </div>
+          <div class="chat-title-block">
+            <div class="chat-title">Wyze AI</div>
+            <div class="chat-sub chat-sub-creator">${_esc(subText)}</div>
+          </div>
+          <button class="chat-settings" type="button" aria-label="Wyze AI settings" title="Settings">
+            <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6.37496 11.4383C6.66833 11.6986 7.02517 11.8768 7.40945 11.9551C7.79373 12.0334 8.19186 12.0089 8.56367 11.8842C8.93547 11.7594 9.26779 11.5388 9.5271 11.2446C9.7864 10.9504 9.9635 10.593 10.0405 10.2084L10.0683 10.0689C10.5634 9.96424 11.0135 9.70794 11.3563 9.33565C11.699 8.96336 11.9173 8.49357 11.9807 7.99154C12.0442 7.48951 11.9498 6.98017 11.7106 6.53427C11.4713 6.08837 11.0991 5.72806 10.6457 5.50338C10.836 5.32787 10.9879 5.11486 11.0918 4.87777C11.1957 4.64067 11.2493 4.38462 11.2494 4.12576V3.97728C11.2492 3.50955 11.087 3.05632 10.7905 2.69459C10.494 2.33287 10.0814 2.08495 9.62284 1.99296L9.31838 1.93297L9.22389 1.46201C9.16416 1.16332 9.0303 0.884425 8.83462 0.650983C8.63893 0.417542 8.3877 0.237042 8.10403 0.126078C7.82035 0.0151137 7.51333 -0.0227527 7.21119 0.0159596C6.90905 0.0546719 6.6215 0.168721 6.37496 0.34762V11.4383ZM5.62504 0.34687C5.37849 0.167796 5.09087 0.053603 4.78864 0.014796C4.4864 -0.0240111 4.17926 0.0138147 3.89547 0.124793C3.61168 0.235772 3.36036 0.416339 3.16462 0.649882C2.96889 0.883424 2.83503 1.16244 2.77536 1.46126L2.68162 1.93222L2.37716 1.99296C1.91857 2.08495 1.50598 2.33287 1.20946 2.69459C0.91295 3.05632 0.750811 3.50955 0.750591 3.97728V4.12576C0.750591 4.67021 0.983065 5.16066 1.35427 5.50338C0.900865 5.72806 0.528686 6.08837 0.28944 6.53427C0.0501941 6.98017 -0.044241 7.48951 0.0192537 7.99154C0.0827483 8.49357 0.30102 8.96336 0.643747 9.33565C0.986474 9.70794 1.43664 9.96424 1.93171 10.0689L1.95945 10.2077C2.03639 10.5923 2.21342 10.9498 2.47268 11.2441C2.73194 11.5384 3.06425 11.7591 3.43607 11.884C3.80789 12.0088 4.20606 12.0333 4.5904 11.9551C4.97473 11.8768 5.33162 11.6986 5.62504 11.4383V0.34687Z" fill="currentColor"/>
+            </svg>
+          </button>
+          <button class="ac-back" type="button" aria-label="Close">
+            <svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          </button>
+        </div>
+        <div class="ac-progress">
+          <div class="ac-progress-labels">
+            <span class="ac-progress-label ${stage === 'create' ? 'is-active' : 'is-done'}">Create</span>
+            <span class="ac-progress-label ${stage === 'test' ? 'is-active' : (stage === 'done' ? 'is-done' : '')}">Test</span>
+            <span class="ac-progress-label ${stage === 'done' ? 'is-active' : ''}">Done</span>
+          </div>
+          <div class="ac-progress-track">
+            <div class="ac-progress-fill" style="width:${pct.toFixed(1)}%"></div>
           </div>
         </div>`;
 
@@ -8342,53 +8817,10 @@
         }
       }
 
-      // Bottom input is always available — at step 0 it sets the intent, and
-      // at later steps it's a side-chat for follow-up questions to Wyze Buddy.
       const mode = window.__creatorFooterMode || 'voice';
-      const placeholder = s.step === 0
-        ? 'Tell me what you want to monitor…'
-        : 'Ask Wyze Buddy anything…';
-      const voiceMode = `
-        <div class="ac-footer-row" data-mode="voice">
-          <button class="ac-icon-btn" id="acKeyboard" aria-label="Switch to keyboard">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/>
-            </svg>
-          </button>
-          <button class="ac-voice-btn" id="acVoice" aria-label="Hold to ask">
-            <span class="ac-voice-idle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3"/>
-              </svg>
-              <span>${s.step === 0 ? 'Hold to ask' : 'Hold to talk'}</span>
-            </span>
-            <span class="ac-voice-active">
-              <span class="ac-waveform">
-                <span></span><span></span><span></span><span></span><span></span>
-              </span>
-              <span>Release to send</span>
-            </span>
-          </button>
-        </div>`;
-      const textMode = `
-        <div class="ac-footer-row" data-mode="text">
-          <button class="ac-icon-btn" id="acMic" aria-label="Switch to voice">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3"/>
-            </svg>
-          </button>
-          <input class="ac-input" id="acInput" type="text" placeholder="${_esc(placeholder)}" />
-          <button class="ac-send-btn" id="acSend" aria-label="Send">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
-            </svg>
-          </button>
-        </div>`;
-      const footerHtml = `
-        <div class="ac-footer">
-          <div class="ac-transcribe" id="acTranscribe" hidden><span class="ac-transcribe-text"></span><span class="ac-transcribe-caret"></span></div>
-          ${mode === 'text' ? textMode : voiceMode}
-        </div>`;
+      const placeholder = s.step === 0 ? 'Tell me what you want to monitor…' : 'Ask Wyze Buddy anything…';
+      const holdLabel = s.step === 0 ? 'Hold to ask' : 'Hold to talk';
+      const footerHtml = _chatFooterHtml(mode, placeholder, holdLabel);
 
       view.innerHTML = `${headerHtml}<div class="ac-convo">${bubbles.join('')}</div>${footerHtml}`;
       _creatorWire(view);
@@ -8683,6 +9115,138 @@
 
     // Demo transcript shown word-by-word during the simulated voice recording.
     const _CREATOR_VOICE_DEMO = "I want to make sure my stove is always turned off when I leave for work";
+    // Universal chat footer used by both the agent creator and the regular
+    // Wyze AI chat. Returns HTML for either voice or text mode.
+    function _chatFooterHtml(mode, placeholder, holdLabel) {
+      // "Tap to Ask" button — bottom-right entry into element-pick mode.
+      // Hidden once the user already has an element attached (only one
+      // attachment at a time).
+      const hasAttachment = !!window.__chatAttachment;
+      const pickBtn = hasAttachment ? '' : `
+        <button class="chat-pick" data-act="pick" type="button" aria-label="Tap to Ask" title="Tap to Ask">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3h5"/><path d="M3 3v5"/>
+            <path d="M21 3h-5"/><path d="M21 3v5"/>
+            <path d="M3 21h5"/><path d="M3 21v-5"/>
+            <path d="M21 21h-5"/><path d="M21 21v-5"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+        </button>`;
+      const voice = `
+        <div class="ac-footer-row" data-mode="voice">
+          <button class="ac-icon-btn" data-act="kb" aria-label="Switch to keyboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/>
+            </svg>
+          </button>
+          <button class="ac-voice-btn" data-act="voice" aria-label="${_esc(holdLabel)}">
+            <span class="ac-voice-idle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3"/>
+              </svg>
+              <span>${_esc(holdLabel)}</span>
+            </span>
+            <span class="ac-voice-active">
+              <span class="ac-waveform"><span></span><span></span><span></span><span></span><span></span></span>
+              <span>Release to send</span>
+            </span>
+          </button>
+          ${pickBtn}
+        </div>`;
+      const text = `
+        <div class="ac-footer-row" data-mode="text">
+          <button class="ac-icon-btn" data-act="mic" aria-label="Switch to voice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3"/>
+            </svg>
+          </button>
+          <input class="ac-input" data-act="input" type="text" placeholder="${_esc(placeholder)}" />
+          <button class="ac-send-btn" data-act="send" aria-label="Send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+          ${pickBtn}
+        </div>`;
+      return `
+        <div class="ac-footer">
+          <div class="ac-transcribe" data-act="transcribe" hidden><span class="ac-transcribe-text"></span><span class="ac-transcribe-caret"></span></div>
+          ${mode === 'text' ? text : voice}
+        </div>`;
+    }
+
+    // Wires the universal chat footer. `view` is the container that holds
+    // the footer markup; `onSubmit(text)` fires when the user releases voice
+    // or hits send/Enter. `onModeChange(mode)` is called when the user
+    // taps the keyboard / mic icon to swap modes.
+    function _chatFooterWire(view, opts) {
+      const onSubmit = opts.onSubmit || (()=>{});
+      const onModeChange = opts.onModeChange || (()=>{});
+      const demoTranscript = opts.demoTranscript || _CREATOR_VOICE_DEMO;
+
+      const input = view.querySelector('[data-act="input"]');
+      const send  = view.querySelector('[data-act="send"]');
+      const submit = () => {
+        if (!input) return;
+        const v = (input.value || '').trim();
+        if (!v) return;
+        input.value = '';
+        onSubmit(v);
+      };
+      send?.addEventListener('click', submit);
+      input?.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') { ev.preventDefault(); submit(); }
+      });
+      if (input) setTimeout(() => input.focus(), 50);
+
+      view.querySelector('[data-act="kb"]')?.addEventListener('click', () => onModeChange('text'));
+      view.querySelector('[data-act="mic"]')?.addEventListener('click', () => onModeChange('voice'));
+
+      const voiceBtn   = view.querySelector('[data-act="voice"]');
+      const transcribe = view.querySelector('[data-act="transcribe"]');
+      const transText  = transcribe?.querySelector('.ac-transcribe-text');
+      let recording = false;
+      let recTimer = null, typeTimer = null, typed = '';
+      const startRec = (ev) => {
+        if (!voiceBtn || voiceBtn.disabled || recording) return;
+        ev?.preventDefault();
+        recording = true;
+        voiceBtn.classList.add('is-recording');
+        typed = '';
+        if (transText) transText.textContent = '';
+        recTimer = setTimeout(() => {
+          if (transcribe) transcribe.hidden = false;
+          const words = demoTranscript.split(' ');
+          let i = 0;
+          typeTimer = setInterval(() => {
+            if (i >= words.length) { clearInterval(typeTimer); typeTimer = null; return; }
+            typed = typed ? typed + ' ' + words[i] : words[i];
+            if (transText) transText.textContent = typed;
+            i++;
+          }, 180);
+        }, 400);
+      };
+      const stopRec = (ev) => {
+        if (!recording) return;
+        ev?.preventDefault();
+        recording = false;
+        voiceBtn?.classList.remove('is-recording');
+        if (recTimer) { clearTimeout(recTimer); recTimer = null; }
+        if (typeTimer) { clearInterval(typeTimer); typeTimer = null; }
+        const final = (typed || '').trim();
+        if (transcribe) setTimeout(() => { transcribe.hidden = true; if (transText) transText.textContent = ''; }, 200);
+        if (final) onSubmit(final);
+      };
+      if (voiceBtn) {
+        voiceBtn.addEventListener('mousedown',  startRec);
+        voiceBtn.addEventListener('touchstart', startRec, { passive: false });
+        voiceBtn.addEventListener('mouseup',    stopRec);
+        voiceBtn.addEventListener('mouseleave', stopRec);
+        voiceBtn.addEventListener('touchend',   stopRec);
+        voiceBtn.addEventListener('touchcancel',stopRec);
+        voiceBtn.addEventListener('contextmenu',(e)=>e.preventDefault());
+      }
+    }
 
     // Free-form chat at any step past 0. Pushes a user msg and a brief AI ack
     // to s.sideChat, then re-renders. Bubbles render at the bottom of the convo.
@@ -8716,95 +9280,20 @@
       view.querySelector('.ac-back')?.addEventListener('click', () => {
         if (confirm('Discard this agent setup?')) _closeAgentCreator();
       });
-
-      // ── Text mode: input + send ──────────────────────────────────────
-      const input = view.querySelector('#acInput');
-      const send  = view.querySelector('#acSend');
-      const submit = () => {
-        if (!input) return;
-        const v = (input.value || '').trim();
-        if (!v) return;
-        if ((window.__creator?.step || 0) === 0) {
-          _creatorAdvance(0, v);
-        } else {
-          _creatorSideChatSend(v);
-          input.value = '';
-          input.focus();
-        }
-      };
-      send?.addEventListener('click', submit);
-      input?.addEventListener('keydown', (ev) => {
-        if (ev.key === 'Enter') { ev.preventDefault(); submit(); }
+      view.querySelector('.chat-settings')?.addEventListener('click', () => {
+        if (typeof _openSettingsSheet === 'function') _openSettingsSheet();
       });
-      if (input) setTimeout(() => input.focus(), 50);
-
-      // ── Mode toggle (voice ⇄ text) ───────────────────────────────────
-      view.querySelector('#acKeyboard')?.addEventListener('click', () => {
-        if (window.__creatorKeyboardLock) return;
-        window.__creatorFooterMode = 'text';
-        _creatorRender();
-      });
-      view.querySelector('#acMic')?.addEventListener('click', () => {
-        window.__creatorFooterMode = 'voice';
-        _creatorRender();
-      });
-
-      // ── Voice mode: hold-to-record with simulated transcription ──────
-      const voiceBtn   = view.querySelector('#acVoice');
-      const transcribe = view.querySelector('#acTranscribe');
-      const transText  = transcribe?.querySelector('.ac-transcribe-text');
-      let recording = false;
-      let recTimer = null;
-      let typeTimer = null;
-      let typed = '';
-      const startRec = (ev) => {
-        if (!voiceBtn || voiceBtn.disabled || recording) return;
-        ev?.preventDefault();
-        recording = true;
-        voiceBtn.classList.add('is-recording');
-        typed = '';
-        if (transText) transText.textContent = '';
-        // Begin typing the demo transcript ~400ms after press starts.
-        recTimer = setTimeout(() => {
-          if (transcribe) transcribe.hidden = false;
-          const words = _CREATOR_VOICE_DEMO.split(' ');
-          let i = 0;
-          typeTimer = setInterval(() => {
-            if (i >= words.length) { clearInterval(typeTimer); typeTimer = null; return; }
-            typed = typed ? typed + ' ' + words[i] : words[i];
-            if (transText) transText.textContent = typed;
-            i++;
-          }, 180);
-        }, 400);
-      };
-      const stopRec = (ev) => {
-        if (!recording) return;
-        ev?.preventDefault();
-        recording = false;
-        voiceBtn?.classList.remove('is-recording');
-        if (recTimer) { clearTimeout(recTimer); recTimer = null; }
-        if (typeTimer) { clearInterval(typeTimer); typeTimer = null; }
-        const final = (typed || '').trim();
-        if (transcribe) {
-          // Brief moment to show "complete" state before submitting.
-          setTimeout(() => { transcribe.hidden = true; if (transText) transText.textContent = ''; }, 200);
+      _chatFooterWire(view, {
+        onSubmit: (text) => {
+          if ((window.__creator?.step || 0) === 0) _creatorAdvance(0, text);
+          else _creatorSideChatSend(text);
+        },
+        onModeChange: (mode) => {
+          if (mode === 'text' && window.__creatorKeyboardLock) return;
+          window.__creatorFooterMode = mode;
+          _creatorRender();
         }
-        if (final) {
-          if ((window.__creator?.step || 0) === 0) _creatorAdvance(0, final);
-          else _creatorSideChatSend(final);
-        }
-      };
-      if (voiceBtn) {
-        voiceBtn.addEventListener('mousedown',  startRec);
-        voiceBtn.addEventListener('touchstart', startRec, { passive: false });
-        voiceBtn.addEventListener('mouseup',    stopRec);
-        voiceBtn.addEventListener('mouseleave', stopRec);
-        voiceBtn.addEventListener('touchend',   stopRec);
-        voiceBtn.addEventListener('touchcancel',stopRec);
-        voiceBtn.addEventListener('contextmenu',(e)=>e.preventDefault());
-      }
-
-      // ── Step-specific buttons (chips, CTAs) ──────────────────────────
+      });
       view.querySelectorAll('[data-step]').forEach(btn => {
         btn.addEventListener('click', () => {
           const step  = parseInt(btn.dataset.step, 10);
@@ -8922,35 +9411,93 @@
       _creatorRender();
     }
 
-    // Per-agent default thumbnail — pulled from the user's actual cached
-    // capture frames in wyze-thumbs/. Used when no live event data has been
-    // loaded so the home tiles show real Wyze imagery, not placeholders.
+    // Pool of cached frames the camera grid uses when a camera has no live
+    // event thumb yet — distributed deterministically by index so each
+    // tile shows a different scene instead of a blank silhouette.
+    const _CAMERA_DEFAULT_THUMB_POOL = [
+      'wyze-thumbs/1777011017021-070b99c0.jpg',
+      'wyze-thumbs/1776663664140-430f69a0.jpg',
+      'wyze-thumbs/1776538579791-ebc6f564.jpg',
+      'wyze-thumbs/1776918217155-2fe73a1e.jpg'
+    ];
+    function _cameraDefaultThumb(idx) {
+      return _CAMERA_DEFAULT_THUMB_POOL[idx % _CAMERA_DEFAULT_THUMB_POOL.length];
+    }
+
+    // Per-agent default thumbnail — sourced from cached frames that are
+    // visually distinct from each other AND from the camera pool. Each
+    // agent shows a scene that matches its mission:
+    //   garage → closed-door interior shot
+    //   package → open garage with vehicle in driveway
+    //   birds   → open garage looking out to garden / tree
     const _AGENT_DEFAULT_THUMBS = {
-      garage:  'wyze-thumbs/1777003324066-a09e9669.jpg',
-      package: 'wyze-thumbs/1776799030766-2f5f41ea.jpg',
-      birds:   'wyze-thumbs/1776386847525-52986263.jpg'
+      garage:  'wyze-thumbs/1776490691493-3739a3cf.jpg',
+      package: 'wyze-thumbs/1776561464442-d5bdd6b5.jpg',
+      birds:   'wyze-thumbs/1776538579791-ebc6f564.jpg'
     };
 
     // Render the 2-column widget grid above the device list. The grid
     // ends with a "+ Add agent" tile that opens the AgentCreator flow.
+    // Re-cast each agent's evaluator output into a goal-centric headline.
+    // The pill state is short and fits next to the icon ("Open", "Closed",
+    // "All clear", "12 today") and the tagline below the thumb is the
+    // duration / recency string ("3 mins", "past 7 days", "6h ago").
+    function _agentHeadline(id, s) {
+      if (!s || !s.state) return { state: 'No data', since: '', accent: 'is-quiet' };
+      if (id === 'garage') {
+        if (s.state === 'No data yet') return { state: 'No data', since: '', accent: 'is-quiet' };
+        const isOpen = /open/i.test(s.state) && !/closed/i.test(s.state);
+        return {
+          state: isOpen ? 'Open' : 'Closed',
+          since: s.since || '',
+          accent: isOpen ? 'is-warn' : (s.accent || 'is-active')
+        };
+      }
+      if (id === 'package') {
+        if (s.state === 'No packages') {
+          return { state: 'All clear', since: 'past 7 days', accent: 'is-quiet' };
+        }
+        const m = String(s.state).match(/^(\d+)/);
+        const n = m ? parseInt(m[1], 10) : 0;
+        return {
+          state: n === 1 ? 'Package left' : n + ' packages left',
+          since: s.since || '',
+          accent: 'is-warn'
+        };
+      }
+      if (id === 'birds') {
+        if (s.state === 'None today') return { state: 'No birds', since: s.since || 'today', accent: 'is-quiet' };
+        const m = String(s.state).match(/^(\d+)/);
+        const n = m ? parseInt(m[1], 10) : 0;
+        return {
+          state: n === 1 ? '1 visited' : n + ' visited',
+          since: s.since || 'today',
+          accent: 'is-active'
+        };
+      }
+      return { state: s.state, since: s.since || '', accent: s.accent || '' };
+    }
+
     function _renderAgentsGrid(groups) {
       const cards = _AGENTS.map(a => {
         const s = a.evaluate(groups);
+        const headline = _agentHeadline(a.id, s);
         const thumbUrl = s.thumb || _AGENT_DEFAULT_THUMBS[a.id] || '';
         const hasImage = !!thumbUrl;
         const thumbHtml = hasImage
           ? `<img src="${_esc(thumbUrl)}" alt="" onerror="this.parentNode.classList.remove('has-image'); this.remove();" />`
           : '';
         return `
-          <div class="home-agent" data-agent="${a.id}">
+          <div class="home-agent ${_esc(headline.accent || '')}" data-agent="${a.id}">
             <div class="home-agent-thumb${hasImage ? ' has-image' : ''}">
               ${thumbHtml}
-              <div class="home-agent-emblem">${a.iconHtml}</div>
+            </div>
+            <div class="home-agent-emblem">
+              <span class="home-agent-emblem-icon">${a.iconHtml}</span>
+              <span class="home-agent-emblem-text">${_esc(headline.state)}</span>
             </div>
             <div class="home-agent-info">
-              <div class="home-agent-label">${_esc(a.label)}</div>
-              <div class="home-agent-state ${_esc(s.accent || '')}">${_esc(s.state)}</div>
-              ${s.since ? `<div class="home-agent-since">${_esc(s.since)}</div>` : ''}
+              ${headline.since ? `<div class="home-agent-since">${_esc(headline.since)}</div>` : ''}
             </div>
           </div>`;
       }).join('');
@@ -8960,8 +9507,7 @@
             <span class="home-agent-add-plus">+</span>
           </div>
           <div class="home-agent-info">
-            <div class="home-agent-label">Add agent</div>
-            <div class="home-agent-state is-quiet">Custom or template</div>
+            <div class="home-agent-since">Add agent</div>
           </div>
         </div>`;
       return `<section class="home-agents">${cards}${addTile}</section>`;
@@ -9200,12 +9746,12 @@
       if (view === 'home') {
         frame.classList.add('home-active');
         home.classList.add('is-active');
-        if (title) title.textContent = 'Home';
+        if (title) title.innerHTML = '<span class="title-dot" aria-hidden="true"></span>Happening';
         renderHomeView();
       } else {
         frame.classList.remove('home-active');
         home.classList.remove('is-active');
-        if (title) title.textContent = 'Events';
+        if (title) title.innerHTML = '<svg class="title-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>What happened?';
       }
     }
 
@@ -9253,13 +9799,20 @@
     // by scanning window.__rawGroups. Returns a URL or empty string.
     function _latestThumbForMac(mac) {
       const groups = window.__rawGroups || [];
+      // Prefer a still frame (jpg/png) over an animated clip — the home
+      // grid tile is meant to read as a snapshot, not a moving preview.
+      const isStill = (u) => !!u && !/\.(gif|webp|webm|mp4)(\?|$)/i.test(u);
       for (let i = 0; i < groups.length; i++) {
         const g = groups[i];
         const cams = g.cameras || [];
-        if (cams.some(c => _macsMatch(c, mac))) {
-          return g.preview_url || g.thumbnail_url ||
-                 (g.clip_urls && g.clip_urls[0]) || '';
-        }
+        if (!cams.some(c => _macsMatch(c, mac))) continue;
+        const preview = g.preview_url;
+        const thumb = g.thumbnail_url;
+        const clip = (g.clip_urls && g.clip_urls[0]) || '';
+        const stillCandidates = [preview, thumb, clip].filter(isStill);
+        if (stillCandidates.length) return stillCandidates[0];
+        // Fall back to anything we have if no still candidate exists.
+        return preview || thumb || clip || '';
       }
       return '';
     }
@@ -9315,10 +9868,24 @@
         });
         return;
       }
-      const cards = devices.map(d => {
+      // Compute suggestions across ALL cameras up front, then surface only
+      // ONE pill (the first matching camera) so the demo isn't crowded.
+      const suggestPerMac = {};
+      let primarySuggestMac = null;
+      devices.forEach(d => {
+        const mac = d.device_mac || '';
+        const s = (typeof _suggestAgentForCamera === 'function')
+          ? _suggestAgentForCamera(d, window.__rawGroups || []) : null;
+        if (s) {
+          suggestPerMac[mac] = s;
+          if (!primarySuggestMac) primarySuggestMac = mac;
+        }
+      });
+
+      const cards = devices.map((d, idx) => {
         const mac      = d.device_mac || '';
         const name     = d.device_name || mac || 'Unnamed camera';
-        const thumb    = _latestThumbForMac(mac);
+        const thumb    = _latestThumbForMac(mac) || _cameraDefaultThumb(idx);
         const ago      = _latestEventAgoForMac(mac);
         const product  = _productLabel(d.product_model);
         const fwShort  = d.firmware_ver ? ' · fw ' + String(d.firmware_ver).split('.').slice(0, 3).join('.') : '';
@@ -9326,6 +9893,14 @@
         const thumbHtml = thumb
           ? `<img src="${_esc(thumb)}" alt="" data-gid="" data-idx="0" onerror="this.style.display='none'; this.parentNode.insertAdjacentHTML('beforeend','${_CAM_FALLBACK_SVG.replace(/'/g, "&#39;")}');" />`
           : _CAM_FALLBACK_SVG;
+        // Only the primary suggestion gets a pill — keeps the home grid
+        // calm and focuses attention on the most relevant nudge.
+        const suggest = (mac === primarySuggestMac) ? suggestPerMac[mac] : null;
+        const suggestPill = suggest ? `
+          <button class="home-device-suggest" type="button" data-suggest-template="${_esc(suggest.id)}" title="Create ${_esc(suggest.name)} agent">
+            <span class="home-device-suggest-emoji">${_esc(suggest.emoji)}</span>
+            <span class="home-device-suggest-text">Try ${_esc(suggest.name)} agent</span>
+          </button>` : '';
         return `
           <div class="home-device" data-mac="${_esc(mac)}">
             <div class="home-device-thumb">${thumbHtml}</div>
@@ -9335,8 +9910,9 @@
             </div>
             <div class="home-device-status">
               <span class="status-dot${isOnline ? ' online' : ''}"></span>
-              ${ago ? `<span class="home-device-recent">${_esc(ago)}</span>` : ''}
+              <span class="home-device-recent">LIVE</span>
             </div>
+            ${suggestPill}
           </div>`;
       }).join('');
       const agentsGrid = (typeof _renderAgentsGrid === 'function')
@@ -9346,10 +9922,27 @@
         <div class="home-section-title">
           Cameras <span class="home-section-count">${devices.length}</span>
         </div>
-        ${cards}`;
-      // Tap a device → open the Live stream view for that camera.
+        <div class="home-cameras-grid">${cards}</div>`;
+      // Tap a device → open the Live stream view for that camera. The
+      // "Try X agent" pill stops propagation and instead opens the chat
+      // creator flow with that template pre-selected.
       host.querySelectorAll('.home-device').forEach(el => {
-        el.addEventListener('click', () => {
+        el.addEventListener('click', (ev) => {
+          const pill = ev.target.closest('.home-device-suggest');
+          if (pill) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const tplId = pill.dataset.suggestTemplate;
+            if (typeof _openAgentCreator === 'function') _openAgentCreator();
+            // Auto-pick the suggested template tile once the creator renders.
+            if (tplId) {
+              requestAnimationFrame(() => requestAnimationFrame(() => {
+                const t = document.querySelector('.ac-template-tile[data-value="tpl:' + tplId + '"]');
+                t?.click();
+              }));
+            }
+            return;
+          }
           const mac = el.dataset.mac;
           if (mac) _openLiveView(mac);
         });
@@ -9622,17 +10215,8 @@
           <button class="live-events-btn" type="button" data-act="events">View recent events &rsaquo;</button>
         </div>`;
 
-      // Bottom-fixed AI dock.
-      const aiHtml = `
-        <div class="live-ai-dock">
-          <button class="live-ai-input" type="button" data-act="ai">
-            <svg viewBox="0 0 32 28" class="live-ai-mascot" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5502 1.08369C9.64261 0.941508 9.76686 0.822788 9.9131 0.736939C10.0593 0.651091 10.2236 0.60047 10.3928 0.589086L19.1117 0.00244385C19.2809 -0.00894033 19.4504 0.0192249 19.6068 0.0847092C19.7632 0.150194 19.9023 0.251199 20.0129 0.379725L23.2195 4.10524L27.034 3.84858C27.9012 3.79024 28.756 4.07875 29.4104 4.65066C30.0648 5.22257 30.4652 6.03103 30.5236 6.89818L31.5502 22.1562C31.6086 23.0234 31.32 23.8782 30.7481 24.5326C30.1762 25.187 29.3678 25.5875 28.5006 25.6458L4.52365 27.2591C3.6565 27.3174 2.80169 27.0289 2.14727 26.457C1.49285 25.8851 1.09242 25.0766 1.03408 24.2095L0.00745214 8.95142C-0.050893 8.08427 0.237625 7.22946 0.809535 6.57504C1.38145 5.92062 2.1899 5.52019 3.05705 5.46185L6.87157 5.20519L9.5502 1.08369ZM10.7278 13.7041C10.9425 13.6897 11.1522 13.6331 11.345 13.5376C11.5378 13.4421 11.71 13.3095 11.8515 13.1475C11.9931 12.9855 12.1014 12.7972 12.1702 12.5933C12.2391 12.3894 12.267 12.174 12.2526 11.9593C12.2381 11.7446 12.1816 11.5349 12.0861 11.3421C11.9906 11.1493 11.858 10.9771 11.696 10.8356C11.534 10.694 11.3457 10.5857 11.1418 10.5169C10.9379 10.448 10.7225 10.4201 10.5078 10.4345C10.0742 10.4637 9.67 10.6639 9.38405 10.9911C9.09809 11.3183 8.95383 11.7457 8.983 12.1793C9.01218 12.6129 9.21239 13.0171 9.5396 13.3031C9.86681 13.589 10.2942 13.7333 10.7278 13.7041ZM22.0634 11.297C22.0926 11.7306 21.9483 12.158 21.6623 12.4852C21.3764 12.8124 20.9722 13.0126 20.5386 13.0418C20.105 13.071 19.6776 12.9267 19.3504 12.6408C19.0232 12.3548 18.823 11.9506 18.7938 11.517C18.7646 11.0834 18.9089 10.656 19.1948 10.3288C19.4808 10.0016 19.885 9.80138 20.3186 9.77221C20.7522 9.74304 21.1796 9.8873 21.5068 10.1733C21.834 10.4592 22.0342 10.8634 22.0634 11.297Z"/>
-            </svg>
-            <span class="live-ai-text">Ask Wyze AI about ${_esc(dev.device_name || 'this camera')}…</span>
-            <svg class="live-ai-arrow" viewBox="0 0 16 16"><path d="M3 13L13 3M13 3v6M13 3H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-          </button>
-        </div>`;
+      // The bottom-fixed "Ask Wyze AI…" dock was removed — the floating
+      // chat-fab is now the consistent chat entry across the app.
 
       view.innerHTML = `
         <div class="live-header">
@@ -9643,9 +10227,6 @@
             <div class="live-name">${_esc(dev.device_name || mac)}</div>
             <div class="live-sub">${_esc(product)}</div>
           </div>
-          <button class="live-close" type="button" aria-label="Close">
-            <svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-          </button>
         </div>
         ${stage}
         <div class="live-content">
@@ -9654,15 +10235,25 @@
           ${quickHtml}
           ${recentHtml}
           ${deviceHtml}
-        </div>
-        ${aiHtml}`;
+        </div>`;
 
-      // Force reflow so the slide-up transition actually animates.
-      view.offsetHeight;
-      view.classList.add('open');
+      // Camera detail — horizontal slide-in from the right.
+      // We pin the closed transform inline (so it's guaranteed applied
+      // even if the browser batches class changes), force a paint, then
+      // clear the inline style + add `open` so the CSS transition runs
+      // from translateX(100%) → translateX(0).
+      view.classList.remove('is-agent', 'open');
+      view.classList.add('is-camera');
+      view.style.transform = 'translateX(100%)';
+      view.style.transition = 'none';
+      void view.offsetHeight; // force paint of the closed state
+      requestAnimationFrame(() => {
+        view.style.transition = '';
+        view.style.transform = '';
+        view.classList.add('open');
+      });
 
       const close = () => _closeLiveView();
-      view.querySelector('.live-close')?.addEventListener('click', close);
       view.querySelector('.live-back')?.addEventListener('click', close);
 
       // Status-hero primary CTA — toast for now.
@@ -9719,26 +10310,22 @@
       view.querySelectorAll('[data-act="events"]').forEach(b =>
         b.addEventListener('click', filterToCamera));
 
-      // AI dock → open the chat drawer with a pre-seeded user prompt.
-      view.querySelector('.live-ai-input')?.addEventListener('click', () => {
-        const camName = dev.device_name || 'this camera';
-        window.__chatHistory = window.__chatHistory || [];
-        window.__chatHistory.push({
-          from: 'user',
-          text: 'What did ' + camName + ' see today?'
-        });
-        if (typeof _openChatDrawer === 'function') _openChatDrawer();
-      });
     }
 
     function _closeLiveView() {
       const view = document.querySelector('.phone-frame.dark .live-view');
+      const frame = document.querySelector('.phone-frame.dark');
       if (!view) return;
       view.classList.remove('open');
-      // Wait for slide-down to finish before clearing innerHTML so the
-      // user doesn't see the content disappear instantly.
+      // Fade the backdrop out alongside the slide.
+      frame?.classList.remove('live-popup-open');
+      // Wait for the slide transition to finish before clearing innerHTML
+      // and the variant class so the content doesn't blink away.
       setTimeout(() => {
-        if (!view.classList.contains('open')) view.innerHTML = '';
+        if (!view.classList.contains('open')) {
+          view.innerHTML = '';
+          view.classList.remove('is-camera', 'is-agent');
+        }
       }, 320);
     }
 
@@ -10159,10 +10746,9 @@
         </div>`;
 
       view.innerHTML = `
+        <div class="live-handle"><div></div></div>
         <div class="live-header">
-          <button class="live-back" type="button" aria-label="Back">
-            <svg viewBox="0 0 18 18"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-          </button>
+          <div class="live-emblem">${agent.iconHtml}</div>
           <div class="live-title">
             <div class="live-name">${_esc(agent.label)}</div>
             <div class="live-sub">Wyze AI agent · across ${cams.length} camera${cams.length === 1 ? '' : 's'}</div>
@@ -10172,6 +10758,9 @@
               <circle cx="12" cy="12" r="3"/>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
             </svg>
+          </button>
+          <button class="live-close" type="button" aria-label="Close">
+            <svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
           </button>
         </div>
         ${stage}
@@ -10183,11 +10772,25 @@
           ${camerasHtml}
         </div>`;
 
-      view.offsetHeight;
-      view.classList.add('open');
+      // Agent live view — bottom-sheet popup. Pin the closed transform
+      // inline first so the browser definitely paints the closed state,
+      // then on the next frame clear it + add `open` so the CSS
+      // transition runs from translateY(100%) → translateY(0).
+      view.classList.remove('is-camera', 'open');
+      view.classList.add('is-agent');
+      view.style.transform = 'translateY(100%)';
+      view.style.transition = 'none';
+      void view.offsetHeight;
+      const frame = document.querySelector('.phone-frame.dark');
+      requestAnimationFrame(() => {
+        view.style.transition = '';
+        view.style.transform = '';
+        view.classList.add('open');
+        frame?.classList.add('live-popup-open');
+      });
 
       const close = () => _closeLiveView();
-      view.querySelector('.live-back')?.addEventListener('click', close);
+      view.querySelector('.live-close')?.addEventListener('click', close);
       view.querySelector('.live-settings')?.addEventListener('click', () => _openAgentSettings(agentId));
 
       // Hero CTA — toast for now.
@@ -10261,10 +10864,32 @@
     // Canned, slightly data-aware responses so the chat feels grounded
     // in the user's actual events / devices. Picks the first matching
     // pattern; falls back to a generic acknowledgement.
-    function _wyzeAiReply(prompt) {
+    function _wyzeAiReply(prompt, attachment) {
       const p = String(prompt || '').toLowerCase();
       const groups = window.__rawGroups || [];
       const devices = window.__rawDevices || [];
+      // If the user attached a UI element via the "Tap to Ask" feature,
+      // ground the reply in that element's identity.
+      if (attachment) {
+        const subj = (attachment.label + (attachment.detail ? ' · ' + attachment.detail : '')).trim();
+        const isCam = /camera/i.test(attachment.label);
+        const isAgent = /agent/i.test(attachment.label);
+        if (/troubleshoot|offline|not work|broken|fix|why/i.test(p)) {
+          return `For ${subj}: I'd start by checking power, Wi-Fi signal at the install spot, and the latest firmware. Want me to walk through the diagnostic checklist?`;
+        }
+        if (/what.*see|what.*happen|content|show|describe/i.test(p)) {
+          if (isCam) return `Looking at ${attachment.detail}: nothing unusual in the last hour. Today there were ${groups.filter(g => (g.cameras||[]).some(c => attachment.detail.toLowerCase().includes(String(c).toLowerCase()))).length || 0} events tied to that camera.`;
+          if (isAgent) return `${attachment.detail} agent is currently watching. I can summarize the last 24 hours, surface anomalies, or change the alert threshold — what would help?`;
+          return `Here's what I see in ${subj}: ${groups[0]?.summary || 'no recent activity to summarize'}.`;
+        }
+        if (/setting|configure|change|adjust/i.test(p)) {
+          if (isAgent) return `Tap the gear in the agent's live view to adjust ${attachment.detail}'s purpose, triggers, or cost controls.`;
+          if (isCam) return `For ${attachment.detail}, you can change the snapshot, sound, talk, and notification settings from the live view header.`;
+          return `Which setting on ${subj} would you like to change?`;
+        }
+        // Generic fallback when an attachment is present.
+        return `Got it — looking at ${subj}. ${(prompt || '').trim()}? Let me check… nothing alarming. What specifically are you watching for?`;
+      }
       const tag = (re) => groups.filter(g => re.test(String(g.summary || g.title || '') + ' ' + (g.ai_tags || []).join(' '))).length;
       const today = new Date(); today.setHours(0,0,0,0);
       const todayCount = groups.filter(g => parseTs(g.start) >= today).length;
@@ -10299,6 +10924,11 @@
       const frame = document.querySelector('.phone-frame.dark');
       const drawer = frame?.querySelector('.chat-drawer');
       if (!frame || !drawer) return;
+      // If a creator session is currently open in the drawer, don't clobber it.
+      if (drawer.classList.contains('is-creator')) {
+        frame.classList.add('chat-open');
+        return;
+      }
       // Keep messages between opens so the conversation persists.
       window.__chatHistory = window.__chatHistory || [
         { from: 'bot', text: 'Hi! I\'m Wyze AI. Ask me about your cameras, events, or activity.' }
@@ -10314,7 +10944,14 @@
 
     function _closeChatDrawer() {
       const frame = document.querySelector('.phone-frame.dark');
+      const drawer = frame?.querySelector('.chat-drawer');
       if (!frame) return;
+      // If we're in creator mode, route through the creator's close so the
+      // is-creator class and __creator state get cleared after the slide-down.
+      if (drawer?.classList.contains('is-creator')) {
+        _closeAgentCreator();
+        return;
+      }
       frame.classList.remove('chat-open');
     }
 
@@ -10757,6 +11394,117 @@
       ];
     }
 
+    // ─────────────────────────────────────────────────────────────────
+    // Proactive nudge bubble next to the chat-fab.
+    // Pulls a single short sentence from the Push-test message pool and
+    // shows it as a speech bubble — Wyze AI talks to the user first.
+    // ─────────────────────────────────────────────────────────────────
+    function _proactiveLines() {
+      // Short one-sentence quips. Mostly sourced from the SMS templates'
+      // first sentences plus a few title-style nudges from agent generators.
+      const lines = [
+        'FedEx dropped a box at the front door — about 3h ago.',
+        'Your garage is still open — has been since 10:14.',
+        'Saw someone at the front door at 2:14 AM — want to take a look?',
+        'Your Tesla\'s been out front for 12 hours — longer than usual.',
+        'Backyard 2 cam went offline — battery hit 4%.',
+        'That raccoon\'s back at the trash bins — third time this week.',
+        'Activity is down 18% this week — try vacation mode?',
+        'Trash truck usually rolls by Wed ~6:50 AM — want a heads-up?',
+        '12 species at the feeder today — new high.',
+        'A pedestrian walked by your driveway at 2:14 AM.'
+      ];
+      // If real data is loaded, also fold in the latest event's headline
+      // so the bubble feels grounded in the user's actual home.
+      const groups = window.__rawGroups || [];
+      if (groups.length) {
+        const latest = groups
+          .slice()
+          .sort((a, b) => parseTs(b.start) - parseTs(a.start))[0];
+        if (latest) {
+          const headline = String(latest.title || latest.summary || '').trim();
+          const firstSentence = headline.split(/(?<=[.!?])\s+/)[0];
+          if (firstSentence && firstSentence.length < 100) {
+            lines.unshift(firstSentence);
+          }
+        }
+      }
+      return lines;
+    }
+
+    let _proactiveTimer = null;
+    let _proactiveHideTimer = null;
+    let _proactiveTypeTimer = null;
+    function _showProactiveBubble() {
+      const frame = document.querySelector('.phone-frame.dark');
+      const bubble = frame?.querySelector('.chat-fab-bubble');
+      if (!frame || !bubble) return;
+      // Skip while overlays are open or chat is engaged.
+      if (frame.classList.contains('chat-open')) return;
+      if (frame.querySelector('.agent-settings-view.open')) return;
+      const lines = _proactiveLines();
+      const txt = lines[Math.floor(Math.random() * lines.length)];
+      const textEl = bubble.querySelector('.chat-fab-bubble-text');
+      bubble.dataset.line = txt;
+      // Start with empty bubble, then type the line in character-by-character.
+      textEl.textContent = '';
+      bubble.classList.add('is-typing');
+      bubble.hidden = false;
+      // Type with a slight per-char jitter so it feels live. Faster on
+      // punctuation-adjacent chars, slower on the start so the bubble
+      // appears + the cursor pulses for a beat before words pour in.
+      clearInterval(_proactiveTypeTimer);
+      let i = 0;
+      const startDelay = 220;
+      setTimeout(() => {
+        _proactiveTypeTimer = setInterval(() => {
+          if (i >= txt.length) {
+            clearInterval(_proactiveTypeTimer);
+            bubble.classList.remove('is-typing');
+            return;
+          }
+          textEl.textContent = txt.slice(0, ++i);
+        }, 22 + Math.floor(Math.random() * 18));
+      }, startDelay);
+      // Auto-hide after a generous read window.
+      clearTimeout(_proactiveHideTimer);
+      _proactiveHideTimer = setTimeout(_hideProactiveBubble, 15000);
+    }
+    function _hideProactiveBubble() {
+      const bubble = document.querySelector('.phone-frame.dark .chat-fab-bubble');
+      if (bubble && !bubble.hidden) bubble.hidden = true;
+    }
+    function _startProactiveLoop() {
+      // First nudge after 3s, then every ~30–45s.
+      clearInterval(_proactiveTimer);
+      setTimeout(_showProactiveBubble, 3000);
+      _proactiveTimer = setInterval(() => {
+        const frame = document.querySelector('.phone-frame.dark');
+        if (!frame || frame.classList.contains('chat-open')) return;
+        _showProactiveBubble();
+      }, 30000 + Math.floor(Math.random() * 15000));
+    }
+    function _wireProactiveBubble() {
+      const bubble = document.querySelector('.phone-frame.dark .chat-fab-bubble');
+      if (!bubble) return;
+      // Tap bubble (anywhere except the close X) → open chat with the line.
+      bubble.addEventListener('click', (ev) => {
+        if (ev.target.closest('.chat-fab-bubble-close')) {
+          _hideProactiveBubble();
+          return;
+        }
+        const line = bubble.dataset.line;
+        if (line) {
+          window.__chatHistory = window.__chatHistory || [
+            { from: 'bot', text: 'Hi! I\'m Wyze AI. Ask me about your cameras, events, or activity.' }
+          ];
+          window.__chatHistory.push({ from: 'bot', text: line });
+        }
+        _hideProactiveBubble();
+        if (typeof _openChatDrawer === 'function') _openChatDrawer();
+      });
+    }
+
     function _testProactiveMessage() {
       let groups = window.__rawGroups || [];
       let usedSynthetic = false;
@@ -10811,22 +11559,43 @@
       }
     }
 
-    function _renderChatDrawer(drawer) {
-      const history = window.__chatHistory || [];
-      const msgs = history.map((m, i) => {
-        if (m.typing) {
-          return `<div class="chat-msg chat-msg-bot chat-msg-typing"><div class="chat-bubble"><span class="chat-typing-dot"></span><span class="chat-typing-dot"></span><span class="chat-typing-dot"></span></div></div>`;
-        }
-        if (m.sms)   return _renderSmsPreview(m.sms, i);
-        if (m.agent) return _renderAgentMessage(m.agent, i);
-        return `<div class="chat-msg chat-msg-${m.from}"><div class="chat-bubble">${_esc(m.text)}</div></div>`;
-      }).join('');
-      const suggestions = [
-        'What happened today?',
-        'Any vehicles around?',
-        'Show me deliveries',
-        'How are the cameras?'
-      ];
+    // Render an attachment as a visual chip in chat history (above the
+     // user's message bubble). Preserves the captured aspect ratio so the
+     // chip looks like a small snapshot of the chosen element.
+     function _renderHistoryAttachment(att) {
+       if (!att) return '';
+       const aspect = (att.aspect && isFinite(att.aspect)) ? att.aspect : 1;
+       const thumb = att.thumb
+         ? `<img src="${_esc(att.thumb)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent: '${_esc(att.icon||'🎯')}'}));" />`
+         : (att.icon || '🎯');
+       return `
+         <div class="chat-msg chat-msg-user chat-msg-attachment">
+           <div class="chat-msg-attachment-thumb" style="aspect-ratio: ${aspect.toFixed(2)};">${thumb}</div>
+           <div class="chat-msg-attachment-meta">${_esc(att.label)}${att.detail ? ' · ' + _esc(att.detail) : ''}</div>
+         </div>`;
+     }
+
+     function _renderChatDrawer(drawer) {
+       const history = window.__chatHistory || [];
+       const msgs = history.map((m, i) => {
+         if (m.typing) {
+           return `<div class="chat-msg chat-msg-bot chat-msg-typing"><div class="chat-bubble"><span class="chat-typing-dot"></span><span class="chat-typing-dot"></span><span class="chat-typing-dot"></span></div></div>`;
+         }
+         if (m.sms)   return _renderSmsPreview(m.sms, i);
+         if (m.agent) return _renderAgentMessage(m.agent, i);
+         // Render any attached element FIRST, then the bubble below it.
+         const attHtml = m.attachment ? _renderHistoryAttachment(m.attachment) : '';
+         return `${attHtml}<div class="chat-msg chat-msg-${m.from}"><div class="chat-bubble">${_esc(m.text)}</div></div>`;
+       }).join('');
+       // Suggestions: contextual when an element is attached, generic otherwise.
+       const suggestions = (window.__chatAttachment?.suggestions?.length)
+         ? window.__chatAttachment.suggestions
+         : [
+             'What happened today?',
+             'Any vehicles around?',
+             'Show me deliveries',
+             'How are the cameras?'
+           ];
       drawer.innerHTML = `
         <div class="chat-handle"><div></div></div>
         <div class="chat-header">
@@ -10854,18 +11623,35 @@
           </button>
         </div>
         <div class="chat-messages">${msgs}</div>
+        ${(function(){
+          const att = window.__chatAttachment;
+          if (!att) return '';
+          const aspect = (att.aspect && isFinite(att.aspect)) ? att.aspect : 1;
+          const thumb = att.thumb
+            ? `<img src="${_esc(att.thumb)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent: '${_esc(att.icon||'🎯')}'}));" />`
+            : (att.icon || '🎯');
+          return `
+            <div class="chat-attachment">
+              <div class="chat-attachment-thumb" style="aspect-ratio: ${aspect.toFixed(2)};">
+                ${thumb}
+                <button class="chat-attachment-x" type="button" data-act="att-x" aria-label="Remove attachment">×</button>
+              </div>
+            </div>`;
+        })()}
         <div class="chat-suggestions">
           ${suggestions.map(s => `<button class="chat-suggestion" type="button">${_esc(s)}</button>`).join('')}
         </div>
-        <div class="chat-input-row">
-          <input class="chat-input" type="text" placeholder="Ask Wyze AI…" autocomplete="off" />
-          <button class="chat-send" type="button" aria-label="Send" disabled>
-            <svg viewBox="0 0 16 16"><path d="M3 13L13 3M13 3v6M13 3H7"/></svg>
-          </button>
-        </div>`;
+        ${_chatFooterHtml(window.__chatFooterMode || 'voice', window.__chatAttachment ? 'Ask about this…' : 'Ask Wyze AI…', window.__chatAttachment ? 'Hold to ask about this' : 'Hold to ask')}`;
       drawer.querySelector('.chat-close').addEventListener('click', _closeChatDrawer);
       drawer.querySelector('.chat-settings')?.addEventListener('click', _openSettingsSheet);
       drawer.querySelector('.chat-test')?.addEventListener('click', _testProactiveMessage);
+      drawer.querySelector('.chat-pick')?.addEventListener('click', () => {
+        _enterSelectionMode({ openChatOnPick: true });
+      });
+      drawer.querySelector('[data-act="att-x"]')?.addEventListener('click', () => {
+        window.__chatAttachment = null;
+        _renderChatDrawer(drawer);
+      });
       drawer.querySelectorAll('.chat-suggestion').forEach(b => {
         b.addEventListener('click', () => _sendChatMessage(b.textContent));
       });
@@ -10895,19 +11681,12 @@
         m.from = 'user';
         _renderChatDrawer(drawer);
       });
-      const input = drawer.querySelector('.chat-input');
-      const send = drawer.querySelector('.chat-send');
-      input.addEventListener('input', () => {
-        send.disabled = !input.value.trim();
-      });
-      input.addEventListener('keydown', (ev) => {
-        if (ev.key === 'Enter' && input.value.trim()) {
-          ev.preventDefault();
-          _sendChatMessage(input.value);
+      _chatFooterWire(drawer, {
+        onSubmit: (text) => _sendChatMessage(text),
+        onModeChange: (mode) => {
+          window.__chatFooterMode = mode;
+          _renderChatDrawer(drawer);
         }
-      });
-      send.addEventListener('click', () => {
-        if (input.value.trim()) _sendChatMessage(input.value);
       });
     }
 
@@ -10917,7 +11696,17 @@
       const drawer = document.querySelector('.phone-frame.dark .chat-drawer');
       if (!drawer) return;
       window.__chatHistory = window.__chatHistory || [];
-      window.__chatHistory.push({ from: 'user', text: t });
+      // If the user has attached a UI element via "Tap to Ask", embed
+      // the attachment object on the history entry so it renders as a
+      // visual chip above the bubble. Then clear the active attachment so
+      // the composer goes back to the default state for the next turn.
+      const att = window.__chatAttachment;
+      if (att) {
+        window.__chatHistory.push({ from: 'user', text: t, attachment: att });
+        window.__chatAttachment = null;
+      } else {
+        window.__chatHistory.push({ from: 'user', text: t });
+      }
       // Show a typing indicator while we "think", then reply.
       window.__chatHistory.push({ from: 'bot', typing: true });
       _renderChatDrawer(drawer);
@@ -10926,7 +11715,7 @@
       setTimeout(() => {
         // Replace the typing indicator with the actual reply.
         window.__chatHistory.pop();
-        window.__chatHistory.push({ from: 'bot', text: _wyzeAiReply(t) });
+        window.__chatHistory.push({ from: 'bot', text: _wyzeAiReply(t, att) });
         _renderChatDrawer(drawer);
         const list2 = drawer.querySelector('.chat-messages');
         if (list2) list2.scrollTop = list2.scrollHeight;
@@ -12137,10 +12926,234 @@
     window.loadFromClipboard  = loadFromClipboard;
     window.renderEmptyState   = renderEmptyState;
 
+    // ─────────────────────────────────────────────────────────────────
+    // "Tap to Ask" — UI-element pick mode.
+    // The chat composer's bottom-right Tap-to-Ask button (or a long-press
+    // anywhere on the page) puts the app into pick mode. The user taps any
+    // selectable element on the visible page, which gets attached as
+    // chat context. Then chat reopens with the attachment + composer.
+    // ─────────────────────────────────────────────────────────────────
+    const _SELECTABLE_RULES = [
+      { sel: '.home-device',   make: el => ({
+          icon: '📷',
+          label: 'Camera',
+          detail: el.querySelector('.home-device-name')?.textContent?.trim() || 'Camera',
+          thumb: el.querySelector('.home-device-thumb img')?.src || '',
+          context: 'Camera tile (Home grid)',
+          suggestions: ['What\'s happening here?', 'Is it online?', 'Troubleshoot this camera', 'Show recent events']
+        }) },
+      { sel: '.home-agent[data-agent]', make: el => {
+          const id = el.dataset.agent || '';
+          const name = (typeof _AGENTS !== 'undefined')
+            ? (_AGENTS.find(a => a.id === id)?.label || 'Agent')
+            : 'Agent';
+          return {
+            icon: '🤖',
+            label: 'Agent',
+            detail: name,
+            thumb: el.querySelector('.home-agent-thumb img')?.src || '',
+            context: 'Agent widget (' + id + ')',
+            suggestions: ['What did this find today?', 'Pause this agent', 'Adjust the threshold', 'Why isn\'t it working?']
+          };
+        } },
+      { sel: '.home-agent-add', make: () => ({
+          icon: '➕',
+          label: 'Add agent',
+          detail: 'Custom or template',
+          thumb: '',
+          context: 'Add-agent tile',
+          suggestions: ['What agents can I add?', 'Help me build one', 'Recommend a template']
+        }) },
+      { sel: '.live-video',    make: () => ({
+          icon: '🎥',
+          label: 'Live video',
+          detail: document.querySelector('.live-name')?.textContent?.trim() || 'Live feed',
+          thumb: '',
+          context: 'Live video stream',
+          suggestions: ['Describe what you see', 'Anything unusual?', 'Take a snapshot', 'Why is the feed dark?']
+        }) },
+      { sel: '.live-hero',     make: el => ({
+          icon: '⚡',
+          label: 'Status hero',
+          detail: el.querySelector('.live-hero-label')?.textContent?.trim() || el.textContent.trim().slice(0, 60),
+          thumb: '',
+          context: 'Live-view status card',
+          suggestions: ['What does this status mean?', 'How long has it been like this?', 'Notify me when it changes']
+        }) },
+      { sel: '.live-stat',     make: el => ({
+          icon: '📊',
+          label: el.querySelector('.live-stat-label')?.textContent?.trim() || 'Stat',
+          detail: el.querySelector('.live-stat-value')?.textContent?.trim() || '',
+          thumb: '',
+          context: 'Live-view stat',
+          suggestions: ['How is this tracked?', 'Show the trend', 'Set an alert threshold']
+        }) },
+      { sel: '.live-quick-btn', make: el => ({
+          icon: '🔘',
+          label: 'Quick action',
+          detail: el.textContent.trim().split('\n').pop() || 'Action',
+          thumb: '',
+          context: 'Live-view quick action',
+          suggestions: ['What does this do?', 'When should I use it?']
+        }) },
+      { sel: '.scroll-card',   make: el => ({
+          icon: '🎬',
+          label: 'Event',
+          detail: el.querySelector('.event-title, .scroll-card-title')?.textContent?.trim() || 'Event card',
+          thumb: el.querySelector('img')?.src || '',
+          context: 'Event card',
+          suggestions: ['Tell me more about this', 'Is this important?', 'Show similar events', 'Mute alerts like this']
+        }) },
+      { sel: '.story-card',    make: el => ({
+          icon: '📖',
+          label: 'Story',
+          detail: el.querySelector('.story-card-title')?.textContent?.trim() || 'Story',
+          thumb: el.querySelector('img')?.src || '',
+          context: 'Story card',
+          suggestions: ['Summarize this story', 'Show every clip', 'Was anyone home?']
+        }) }
+    ];
+    const _SELECTABLE_SELECTOR = _SELECTABLE_RULES.map(r => r.sel).join(', ');
+
+    function _markSelectables() {
+      document.querySelectorAll('.phone-frame.dark ' + _SELECTABLE_SELECTOR).forEach(el => {
+        el.dataset.selectable = '';
+      });
+    }
+    function _unmarkSelectables() {
+      document.querySelectorAll('[data-selectable]').forEach(el => {
+        delete el.dataset.selectable;
+        el.classList.remove('is-hover');
+      });
+    }
+    function _captureSelected(el) {
+      const r = el.getBoundingClientRect();
+      let base = null;
+      for (const rule of _SELECTABLE_RULES) {
+        if (el.matches(rule.sel)) {
+          try { base = rule.make(el); break; }
+          catch { base = null; }
+        }
+      }
+      if (!base) base = { icon: '🎯', label: 'Element', detail: el.tagName.toLowerCase(), thumb: '', context: el.className, suggestions: [] };
+      // Preserve the element's aspect ratio so the chip renders as a
+      // miniature of the element, not a tiny generic square.
+      base.width = Math.max(1, Math.round(r.width));
+      base.height = Math.max(1, Math.round(r.height));
+      base.aspect = (r.width && r.height) ? (r.width / r.height) : 1;
+      return base;
+    }
+
+    let _selectionDocClick = null;
+    function _enterSelectionMode(opts) {
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame) return;
+      // Close chat first so the page is visible underneath.
+      if (frame.classList.contains('chat-open')) {
+        frame.classList.remove('chat-open');
+      }
+      _hideProactiveBubble?.();
+      frame.classList.add('is-selecting');
+      const banner = frame.querySelector('.select-banner');
+      if (banner) banner.hidden = false;
+      _markSelectables();
+      // Capture-phase click handler so we can intercept BEFORE the element's
+      // own click handler fires (e.g. opening live view).
+      _selectionDocClick = (ev) => {
+        const target = ev.target.closest(_SELECTABLE_SELECTOR);
+        // Allow taps on the cancel button + banner itself.
+        if (ev.target.closest('.select-banner-cancel')) {
+          ev.preventDefault(); ev.stopPropagation();
+          _exitSelectionMode();
+          return;
+        }
+        if (!target || !frame.contains(target)) {
+          // Tap outside any selectable → cancel.
+          ev.preventDefault(); ev.stopPropagation();
+          _exitSelectionMode();
+          return;
+        }
+        ev.preventDefault();
+        ev.stopPropagation();
+        const att = _captureSelected(target);
+        _exitSelectionMode();
+        if (att) {
+          window.__chatAttachment = att;
+          // Open chat drawer, focus composer.
+          _openChatDrawer();
+          requestAnimationFrame(() => {
+            const drawer = document.querySelector('.chat-drawer');
+            const inp = drawer?.querySelector('[data-act="input"]');
+            inp?.focus();
+          });
+        }
+      };
+      document.addEventListener('click', _selectionDocClick, true);
+    }
+    function _exitSelectionMode() {
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame) return;
+      frame.classList.remove('is-selecting');
+      const banner = frame.querySelector('.select-banner');
+      if (banner) banner.hidden = true;
+      _unmarkSelectables();
+      if (_selectionDocClick) {
+        document.removeEventListener('click', _selectionDocClick, true);
+        _selectionDocClick = null;
+      }
+    }
+
+    // Long-press anywhere on the phone-frame (outside the chat drawer +
+    // overlay sheets) → enters selection mode.
+    function _wireLongPress() {
+      const frame = document.querySelector('.phone-frame.dark');
+      if (!frame) return;
+      let timer = null;
+      let startX = 0, startY = 0, moved = false;
+      const onDown = (ev) => {
+        // Skip while interacting inside drawers / sheets / nav / fab.
+        if (ev.target.closest('.chat-drawer, .agent-settings-view, .agent-sheet, .albums-sheet, .settings-sheet, .bottom-nav, .chat-fab, .chat-fab-bubble, .select-banner, [data-agent-add]')) return;
+        if (frame.classList.contains('is-selecting')) return;
+        moved = false;
+        startX = ev.touches ? ev.touches[0].clientX : ev.clientX;
+        startY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (!moved) {
+            _enterSelectionMode();
+          }
+        }, 600);
+      };
+      const onMove = (ev) => {
+        const x = ev.touches ? ev.touches[0].clientX : ev.clientX;
+        const y = ev.touches ? ev.touches[0].clientY : ev.clientY;
+        if (Math.abs(x - startX) > 8 || Math.abs(y - startY) > 8) {
+          moved = true;
+          clearTimeout(timer);
+        }
+      };
+      const onUp = () => { clearTimeout(timer); };
+      frame.addEventListener('pointerdown', onDown, true);
+      frame.addEventListener('pointermove', onMove, true);
+      frame.addEventListener('pointerup', onUp, true);
+      frame.addEventListener('pointercancel', onUp, true);
+    }
+
+    function _initProactive() {
+      if (typeof _wireProactiveBubble === 'function') _wireProactiveBubble();
+      if (typeof _startProactiveLoop === 'function') _startProactiveLoop();
+      if (typeof _wireLongPress === 'function') _wireLongPress();
+      // Cancel button on the selection banner.
+      document.querySelector('.select-banner-cancel')?.addEventListener('click', _exitSelectionMode);
+      // Tap the dimmed backdrop to dismiss the agent bottom-popup.
+      document.querySelector('.phone-frame.dark .live-backdrop')
+        ?.addEventListener('click', _closeLiveView);
+    }
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
+      document.addEventListener('DOMContentLoaded', () => { init(); _initProactive(); });
     } else {
       init();
+      _initProactive();
     }
   </script>
 </body>
