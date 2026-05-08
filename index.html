@@ -9182,12 +9182,10 @@
     function _resolveAgents() {
       const raw = (typeof window !== 'undefined' && Array.isArray(window.__rawAgents))
         ? window.__rawAgents : [];
-      // Once the user has loaded ANY data (even an empty agents array),
-      // the row reflects their paste exactly — no demo backfill. The
-      // hardcoded fallback is only for the first-visit "no data yet"
-      // state, so the prototype still shows something on cold start.
-      const userLoaded = (typeof window !== 'undefined' && window.__lastLoadDiag);
-      if (!raw.length) return userLoaded ? [] : _AGENTS_FALLBACK;
+      // The row ALWAYS reflects the user's actual data — no demo
+      // backfill, ever, even on cold start. Empty paste / no paste →
+      // empty row (just the "+ Add agent" tile renders).
+      if (!raw.length) return [];
       // Stable sort by latest activity, newest first. Agents without any
       // timestamp fall to the bottom in their original (lumen-supplied)
       // order so the row still feels predictable.
@@ -9514,13 +9512,10 @@
     function _resolveTemplates() {
       const raw = (typeof window !== 'undefined' && Array.isArray(window.__rawTemplates))
         ? window.__rawTemplates : [];
-      // Same rule as agents: post-paste, the template grid reflects the
-      // user's data exactly. Always include the Automation card though
-      // since the creator UX expects it.
-      const userLoaded = (typeof window !== 'undefined' && window.__lastLoadDiag);
-      if (!raw.length) return userLoaded
-        ? (_AUTOMATION_TPL ? [_AUTOMATION_TPL] : [])
-        : _CREATOR_TEMPLATES_FALLBACK;
+      // Always reflect the user's actual data — no demo backfill. The
+      // Automation card is the only exception since the creator UX
+      // requires it; everything else comes from the user's paste.
+      if (!raw.length) return _AUTOMATION_TPL ? [_AUTOMATION_TPL] : [];
       // Tolerant field lookup so the producer payload can name keys
       // however lumen happens to ship them.
       const pickEmoji = (t) => t.emoji || t.icon || t.icon_emoji || t.symbol || '✨';
@@ -14378,7 +14373,7 @@ those keys and I'll teach the loader to read them.</pre>
     // version of the prototype is live. If the stamp in the corner is
     // older than the time you expect, the browser cached the page —
     // hard-reload (Cmd+Shift+R) or close the tab and reopen.
-    const _BUILD_STAMP = '2026-05-08 e — agent row count = exact paste; demo only for first-visit cold start';
+    const _BUILD_STAMP = '2026-05-08 f — never show demo agents; row always reflects pasted data';
 
     function _renderBuildStamp() {
       // Tiny grey footer pinned to the bottom of the phone frame so it
