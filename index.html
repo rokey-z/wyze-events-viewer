@@ -9107,12 +9107,18 @@
     // account, so we walk known places top-down and return the first
     // useful string. Result is run through _shortStateFromMessage to
     // produce the 1–2 word badge.
+    // Activity-only keys — fields that describe what the agent JUST DID,
+    // not what the agent IS FOR. We deliberately exclude `description` /
+    // `summary` / `tagline` because those are the agent's static job
+    // statement (e.g. "Watches for delivery vehicles"), not a recent
+    // event — using them as the badge produces nonsense like "Watches
+    // for" / "Diagnoses…" / "Maintains" instead of a real status.
     const _MESSAGE_KEYS = [
       'latest_message','last_message','recent_message',
       'last_action','last_event','last_alert','last_log',
       'activity_summary','status_message','status_text',
       'runtime_status','runtime_message','runtime_status_text',
-      'summary','message','description'
+      'message'
     ];
     function _extractRecentMessage(a) {
       if (!a || typeof a !== 'object') return '';
@@ -9221,7 +9227,9 @@
         // Day name OR "today/tomorrow/tonight" → use as tagline.
         const dayMatch = msg.match(/\b(Sun|Mon|Tue|Wed|Thu|Fri|Sat|Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|today|tomorrow|tonight)\b/i);
         const dayWord  = dayMatch ? dayMatch[0].slice(0, 3).replace(/^./, c => c.toUpperCase()) : '';
-        if (isOut === null && !dayWord && !msg) return null;
+        // No message AND no signals → "Quiet" with relative ago, so the
+        // tile reads consistently with the rest of the row instead of
+        // falling through to the generic "Active" verb.
         return {
           state:  isOut === true  ? 'Out'
                :  isOut === false ? 'In'
@@ -9230,7 +9238,7 @@
           accent: isOut === true ? 'is-active' : 'is-quiet',
           thumb:  a.thumb || '',
           primary: null,
-          fullMessage: msg
+          fullMessage: msg || ''
         };
       }
 
@@ -14483,7 +14491,7 @@ those keys and I'll teach the loader to read them.</pre>
     // version of the prototype is live. If the stamp in the corner is
     // older than the time you expect, the browser cached the page —
     // hard-reload (Cmd+Shift+R) or close the tab and reopen.
-    const _BUILD_STAMP = '2026-05-08 g — domain-specific badges: Garage Open/Closed for Xm · Trash Out/In day · Package count for Xh';
+    const _BUILD_STAMP = '2026-05-08 h — drop description as activity source; no more "Watches for" / "Diagnoses" badges';
 
     function _renderBuildStamp() {
       // Tiny grey footer pinned to the bottom of the phone frame so it
