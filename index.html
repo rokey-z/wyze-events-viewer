@@ -9047,7 +9047,10 @@
       ['Quiet',    /\b(quiet|standing\s+by|idle|no\s+activity)\b/i]
     ];
     function _shortStateFromMessage(msg) {
-      const s = String(msg || '').trim();
+      // Strip leading icon emoji ("📷 ", "🚪 ", etc.) and bullet glyphs
+      // so the badge reads as words. Keep the rest of the message intact
+      // for keyword detection.
+      const s = String(msg || '').replace(/^[\s\p{Emoji_Presentation}\p{Extended_Pictographic}•·▶➤›‍]+/u, '').trim();
       if (!s) return '';
       // 1) Leading count → "<N> seen" / "<N> today" — keep the number.
       const num = s.match(/^(\d+)\b/);
@@ -9226,7 +9229,15 @@
         else if (/\b(in|brought\s+in|back\s+in|moved\s+in|stored|put\s+away)\b/.test(m)) isOut = false;
         // Day name OR "today/tomorrow/tonight" → use as tagline.
         const dayMatch = msg.match(/\b(Sun|Mon|Tue|Wed|Thu|Fri|Sat|Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|today|tomorrow|tonight)\b/i);
-        const dayWord  = dayMatch ? dayMatch[0].slice(0, 3).replace(/^./, c => c.toUpperCase()) : '';
+        let dayWord = '';
+        if (dayMatch) {
+          const w = dayMatch[0].toLowerCase();
+          // Keep "today/tomorrow/tonight" as full words (they're already
+          // short); abbreviate weekday names to 3 letters.
+          dayWord = (w === 'today' || w === 'tomorrow' || w === 'tonight')
+            ? w.charAt(0).toUpperCase() + w.slice(1)
+            : dayMatch[0].slice(0, 3).replace(/^./, c => c.toUpperCase());
+        }
         // No message AND no signals → "Quiet" with relative ago, so the
         // tile reads consistently with the rest of the row instead of
         // falling through to the generic "Active" verb.
@@ -13947,7 +13958,7 @@
     // bookmarklet link.
     // ════════════════════════════════════════
     const _PRODUCER_SNIPPET = `(async () => {
-  const SNIPPET_VERSION = '2026-05-08c';
+  const SNIPPET_VERSION = '2026-05-08d';
   const trace = [];
   const log = (...args) => { try { console.log('[wyze]', ...args); } catch {} trace.push(args.map(a => typeof a === 'string' ? a : JSON.stringify(a)).join(' ')); };
   log('snippet', SNIPPET_VERSION, '· host', location.host, '· path', location.pathname);
@@ -14036,10 +14047,14 @@
   //    agent-platform sites are Next.js, so SSR props usually include
   //    the agent list under SOME key.
   if (!agents.length) {
-    const looksLikeAgent = v =>
-      v && typeof v === 'object'
-      && (v.id || v.agent_id || v._id)
-      && (v.name || v.label || v.display_name || v.title);
+    const looksLikeAgent = v => {
+      if (!v || typeof v !== 'object') return false;
+      const hasId = v.id || v.agent_id || v._id || (v.identity && (v.identity.id || v.identity.agent_id));
+      if (!hasId) return false;
+      const hasName = v.name || v.label || v.display_name || v.title ||
+        (v.identity && (v.identity.name || v.identity.label || v.identity.title || v.identity.display_name));
+      return hasName || v.agent_type !== undefined || v.lifecycle_state !== undefined;
+    };
     try {
       const nd = window.__NEXT_DATA__;
       log('__NEXT_DATA__ present:', !!nd, nd ? '· top keys: ' + Object.keys(nd).slice(0,8).join(',') : '');
@@ -14056,10 +14071,14 @@
   }
   // 2b) Mine other globals that some apps stash data under.
   if (!agents.length) {
-    const looksLikeAgent = v =>
-      v && typeof v === 'object'
-      && (v.id || v.agent_id || v._id)
-      && (v.name || v.label || v.display_name || v.title);
+    const looksLikeAgent = v => {
+      if (!v || typeof v !== 'object') return false;
+      const hasId = v.id || v.agent_id || v._id || (v.identity && (v.identity.id || v.identity.agent_id));
+      if (!hasId) return false;
+      const hasName = v.name || v.label || v.display_name || v.title ||
+        (v.identity && (v.identity.name || v.identity.label || v.identity.title || v.identity.display_name));
+      return hasName || v.agent_type !== undefined || v.lifecycle_state !== undefined;
+    };
     const globals = ['__INITIAL_STATE__','__APOLLO_STATE__','__REDUX_STATE__','__INITIAL_DATA__','__PRELOADED_STATE__','__nuxt','app','store'];
     for (const g of globals) {
       try {
@@ -14106,6 +14125,92 @@
   }
   log('AGENTS RESOLVED · count:', agents.length, '· source:', agentsFrom || '(none)');
   if (agents.length) log('  first agent keys:', Object.keys(agents[0]).slice(0,12).join(','));
+  // ── DOM hydration ──
+  // Lumen agents in __NEXT_DATA__ rarely include their recent-activity
+  // messages — those are rendered from a separate data source. Scrape
+  // the visible card for each agent and attach recent_messages directly
+  // so the home tile shows real activity instead of the agent's
+  // (config-edit) updated_at. We match by agent name in any heading
+  // (h1-h4 or [class*="title"]). For each match, walk to the smallest
+  // ancestor that contains both the heading and one+ message rows
+  // (defined as "any element whose own text contains a relative-time
+  // pattern like 7h / 15h / 3d"), then capture the text of those rows.
+  const _toMs = (s) => {
+    const m = String(s).match(/(\\d+)\\s*([smhdwy])\\b/i);
+    if (!m) return 0;
+    const n = parseInt(m[1], 10);
+    const unit = m[2].toLowerCase();
+    const mult = { s:1000, m:60000, h:3600000, d:86400000, w:604800000, y:31536000000 }[unit] || 0;
+    return n * mult;
+  };
+  const _stripTrailingMeta = (s) => String(s).replace(/\\s+\\d+[smhdwy]\\b.*$/,'').replace(/\\s+\\d+\\s*$/,'').trim();
+  let domHydrated = 0;
+  for (const a of agents) {
+    // Skip if the agent already shipped real recent activity.
+    if (Array.isArray(a.recent_messages) && a.recent_messages.length) continue;
+    const name = (a.identity && (a.identity.name || a.identity.display_name)) || a.name || a.label || a.title;
+    if (!name) continue;
+    // Find a heading that matches this agent name verbatim.
+    const headings = document.querySelectorAll('h1,h2,h3,h4,[class*="title" i],[class*="name" i]');
+    let card = null;
+    for (const h of headings) {
+      if ((h.textContent || '').trim() === String(name).trim()) {
+        // Walk up until we reach an element that ALSO contains relative-time text
+        // (a heading alone doesn't tell us where the messages are).
+        let n = h;
+        for (let depth = 0; n && depth < 8; depth++, n = n.parentElement) {
+          const txt = (n.textContent || '');
+          if (/\\b\\d+[smhdwy]\\b/.test(txt) && txt.length > name.length + 20) { card = n; break; }
+        }
+        if (card) break;
+      }
+    }
+    if (!card) continue;
+    // Find rows: smallest container elements whose textContent has BOTH
+    // message text AND a relative-time pattern. We use textContent (not
+    // own text) so the row matches even when the timestamp lives in a
+    // sibling <span>; we filter out containers that have a child also
+    // matching the same shape, so we keep only the leaf-most rows.
+    const isRowText = (t) => t && t.length > 10 && t.length < 350 && /\\b\\d+[smhdwy]\\b/.test(t);
+    const allEls = Array.from(card.querySelectorAll('*'));
+    const rowMap = new Map();
+    for (const el of allEls) {
+      const t = (el.textContent || '').replace(/\\s+/g, ' ').trim();
+      if (!isRowText(t)) continue;
+      // Skip if any child container also matches — keep only the
+      // smallest container that wraps a single message + its time.
+      let childMatches = false;
+      for (const c of el.children) {
+        const ct = (c.textContent || '').replace(/\\s+/g, ' ').trim();
+        if (isRowText(ct)) { childMatches = true; break; }
+      }
+      if (childMatches) continue;
+      rowMap.set(el, t);
+    }
+    const useEls = Array.from(rowMap.keys()).slice(0, 4);
+    if (!useEls.length) continue;
+    const msgs = useEls.map(el => {
+      const fullText = (el.textContent || '').replace(/\\s+/g, ' ').trim();
+      const tsMatch  = fullText.match(/\\b(\\d+[smhdwy])\\b/);
+      const ms       = tsMatch ? _toMs(tsMatch[1]) : 0;
+      const text     = _stripTrailingMeta(fullText);
+      if (!text) return null;
+      return {
+        text,
+        timestamp: ms ? new Date(Date.now() - ms).toISOString() : null,
+        relative:  tsMatch ? tsMatch[1] : ''
+      };
+    }).filter(Boolean);
+    if (msgs.length) {
+      // Sort newest-first by timestamp.
+      msgs.sort((x, y) => (+new Date(y.timestamp || 0)) - (+new Date(x.timestamp || 0)));
+      a.recent_messages = msgs;
+      a.latest_message  = msgs[0].text;
+      a.latest_at       = msgs[0].timestamp;
+      domHydrated++;
+    }
+  }
+  log('DOM-hydrated agents:', domHydrated, '/', agents.length);
   // Hydrate each agent with its most recent activity message + timestamp,
   // which the home tile renders as the live state. Try a few likely
   // endpoints; first non-empty match wins per agent.
@@ -14491,7 +14596,7 @@ those keys and I'll teach the loader to read them.</pre>
     // version of the prototype is live. If the stamp in the corner is
     // older than the time you expect, the browser cached the page —
     // hard-reload (Cmd+Shift+R) or close the tab and reopen.
-    const _BUILD_STAMP = '2026-05-08 h — drop description as activity source; no more "Watches for" / "Diagnoses" badges';
+    const _BUILD_STAMP = '2026-05-08 i — snippet DOM-hydrates recent_messages from agent cards (real activity timestamps)';
 
     function _renderBuildStamp() {
       // Tiny grey footer pinned to the bottom of the phone frame so it
