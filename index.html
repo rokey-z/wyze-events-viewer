@@ -9175,6 +9175,110 @@
       return 0;
     }
 
+    // Domain-specific badge logic for known agent types (Garage, Trash,
+    // Package). We pull state from the recent message + timestamp and
+    // produce a 1–2 word badge + a domain-appropriate tagline:
+    //   Garage Door Watcher → Open / Closed · for 47m  /  3h ago
+    //   Trash Bin Checker  → Out / In        · Wed / today / past pickup
+    //   Package Reminder   → 1 package / Clear · for 2h / past 7 days
+    // Returns null to defer to generic logic when the agent isn't one of
+    // these domains.
+    function _domainBadge(a, f) {
+      const corpus = ((f.id||'') + ' ' + (f.name||'') + ' ' + (f.category||'') + ' ' + (f.description||'')).toLowerCase();
+      const msg = _extractRecentMessage(a) || '';
+      const at  = _agentLatestMs(a);
+      const ms  = (at && at > 0) ? (Date.now() - at) : 0;
+      const dur = ms ? _agentDuration(ms) : '';
+      const ago = at ? _agoFrom(at) : '';
+      const m   = msg.toLowerCase();
+
+      // ── Garage Door ──────────────────────────────
+      if (/\bgarage\b/.test(corpus)) {
+        // Open vs Closed — favor explicit signals; "secure" / "all clear"
+        // implies closed.
+        let isOpen = null;
+        if (/\b(left\s+open|currently\s+open|is\s+open|garage\s+open|door\s+open|raised|opening|opened)\b/.test(m)) isOpen = true;
+        else if (/\b(closed|secure|shut|lowered|safe|all\s+normal)\b/.test(m)) isOpen = false;
+        if (isOpen === null) return null; // defer if no signal
+        const since = isOpen ? (dur ? 'for ' + dur : '') : (ago || '');
+        return {
+          state:  isOpen ? 'Open' : 'Closed',
+          since,
+          accent: isOpen ? 'is-warn' : 'is-active',
+          thumb:  a.thumb || '',
+          primary: null,
+          fullMessage: msg
+        };
+      }
+
+      // ── Trash Bin ────────────────────────────────
+      if (/\b(trash|bin|garbage|recycl)\b/.test(corpus)) {
+        // Out vs In + a "When" tagline (day name from message, or pickup
+        // day, or relative time of the most recent move).
+        let isOut = null;
+        if (/\b(out|moved\s+out|placed\s+out|at\s+(curb|street)|on\s+the\s+curb|set\s+out)\b/.test(m)) isOut = true;
+        else if (/\b(in|brought\s+in|back\s+in|moved\s+in|stored|put\s+away)\b/.test(m)) isOut = false;
+        // Day name OR "today/tomorrow/tonight" → use as tagline.
+        const dayMatch = msg.match(/\b(Sun|Mon|Tue|Wed|Thu|Fri|Sat|Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|today|tomorrow|tonight)\b/i);
+        const dayWord  = dayMatch ? dayMatch[0].slice(0, 3).replace(/^./, c => c.toUpperCase()) : '';
+        if (isOut === null && !dayWord && !msg) return null;
+        return {
+          state:  isOut === true  ? 'Out'
+               :  isOut === false ? 'In'
+               :  'Quiet',
+          since:  dayWord || ago || '',
+          accent: isOut === true ? 'is-active' : 'is-quiet',
+          thumb:  a.thumb || '',
+          primary: null,
+          fullMessage: msg
+        };
+      }
+
+      // ── Package Reminder ─────────────────────────
+      if (/\b(package|delivery|parcel|shipment)\b/.test(corpus)) {
+        // No message at all → no packages waiting.
+        if (!msg) {
+          return {
+            state: 'Clear',
+            since: 'past 7 days',
+            accent: 'is-quiet',
+            thumb: '',
+            primary: null
+          };
+        }
+        // Count packages in the message — "2 packages waiting", "Amazon
+        // box dropped", "no packages" all map to a tight badge.
+        if (/\b(no|none|zero|0)\s+(package|parcel|delivery)/.test(m) || /\bclear\b/.test(m) || /\bpicked\s+up\b/.test(m)) {
+          return { state: 'Clear', since: ago || 'past 7 days', accent: 'is-quiet', thumb: a.thumb || '', primary: null, fullMessage: msg };
+        }
+        const num = m.match(/\b(\d+)\s*(package|parcel|delivery|box)/);
+        if (num) {
+          const n = parseInt(num[1], 10);
+          return {
+            state: n === 1 ? '1 package' : (n + ' packages'),
+            since: dur ? 'for ' + dur : (ago || ''),
+            accent: 'is-warn',
+            thumb: a.thumb || '',
+            primary: null,
+            fullMessage: msg
+          };
+        }
+        // Single delivery referenced without a count.
+        if (/\b(delivered|arrived|dropped\s+off|left\s+at\s+(door|porch))\b/.test(m)) {
+          return {
+            state: '1 package',
+            since: dur ? 'for ' + dur : (ago || ''),
+            accent: 'is-warn',
+            thumb: a.thumb || '',
+            primary: null,
+            fullMessage: msg
+          };
+        }
+        return null; // defer — message exists but doesn't mention a package
+      }
+      return null;
+    }
+
     // Build a runtime list from the producer snippet's `agents` payload
     // (if present), falling back to the hardcoded list. Each entry needs
     // { id, label, iconHtml, evaluate(groups) } to be tile-renderable.
@@ -9200,6 +9304,12 @@
           label: f.name,
           iconHtml: _iconForAgent(a),
           evaluate: () => {
+            // 0) Domain-specific badges first — known agent types get
+            //    tighter copy than the generic message extractor.
+            //    Returns null to defer when the agent isn't a domain we
+            //    have specific rules for.
+            const domain = _domainBadge(a, f);
+            if (domain) return domain;
             // 1) Prefer a real recent-activity message wherever it lives.
             //    Lumen accounts can ship message text under any number of
             //    keys, so we cast a wide net over both top-level and
@@ -14373,7 +14483,7 @@ those keys and I'll teach the loader to read them.</pre>
     // version of the prototype is live. If the stamp in the corner is
     // older than the time you expect, the browser cached the page —
     // hard-reload (Cmd+Shift+R) or close the tab and reopen.
-    const _BUILD_STAMP = '2026-05-08 f — never show demo agents; row always reflects pasted data';
+    const _BUILD_STAMP = '2026-05-08 g — domain-specific badges: Garage Open/Closed for Xm · Trash Out/In day · Package count for Xh';
 
     function _renderBuildStamp() {
       // Tiny grey footer pinned to the bottom of the phone frame so it
